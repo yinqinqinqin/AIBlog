@@ -3,12 +3,14 @@ import { Link, useParams } from "react-router-dom";
 import ArticleCard from "@/components/ArticleCard";
 import SectionBadge from "@/components/SectionBadge";
 import SiteHeader from "@/components/SiteHeader";
+import StudyPlanSystem from "@/components/StudyPlanSystem";
 import {
   getArticlesByCategory,
   getCategoryByKey,
   isCategoryKey,
   navItems,
   siteMeta,
+  studyPlanSystem,
 } from "@/data/blog";
 
 export default function CategoryPage() {
@@ -32,6 +34,7 @@ export default function CategoryPage() {
 
   const category = getCategoryByKey(categoryKey);
   const categoryArticles = getArticlesByCategory(categoryKey);
+  const isStudyPlanPage = categoryKey === "study-plan";
 
   return (
     <div className="blog-page">
@@ -46,15 +49,17 @@ export default function CategoryPage() {
 
           <section className="category-page__hero">
             <SectionBadge text={category?.label ?? ""} />
-            <h1>{category?.description}</h1>
-            <p>当前分类收录 {categoryArticles.length} 篇内容，作为独立页面浏览，而不是首页锚点跳转。</p>
           </section>
 
-          <section className="article-grid">
-            {categoryArticles.map((article) => (
-              <ArticleCard key={article.slug} article={article} />
-            ))}
-          </section>
+          {isStudyPlanPage ? (
+            <StudyPlanSystem plan={studyPlanSystem} />
+          ) : (
+            <section className="article-grid">
+              {categoryArticles.map((article) => (
+                <ArticleCard key={article.slug} article={article} />
+              ))}
+            </section>
+          )}
         </div>
       </main>
     </div>

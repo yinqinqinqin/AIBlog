@@ -42,6 +42,42 @@ export type Article = {
   content: string[];
 };
 
+export type StudyPlanTrack = {
+  id: string;
+  title: string;
+  summary: string;
+  focus: string[];
+  target: string;
+};
+
+export type StudyPlanTask = {
+  id: string;
+  label: string;
+};
+
+export type StudyPlanPhase = {
+  id: string;
+  phase: string;
+  duration: string;
+  goal: string;
+  milestones: StudyPlanTask[];
+};
+
+export type StudyPlanRoutine = {
+  id: string;
+  label: string;
+  detail: string;
+};
+
+export type StudyPlanSystem = {
+  title: string;
+  summary: string;
+  principles: string[];
+  tracks: StudyPlanTrack[];
+  phases: StudyPlanPhase[];
+  routines: StudyPlanRoutine[];
+};
+
 export const siteMeta = {
   brand: "TA JOURNAL",
   title: "Technical\nArtist",
@@ -135,6 +171,81 @@ export const categoryLabelMap: Record<CategoryKey, string> = {
   portfolio: "作品集",
   "study-plan": "学习计划",
   tools: "工具",
+};
+
+export const studyPlanSystem: StudyPlanSystem = {
+  title: "把学习计划做成一套持续运转的能力系统，而不是只写方向。",
+  summary:
+    "学习计划页不再只是记录两篇计划文章，而是把长期目标拆成主线、阶段、里程碑和固定执行节奏，让内容沉淀、能力补齐和可展示成果同步推进。",
+  principles: [
+    "计划必须对应可验证输出，而不是停留在兴趣方向。",
+    "每条主线都要同时覆盖输入、实验、复盘和归档。",
+    "阶段目标服务长期能力，不被短期热点牵着走。",
+  ],
+  tracks: [
+    {
+      id: "rendering",
+      title: "实时材质与渲染",
+      summary: "补足材质观察、Shader 拆解和实时表现控制能力。",
+      focus: ["每月完成 1 个可复现材质实验", "输出结构化拆解笔记", "沉淀可复用节点与参数模板"],
+      target: "把“会做效果”升级成“能解释、能复现、能迁移”。",
+    },
+    {
+      id: "pipeline",
+      title: "工具链与流程化",
+      summary: "把重复操作沉淀成工具、模板和工作流脚本。",
+      focus: ["梳理高频操作链路", "建立命名/归档规范", "逐步补足脚本化和半自动化能力"],
+      target: "减少重复劳动，把精力留给判断与质量控制。",
+    },
+    {
+      id: "presentation",
+      title: "视觉表达与展示",
+      summary: "把实验结果转成能被理解、能被评估的展示内容。",
+      focus: ["为实验补完整过程说明", "统一作品展示结构", "持续优化个人站点的信息组织"],
+      target: "让输出同时具备审美、逻辑和说服力。",
+    },
+  ],
+  phases: [
+    {
+      id: "foundation",
+      phase: "Phase 01 / 建结构",
+      duration: "4 周",
+      goal: "完成能力地图、归档规范和每周执行模版。",
+      milestones: [
+        { id: "define-tracks", label: "确定三条长期主线" },
+        { id: "archive-rules", label: "补齐目录和命名规范" },
+        { id: "weekly-template", label: "建立每周复盘模版" },
+      ],
+    },
+    {
+      id: "validation",
+      phase: "Phase 02 / 做验证",
+      duration: "8 周",
+      goal: "围绕主线持续产出实验、工具和展示页面。",
+      milestones: [
+        { id: "material-experiments", label: "完成 3 个材质/特效实验" },
+        { id: "workflow-script", label: "完成 1 组流程化脚本" },
+        { id: "site-refresh", label: "完成 1 次作品展示重构" },
+      ],
+    },
+    {
+      id: "closure",
+      phase: "Phase 03 / 做收束",
+      duration: "4 周",
+      goal: "把阶段结果沉淀成可复用方法论与归档资产。",
+      milestones: [
+        { id: "phase-summary", label: "形成阶段总结文档" },
+        { id: "portfolio-update", label: "更新个人站点展示" },
+        { id: "next-backlog", label: "保留下一阶段问题清单" },
+      ],
+    },
+  ],
+  routines: [
+    { id: "weekly-input", label: "每周输入", detail: "集中补一个关键知识点，并记录可迁移的变量和结论。" },
+    { id: "weekly-experiment", label: "每周实验", detail: "至少完成一个最小验证，不做只停留在阅读阶段的计划。" },
+    { id: "weekly-archive", label: "每周归档", detail: "把实验、截图、参数、结论归档到统一结构，避免知识再次散落。" },
+    { id: "monthly-review", label: "每月复盘", detail: "检查主线是否偏科，决定下个月是补基础、做输出还是修流程。" },
+  ],
 };
 
 export const articles: Article[] = [

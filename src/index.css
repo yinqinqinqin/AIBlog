@@ -109,6 +109,18 @@ html {
   scroll-behavior: smooth;
 }
 
+::selection {
+  background: rgba(148, 102, 232, 0.38);
+  color: #fdf8ff;
+  text-shadow: none;
+}
+
+::-moz-selection {
+  background: rgba(148, 102, 232, 0.38);
+  color: #fdf8ff;
+  text-shadow: none;
+}
+
 body {
   margin: 0;
   min-width: 1280px;
@@ -661,11 +673,12 @@ button {
 }
 
 .category-page__top {
+  width: min(calc(100% - 80px), var(--card-strip-max));
   padding-top: 132px;
 }
 
 .category-page__hero {
-  margin: 26px 0 34px;
+  margin: 26px 0 22px;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -687,6 +700,433 @@ button {
   color: var(--muted);
   font-size: 17px;
   line-height: 1.85;
+}
+
+.study-plan-system {
+  display: grid;
+  gap: 0;
+}
+
+.study-plan-system__progress,
+.study-plan-system__phase-progress {
+  display: grid;
+  gap: 12px;
+  padding: 18px 22px;
+  border: 1px solid rgba(207, 190, 235, 0.14);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+.study-plan-system__progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.study-plan-system__progress-head span {
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.study-plan-system__progress-head strong {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.study-plan-system__progress-bar {
+  position: relative;
+  overflow: hidden;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.study-plan-system__progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(180, 151, 207, 0.92), rgba(235, 220, 255, 0.96));
+  box-shadow: 0 0 18px rgba(180, 151, 207, 0.28);
+}
+
+.study-plan-system__workspace {
+  display: grid;
+  padding: 12px 48px 120px;
+}
+
+.study-plan-system__workspace-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.68fr) minmax(0, 1.32fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.study-plan-system__workspace-nav {
+  display: grid;
+  gap: 16px;
+}
+
+.study-plan-system__workspace-main {
+  display: grid;
+  gap: 20px;
+  padding-top: 28px;
+}
+
+.study-plan-system__workspace-group {
+  display: grid;
+  gap: 12px;
+}
+
+.study-plan-system__workspace-label {
+  color: rgba(224, 214, 243, 0.72);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.study-plan-system__editor,
+.study-plan-system__saved-list {
+  display: grid;
+  gap: 12px;
+}
+
+.study-plan-system__editor {
+  padding: 18px;
+  border: 1px solid rgba(207, 190, 235, 0.12);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.study-plan-system__field {
+  display: grid;
+  gap: 8px;
+}
+
+.study-plan-system__field span {
+  color: rgba(224, 214, 243, 0.72);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.study-plan-system__field input,
+.study-plan-system__field textarea,
+.study-plan-system__task-creator input,
+.study-plan-system__task-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(207, 190, 235, 0.12);
+  border-radius: 18px;
+  color: rgba(244, 239, 255, 0.94);
+  font: inherit;
+  background: rgba(255, 255, 255, 0.06);
+  outline: none;
+}
+
+.study-plan-system__field textarea {
+  resize: vertical;
+  min-height: 112px;
+}
+
+.study-plan-system__field input:focus,
+.study-plan-system__field textarea:focus,
+.study-plan-system__task-creator input:focus,
+.study-plan-system__task-input:focus {
+  border-color: rgba(180, 151, 207, 0.34);
+  box-shadow: 0 0 0 1px rgba(180, 151, 207, 0.18);
+}
+
+.study-plan-system__editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.study-plan-system__editor-actions button,
+.study-plan-system__task-creator button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 1px solid rgba(207, 190, 235, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+
+.study-plan-system__editor-actions button:hover,
+.study-plan-system__task-creator button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(180, 151, 207, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.study-plan-system__editor-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.study-plan-system__editor-actions .is-primary {
+  background: linear-gradient(180deg, rgba(180, 151, 207, 0.24), rgba(255, 255, 255, 0.1));
+}
+
+.study-plan-system__editor-actions .is-danger,
+.study-plan-system__task-delete {
+  color: rgba(255, 210, 224, 0.92);
+}
+
+.study-plan-system__phase-switcher {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.study-plan-system__track-tabs {
+  display: grid;
+  gap: 12px;
+}
+
+.study-plan-system__saved-list button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 1px solid rgba(207, 190, 235, 0.12);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  text-align: left;
+  cursor: pointer;
+}
+
+.study-plan-system__saved-list button strong {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.study-plan-system__saved-list button span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.study-plan-system__saved-list button.is-active {
+  border-color: rgba(180, 151, 207, 0.34);
+  background: linear-gradient(180deg, rgba(180, 151, 207, 0.18), rgba(255, 255, 255, 0.08));
+}
+
+.study-plan-system__empty {
+  padding: 16px 18px;
+  border: 1px dashed rgba(207, 190, 235, 0.16);
+  border-radius: 20px;
+  color: rgba(233, 225, 245, 0.7);
+  font-size: 14px;
+  line-height: 1.6;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.study-plan-system__phase-switcher button,
+.study-plan-system__track-tabs button,
+.study-plan-system__checkitem {
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.study-plan-system__phase-switcher button,
+.study-plan-system__track-tabs button {
+  display: grid;
+  gap: 8px;
+  padding: 18px 20px;
+  border: 1px solid rgba(207, 190, 235, 0.12);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.06);
+  text-align: left;
+}
+
+.study-plan-system__phase-switcher button span,
+.study-plan-system__track-tabs button span {
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.study-plan-system__phase-switcher button strong,
+.study-plan-system__track-tabs button strong {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.study-plan-system__phase-switcher button p,
+.study-plan-system__track-tabs button p {
+  margin: 0;
+  color: rgba(233, 225, 245, 0.76);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.study-plan-system__phase-switcher button.is-active,
+.study-plan-system__track-tabs button.is-active,
+.study-plan-system__checkitem.is-checked {
+  border-color: rgba(180, 151, 207, 0.34);
+  background: linear-gradient(180deg, rgba(180, 151, 207, 0.3), rgba(255, 255, 255, 0.12));
+  box-shadow: 0 18px 42px rgba(26, 18, 48, 0.22);
+}
+
+.study-plan-system__phase {
+  border: 1px solid rgba(207, 190, 235, 0.14);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
+  box-shadow: 0 24px 58px rgba(8, 6, 18, 0.16);
+}
+
+.study-plan-system__phase {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+  text-align: left;
+}
+
+.study-plan-system__phase h3 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.study-plan-system__phase-goal {
+  margin: 0;
+  color: rgba(233, 225, 245, 0.82);
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.study-plan-system__phase strong {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.study-plan-system__phase-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.study-plan-system__phase-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.study-plan-system__phase-summary strong {
+  color: #fff;
+  font-size: 14px;
+}
+
+.study-plan-system__checklist {
+  display: grid;
+  gap: 12px;
+}
+
+.study-plan-system__checkitem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(207, 190, 235, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.075);
+  text-align: left;
+}
+
+.study-plan-system__checktoggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.study-plan-system__checkitem span:last-child {
+  color: rgba(244, 239, 255, 0.92);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.study-plan-system__checkicon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(180, 151, 207, 0.2);
+  color: rgba(232, 224, 246, 0.9);
+  flex: 0 0 auto;
+}
+
+.study-plan-system__task-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.study-plan-system__task-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+}
+
+.study-plan-system__task-creator {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
 }
 
 .about-page__top {
@@ -1087,14 +1527,22 @@ button {
   min-height: auto;
   padding-top: 92px;
   padding-bottom: 56px;
+  padding-inline: 28px;
   overflow: hidden;
 }
 
 .footer-section__media {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: min(calc(100% - 160px), var(--card-strip-max));
+  margin: 0 auto;
   z-index: 0;
   pointer-events: none;
+  overflow: hidden;
+  border-radius: 32px;
 }
 
 .footer-section__particles,
@@ -1118,7 +1566,7 @@ button {
 }
 
 .footer-section .content-shell {
-  width: min(calc(100% - 80px), var(--card-strip-max));
+  width: min(calc(100% - 160px), var(--card-strip-max));
   position: relative;
   z-index: 2;
 }
@@ -1384,6 +1832,16 @@ button {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .study-plan-system__principles,
+  .study-plan-system__tracks,
+  .study-plan-system__timeline {
+    grid-template-columns: 1fr;
+  }
+
+  .study-plan-system__routines {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
 }
 
 @media (max-width: 1280px) {
@@ -1408,6 +1866,10 @@ button {
   .footer-liquid__links {
     grid-template-columns: 1fr;
     gap: 20px;
+  }
+
+  .study-plan-system__routines {
+    grid-template-columns: 1fr;
   }
 
   .footer-liquid__bottom,
