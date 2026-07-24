@@ -9,9 +9,9 @@ export default function SectionBadge({ text }: SectionBadgeProps) {
     <span className="section-label section-label--shape">
       <ShinyText
         className="section-label__shape-text"
-        color="#8f96ab"
+        color="var(--section-shiny-base)"
         delay={0.15}
-        shineColor="#ffffff"
+        shineColor="var(--section-shiny-highlight)"
         speed={2.6}
         spread={132}
         text={text}

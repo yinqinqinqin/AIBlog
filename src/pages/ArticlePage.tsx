@@ -1,8 +1,8 @@
 import { ArrowLeft, Clock3 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-import ArticleCard from "@/components/ArticleCard";
+import MarkdownContent from "@/components/MarkdownContent";
 import SectionBadge from "@/components/SectionBadge";
-import { articles, getArticleBySlug, getCategoryByKey } from "@/data/blog";
+import { getArticleBySlug, getCategoryByKey } from "@/data/blog";
 
 export default function ArticlePage() {
   const { slug } = useParams();
@@ -22,17 +22,15 @@ export default function ArticlePage() {
     );
   }
 
-  const relatedArticles = articles
-    .filter((item) => item.slug !== article.slug && item.category === article.category)
-    .slice(0, 2);
   const category = getCategoryByKey(article.category);
+  const backHref = category?.href ?? "/";
 
   return (
     <main className="article-page">
       <div className="content-shell article-page__top">
-        <Link className="article-page__back" to="/">
+        <Link className="article-page__back" to={backHref}>
           <ArrowLeft size={16} />
-          <span>返回首页</span>
+          <span>返回</span>
         </Link>
 
         <article className="article-layout">
@@ -55,29 +53,10 @@ export default function ArticlePage() {
             <img alt={article.title} src={article.cover} />
           </div>
 
-          <div className="article-layout__content">
-            {article.content.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
+          <div className="article-layout__content article-content">
+            {article.markdown ? <MarkdownContent source={article.markdown} /> : article.content?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
           </div>
         </article>
-
-        {relatedArticles.length > 0 ? (
-          <section className="article-related">
-            <div className="section-heading">
-              <div>
-                <SectionBadge text="相关文章" />
-                <h2>同分类下的更多内容</h2>
-              </div>
-            </div>
-
-            <div className="article-grid">
-              {relatedArticles.map((item) => (
-                <ArticleCard key={item.slug} article={item} />
-              ))}
-            </div>
-          </section>
-        ) : null}
       </div>
     </main>
   );

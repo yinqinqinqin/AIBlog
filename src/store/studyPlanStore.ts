@@ -1,71 +1,32 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-export type CustomStudyPlanTask = {
-  id: string;
-  label: string;
-  completed: boolean;
-};
+export type StudyTaskStatus = "todo" | "doing" | "done";
 
-export type CustomStudyPlan = {
+export type StudyTask = {
   id: string;
   title: string;
-  trackId: string;
-  phaseId: string;
-  duration: string;
-  goal: string;
-  tasks: CustomStudyPlanTask[];
+  status: StudyTaskStatus;
   createdAt: string;
   updatedAt: string;
 };
 
-type CreateCustomPlanInput = {
+type StudyTaskInput = {
   title: string;
-  trackId: string;
-  phaseId: string;
-  duration: string;
-  goal: string;
-  tasks?: string[];
+  status: StudyTaskStatus;
 };
 
 type StudyPlanStore = {
-  activePhaseId: string;
-  activeTrackId: string;
-  completedTaskIds: string[];
-  completedRoutineIds: string[];
-  customPlans: CustomStudyPlan[];
-  selectedPlanId: string | null;
-  setActivePhaseId: (phaseId: string) => void;
-  setActiveTrackId: (trackId: string) => void;
-  toggleTask: (taskId: string) => void;
-  toggleRoutine: (routineId: string) => void;
-  selectPlan: (planId: string | null) => void;
-  createPlan: (input: CreateCustomPlanInput) => string;
-  updatePlan: (planId: string, input: CreateCustomPlanInput) => void;
-  deletePlan: (planId: string) => void;
-  addPlanTask: (planId: string, label: string) => void;
-  updatePlanTask: (planId: string, taskId: string, label: string) => void;
-  togglePlanTask: (planId: string, taskId: string) => void;
-  deletePlanTask: (planId: string, taskId: string) => void;
+  tasks: StudyTask[];
+  selectedTaskId: string | null;
+  selectTask: (taskId: string | null) => void;
+  createTask: (input: StudyTaskInput) => string;
+  updateTask: (taskId: string, input: StudyTaskInput) => void;
+  deleteTask: (taskId: string) => void;
 };
-
-function toggleId(ids: string[], target: string) {
-  return ids.includes(target) ? ids.filter((id) => id !== target) : [...ids, target];
-}
 
 function buildId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
-}
-
-function buildTasks(tasks: string[]) {
-  return tasks
-    .map((task) => task.trim())
-    .filter(Boolean)
-    .map((label) => ({
-      id: buildId("plan-task"),
-      label,
-      completed: false,
-    }));
 }
 
 function createFallbackStorage(): Storage {
@@ -111,159 +72,60 @@ function resolveStorage() {
 export const useStudyPlanStore = create<StudyPlanStore>()(
   persist(
     (set) => ({
-      activePhaseId: "foundation",
-      activeTrackId: "rendering",
-      completedTaskIds: [],
-      completedRoutineIds: [],
-      customPlans: [],
-      selectedPlanId: null,
-      setActivePhaseId: (activePhaseId) => set({ activePhaseId }),
-      setActiveTrackId: (activeTrackId) => set({ activeTrackId }),
-      toggleTask: (taskId) =>
-        set((state) => ({
-          completedTaskIds: toggleId(state.completedTaskIds, taskId),
-        })),
-      toggleRoutine: (routineId) =>
-        set((state) => ({
-          completedRoutineIds: toggleId(state.completedRoutineIds, routineId),
-        })),
-      selectPlan: (selectedPlanId) => set({ selectedPlanId }),
-      createPlan: ({ title, trackId, phaseId, duration, goal, tasks }) => {
-        const planId = buildId("study-plan");
+      tasks: [],
+      selectedTaskId: null,
+      selectTask: (selectedTaskId) => set({ selectedTaskId }),
+      createTask: ({ title, status }) => {
+        const taskId = buildId("study-task");
         const now = new Date().toISOString();
 
         set((state) => ({
-          customPlans: [
+          tasks: [
             {
-              id: planId,
+              id: taskId,
               title: title.trim(),
-              trackId,
-              phaseId,
-              duration: duration.trim(),
-              goal: goal.trim(),
-              tasks: buildTasks(tasks ?? []),
+              status,
               createdAt: now,
               updatedAt: now,
             },
-            ...state.customPlans,
+            ...state.tasks,
           ],
-          selectedPlanId: planId,
-          activeTrackId: trackId,
-          activePhaseId: phaseId,
+          selectedTaskId: taskId,
         }));
 
-        return planId;
+        return taskId;
       },
-      updatePlan: (planId, { title, trackId, phaseId, duration, goal, tasks }) =>
+      updateTask: (taskId, { title, status }) =>
         set((state) => ({
-          customPlans: state.customPlans.map((plan) =>
-            plan.id === planId
+          tasks: state.tasks.map((task) =>
+            task.id === taskId
               ? {
-                  ...plan,
+                  ...task,
                   title: title.trim(),
-                  trackId,
-                  phaseId,
-                  duration: duration.trim(),
-                  goal: goal.trim(),
-                  tasks: tasks ? buildTasks(tasks) : plan.tasks,
+                  status,
                   updatedAt: new Date().toISOString(),
                 }
-              : plan,
+              : task,
           ),
-          activeTrackId: trackId,
-          activePhaseId: phaseId,
         })),
-      deletePlan: (planId) =>
+      deleteTask: (taskId) =>
         set((state) => {
-          const nextPlans = state.customPlans.filter((plan) => plan.id !== planId);
-          const nextSelectedPlanId =
-            state.selectedPlanId === planId ? (nextPlans[0]?.id ?? null) : state.selectedPlanId;
+          const nextTasks = state.tasks.filter((task) => task.id !== taskId);
+          const nextSelectedTaskId =
+            state.selectedTaskId === taskId ? (nextTasks[0]?.id ?? null) : state.selectedTaskId;
 
           return {
-            customPlans: nextPlans,
-            selectedPlanId: nextSelectedPlanId,
+            tasks: nextTasks,
+            selectedTaskId: nextSelectedTaskId,
           };
         }),
-      addPlanTask: (planId, label) =>
-        set((state) => ({
-          customPlans: state.customPlans.map((plan) =>
-            plan.id === planId
-              ? {
-                  ...plan,
-                  tasks: [
-                    ...plan.tasks,
-                    {
-                      id: buildId("plan-task"),
-                      label: label.trim(),
-                      completed: false,
-                    },
-                  ],
-                  updatedAt: new Date().toISOString(),
-                }
-              : plan,
-          ),
-        })),
-      updatePlanTask: (planId, taskId, label) =>
-        set((state) => ({
-          customPlans: state.customPlans.map((plan) =>
-            plan.id === planId
-              ? {
-                  ...plan,
-                  tasks: plan.tasks.map((task) =>
-                    task.id === taskId
-                      ? {
-                          ...task,
-                          label: label.trim(),
-                        }
-                      : task,
-                  ),
-                  updatedAt: new Date().toISOString(),
-                }
-              : plan,
-          ),
-        })),
-      togglePlanTask: (planId, taskId) =>
-        set((state) => ({
-          customPlans: state.customPlans.map((plan) =>
-            plan.id === planId
-              ? {
-                  ...plan,
-                  tasks: plan.tasks.map((task) =>
-                    task.id === taskId
-                      ? {
-                          ...task,
-                          completed: !task.completed,
-                        }
-                      : task,
-                  ),
-                  updatedAt: new Date().toISOString(),
-                }
-              : plan,
-          ),
-        })),
-      deletePlanTask: (planId, taskId) =>
-        set((state) => ({
-          customPlans: state.customPlans.map((plan) =>
-            plan.id === planId
-              ? {
-                  ...plan,
-                  tasks: plan.tasks.filter((task) => task.id !== taskId),
-                  updatedAt: new Date().toISOString(),
-                }
-              : plan,
-          ),
-        })),
     }),
     {
       name: "study-plan-store",
       storage: createJSONStorage(resolveStorage),
       partialize: (state) => ({
-        activePhaseId: state.activePhaseId,
-        activeTrackId: state.activeTrackId,
-        completedTaskIds: state.completedTaskIds,
-        completedRoutineIds: state.completedRoutineIds,
-        customPlans: state.customPlans,
-        selectedPlanId: state.selectedPlanId,
+        tasks: state.tasks,
+        selectedTaskId: state.selectedTaskId,
       }),
     },
   ),

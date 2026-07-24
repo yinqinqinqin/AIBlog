@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import PixelBlast from "@/components/PixelBlast";
+import { useThemeStore } from "@/store/themeStore";
 
 type HeroSectionProps = {
   title: string;
@@ -13,6 +14,7 @@ export default function HeroSection({
   poster,
   titleHref,
 }: HeroSectionProps) {
+  const theme = useThemeStore((state) => state.theme);
   const hoverSoundSrc = "/sounds/select.wav";
   const canUsePixelBlast = useMemo(() => {
     if (
@@ -153,7 +155,7 @@ export default function HeroSection({
       {canUsePixelBlast ? (
         <PixelBlast
           className="hero-section__pixelblast"
-          color="#C08BFF"
+          color="#c08bff"
           edgeFade={0.25}
           enableRipples
           liquid

@@ -39,7 +39,8 @@ export type Article = {
   excerpt: string;
   tags: string[];
   cover: string;
-  content: string[];
+  content?: string[];
+  markdown?: string;
 };
 
 export type StudyPlanTrack = {
@@ -248,41 +249,72 @@ export const studyPlanSystem: StudyPlanSystem = {
   ],
 };
 
-export const articles: Article[] = [
-  {
-    slug: "shader-observation-log",
-    title: "从材质观察到 Shader 拆解：一套可复用的学习笔记方法",
-    category: "learning-notes",
-    date: "2026.06.25",
-    readTime: "8 分钟",
-    excerpt:
-      "把零散的 Shader 学习从“看懂节点”改成“观察现象、拆变量、复写效果”的记录流程，提升知识沉淀质量。",
-    tags: ["Shader", "学习方法", "实时渲染"],
-    cover:
-      "https://copilot-cn.bytedance.net/api/ide/v1/text_to_image?prompt=technical%20artist%20shader%20study%20notes%2C%20dark%20interface%2C%20cyan%20diagrams%2C%20premium%20editorial%20layout%2C%20realistic%20digital%20design&image_size=landscape_16_9",
-    content: [
-      "很多 Shader 学习停留在抄案例或记节点，这样很难迁移到真实项目里。我更偏向把每次学习拆成三层：现象观察、变量拆解、最小复现。",
-      "现象观察阶段，只记录我肉眼看到的结果，例如高光边缘、流动速度、噪声频率和混合方式。变量拆解阶段，再去判断这些结果分别可能对应哪些数学关系和贴图输入。",
-      "当我用一套最小工程把效果复现出来后，才会把它归档成真正有价值的学习记录，因为它已经从“看懂”变成“可解释、可重建、可调整”的知识。"
-    ],
-  },
-  {
-    slug: "vfx-breakdown-for-portfolio",
-    title: "一个实时 VFX 作品集页应该展示什么，不应该展示什么",
-    category: "portfolio",
-    date: "2026.06.18",
-    readTime: "6 分钟",
-    excerpt:
-      "作品集不是把截图堆满页面，而是要让人快速看懂你的判断、目标、取舍和落地能力。",
-    tags: ["作品集", "VFX", "展示逻辑"],
-    cover:
-      "https://copilot-cn.bytedance.net/api/ide/v1/text_to_image?prompt=real-time%20VFX%20portfolio%20presentation%2C%20dark%20luxury%20editorial%20design%2C%20technical%20artist%20showcase%2C%20sleek%20cyan%20lighting&image_size=landscape_16_9",
-    content: [
-      "很多作品集只展示最终画面，但招聘方和合作方更关心的是你如何把目标拆解成可执行方案。过程说明不是配角，而是判断你是否具备稳定交付能力的关键。",
-      "我会优先展示项目目标、技术限制、材质策略、性能约束和最终结果之间的关系，而不是只堆更多渲染图。这样页面信息密度更高，也更像真实工作场景。",
-      "如果一页作品集能让人看到你的审美、分析和执行链条，它才真正发挥了价值。"
-    ],
-  },
+const markdownArticleModules = import.meta.glob("../content/{learning-notes,portfolio}/*.md", {
+  eager: true,
+  import: "default",
+  query: "?raw",
+}) as Record<string, string>;
+
+function parseFrontmatter(raw: string) {
+  if (!raw.startsWith("---\n")) {
+    return { metadata: {}, body: raw.trim() };
+  }
+
+  const endIndex = raw.indexOf("\n---\n", 4);
+  if (endIndex === -1) {
+    return { metadata: {}, body: raw.trim() };
+  }
+
+  const metadataBlock = raw.slice(4, endIndex).trim();
+  const body = raw.slice(endIndex + 5).trim();
+  const metadata: Record<string, string> = {};
+
+  metadataBlock.split("\n").forEach((line) => {
+    const separatorIndex = line.indexOf(":");
+    if (separatorIndex === -1) {
+      return;
+    }
+
+    const key = line.slice(0, separatorIndex).trim();
+    const value = line.slice(separatorIndex + 1).trim();
+    metadata[key] = value;
+  });
+
+  return { metadata, body };
+}
+
+function isMarkdownArticleCategory(value?: string): value is Extract<CategoryKey, "learning-notes" | "portfolio"> {
+  return value === "learning-notes" || value === "portfolio";
+}
+
+function parseMarkdownArticles() {
+  return Object.entries(markdownArticleModules)
+    .map(([path, raw]) => {
+      const { metadata, body } = parseFrontmatter(raw);
+      const slug = path.split("/").pop()?.replace(/\.md$/, "");
+
+      if (!slug || !isMarkdownArticleCategory(metadata.category)) {
+        return null;
+      }
+
+      return {
+        slug,
+        title: metadata.title ?? slug,
+        category: metadata.category,
+        date: metadata.date ?? "",
+        readTime: metadata.readTime ?? "",
+        excerpt: metadata.excerpt ?? "",
+        tags: metadata.tags ? metadata.tags.split(",").map((tag) => tag.trim()).filter(Boolean) : [],
+        cover: metadata.cover ?? "",
+        markdown: body,
+      } satisfies Article;
+    })
+    .filter(Boolean) as Article[];
+}
+
+const markdownArticles = parseMarkdownArticles();
+
+const inlineArticles: Article[] = [
   {
     slug: "quarter-study-roadmap",
     title: "下一阶段技术美术学习计划：材质、工具链与实时内容表达",
@@ -298,40 +330,6 @@ export const articles: Article[] = [
       "学习计划如果只写方向，很容易失效。我现在会把计划拆成每周可验证的目标，比如一个材质实验、一个工具练习、一次展示页整理。",
       "材质能力决定我对画面细节的掌控，工具链能力决定效率，视觉表达则决定成果是否真的能被理解。三条线必须同时推进。",
       "基础版本里先把这类计划作为博客分类内容展示，后续可以扩展成更完整的归档系统。"
-    ],
-  },
-  {
-    slug: "niagara-lightning-test",
-    title: "Niagara 电弧效果测试：从参考拆解到性能控制",
-    category: "learning-notes",
-    date: "2026.06.07",
-    readTime: "7 分钟",
-    excerpt:
-      "一次关于电弧特效的拆解实验，重点记录参考归纳、层次拆分和实时性能限制下的取舍。",
-    tags: ["Niagara", "VFX", "性能"],
-    cover:
-      "https://copilot-cn.bytedance.net/api/ide/v1/text_to_image?prompt=unreal%20engine%20niagara%20lightning%20effect%20study%2C%20dark%20technology%20scene%2C%20blue%20electric%20arcs%2C%20premium%20editorial%20look&image_size=landscape_16_9",
-    content: [
-      "做电弧类效果时，最容易失控的是细节层太多导致画面吵闹。我把电弧拆成主体形态、噪声扰动和瞬时闪烁三层，先让主体可读，再加细节。",
-      "另一部分是性能控制。很多好看的电弧效果一旦进入真实场景就会成本过高，所以我更关注粒子数量、贴图复用和发光范围。",
-      "这类文章更像学习记录和项目备忘的结合体。"
-    ],
-  },
-  {
-    slug: "scene-breakdown-terminal-bay",
-    title: "作品集整理：终端机库场景的灯光、材质与叙事关系",
-    category: "portfolio",
-    date: "2026.05.30",
-    readTime: "9 分钟",
-    excerpt:
-      "记录一个科幻终端机库场景在材质统一、光色节奏和信息焦点上的设计思路。",
-    tags: ["场景", "灯光", "作品集"],
-    cover:
-      "https://copilot-cn.bytedance.net/api/ide/v1/text_to_image?prompt=futuristic%20hangar%20environment%20breakdown%2C%20dark%20luxury%20lighting%2C%20technical%20artist%20portfolio%20scene%2C%20cyan%20accents&image_size=landscape_16_9",
-    content: [
-      "这个场景的关键不是资产数量，而是如何让信息焦点落在观众最先看到的位置。灯光和材质必须服务叙事，而不是各自炫技。",
-      "我用较克制的色彩关系去控制整体稳定性，把高亮只留给少数节点，这样更容易形成高级感。",
-      "整理成博客文章后，它比单独一张图更能说明这个项目的价值。"
     ],
   },
   {
@@ -352,6 +350,10 @@ export const articles: Article[] = [
     ],
   },
 ];
+
+export const articles: Article[] = [...markdownArticles, ...inlineArticles].sort((left, right) =>
+  right.date.localeCompare(left.date),
+);
 
 export const featuredSlugs = [
   "shader-observation-log",

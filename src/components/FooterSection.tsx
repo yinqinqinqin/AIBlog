@@ -2,8 +2,10 @@ import { Facebook, Instagram, Mail, Music2, Twitter, Youtube } from "lucide-reac
 import BorderGlow from "@/components/BorderGlow";
 import { Link } from "react-router-dom";
 import Particles from "@/components/Particles";
+import { useThemeStore } from "@/store/themeStore";
 
 export default function FooterSection() {
+  const theme = useThemeStore((state) => state.theme);
   const footerGroups = [
     {
       title: "浏览",
@@ -31,6 +33,11 @@ export default function FooterSection() {
     { label: "Instagram", href: "/", icon: Instagram },
   ];
 
+  const particleColors =
+    theme === "light"
+      ? ["#ffffff", "#f4eefe", "#ebe3fb", "#d9e7ff"]
+      : ["#ffffff", "#ffffff", "#ebfeff", "#d5fbff"];
+
   return (
     <footer className="footer-section" id="footer">
       <div aria-hidden="true" className="footer-section__media">
@@ -41,7 +48,7 @@ export default function FooterSection() {
           disableRotation={false}
           moveParticlesOnHover
           particleBaseSize={62}
-          particleColors={["#ffffff", "#ffffff", "#ebfeff", "#d5fbff"]}
+          particleColors={particleColors}
           particleCount={560}
           particleHoverFactor={1.8}
           particleSpread={11}
@@ -53,14 +60,14 @@ export default function FooterSection() {
 
       <div className="content-shell">
         <BorderGlow
-          backgroundColor="rgba(10, 8, 18, 0.84)"
+          backgroundColor="var(--footer-border-glow-bg)"
           borderRadius={32}
           className="footer-liquid footer-liquid--glow"
-          colors={["#9b8cff", "#7dd3fc", "#f472b6"]}
+          colors={["var(--theme-glow-1)", "var(--theme-glow-3)", "var(--theme-glow-2)"]}
           coneSpread={18}
           edgeSensitivity={20}
           fillOpacity={0.22}
-          glowColor="198 92 84"
+          glowColor={theme === "light" ? "256 54 72" : "198 92 84"}
           glowIntensity={1.44}
           glowRadius={60}
         >

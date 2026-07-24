@@ -1,387 +1,247 @@
-import { Check, Plus, Save, Target, Trash2 } from "lucide-react";
+import { CheckCircle2, Circle, Clock, Pencil, Plus, Save, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { StudyPlanSystem as StudyPlanSystemData } from "@/data/blog";
+import type { StudyTaskStatus } from "@/store/studyPlanStore";
 import { useStudyPlanStore } from "@/store/studyPlanStore";
 
 type StudyPlanSystemProps = {
   plan: StudyPlanSystemData;
 };
 
-export default function StudyPlanSystem({ plan }: StudyPlanSystemProps) {
-  const {
-    activePhaseId,
-    activeTrackId,
-    completedTaskIds,
-    customPlans,
-    selectedPlanId,
-    setActivePhaseId,
-    setActiveTrackId,
-    toggleTask,
-    selectPlan,
-    createPlan,
-    updatePlan,
-    deletePlan,
-    addPlanTask,
-    updatePlanTask,
-    togglePlanTask,
-    deletePlanTask,
-  } = useStudyPlanStore();
+const statusOptions: Array<{ value: StudyTaskStatus; label: string }> = [
+  { value: "todo", label: "未完成" },
+  { value: "doing", label: "进行中" },
+  { value: "done", label: "已完成" },
+];
 
-  const activePhase = plan.phases.find((phase) => phase.id === activePhaseId) ?? plan.phases[0];
-  const activeTrack = plan.tracks.find((track) => track.id === activeTrackId) ?? plan.tracks[0];
-  const activePhaseCompletedCount = activePhase.milestones.filter((milestone) => completedTaskIds.includes(milestone.id)).length;
-  const selectedPlan = customPlans.find((item) => item.id === selectedPlanId) ?? null;
-  const selectedTrack = plan.tracks.find((track) => track.id === selectedPlan?.trackId) ?? activeTrack;
-  const selectedPhase = plan.phases.find((phase) => phase.id === selectedPlan?.phaseId) ?? activePhase;
-  const selectedPlanCompletedCount = selectedPlan?.tasks.filter((task) => task.completed).length ?? 0;
-  const selectedPlanTaskCount = selectedPlan?.tasks.length ?? 0;
-  const selectedPlanProgress =
-    selectedPlanTaskCount > 0 ? Math.round((selectedPlanCompletedCount / selectedPlanTaskCount) * 100) : 0;
+const filterOptions: Array<{ value: "all" | StudyTaskStatus; label: string; icon: typeof Circle }> = [
+  { value: "all", label: "全部", icon: Circle },
+  { value: "todo", label: "未完成", icon: Circle },
+  { value: "doing", label: "进行中", icon: Clock },
+  { value: "done", label: "已完成", icon: CheckCircle2 },
+];
 
-  const templateDraft = useMemo(
+function getStatusLabel(status: StudyTaskStatus) {
+  return statusOptions.find((item) => item.value === status)?.label ?? "未完成";
+}
+
+export default function StudyPlanSystem({ plan: _plan }: StudyPlanSystemProps) {
+  const { tasks, selectedTaskId, selectTask, createTask, updateTask, deleteTask } = useStudyPlanStore();
+  const selectedTask = tasks.find((task) => task.id === selectedTaskId) ?? null;
+
+  const [taskTitle, setTaskTitle] = useState("");
+  const [taskStatus, setTaskStatus] = useState<StudyTaskStatus>("todo");
+  const [activeFilter, setActiveFilter] = useState<"all" | StudyTaskStatus>("all");
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+  const statusCounts = useMemo(
     () => ({
-      title: "",
-      trackId: activeTrack.id,
-      phaseId: activePhase.id,
-      duration: activePhase.duration,
-      goal: activePhase.goal,
+      todo: tasks.filter((task) => task.status === "todo").length,
+      doing: tasks.filter((task) => task.status === "doing").length,
+      done: tasks.filter((task) => task.status === "done").length,
     }),
-    [activePhase.duration, activePhase.goal, activePhase.id, activeTrack.id],
+    [tasks],
   );
 
-  const [planTitle, setPlanTitle] = useState(templateDraft.title);
-  const [planTrackId, setPlanTrackId] = useState(templateDraft.trackId);
-  const [planPhaseId, setPlanPhaseId] = useState(templateDraft.phaseId);
-  const [planDuration, setPlanDuration] = useState(templateDraft.duration);
-  const [planGoal, setPlanGoal] = useState(templateDraft.goal);
-  const [newTaskLabel, setNewTaskLabel] = useState("");
+  const filteredTasks = useMemo(
+    () => tasks.filter((task) => (activeFilter === "all" ? true : task.status === activeFilter)),
+    [activeFilter, tasks],
+  );
 
   useEffect(() => {
-    if (selectedPlan) {
-      setPlanTitle(selectedPlan.title);
-      setPlanTrackId(selectedPlan.trackId);
-      setPlanPhaseId(selectedPlan.phaseId);
-      setPlanDuration(selectedPlan.duration);
-      setPlanGoal(selectedPlan.goal);
-      setActiveTrackId(selectedPlan.trackId);
-      setActivePhaseId(selectedPlan.phaseId);
+    if (selectedTask) {
+      setTaskTitle(selectedTask.title);
+      setTaskStatus(selectedTask.status);
+      setIsFormOpen(true);
       return;
     }
 
-    setPlanTitle(templateDraft.title);
-    setPlanTrackId(templateDraft.trackId);
-    setPlanPhaseId(templateDraft.phaseId);
-    setPlanDuration(templateDraft.duration);
-    setPlanGoal(templateDraft.goal);
-  }, [selectedPlan, setActivePhaseId, setActiveTrackId, templateDraft]);
+    setTaskTitle("");
+    setTaskStatus("todo");
+    setIsFormOpen(false);
+  }, [selectedTask]);
 
-  function handleTrackSelect(trackId: string) {
-    setPlanTrackId(trackId);
-    setActiveTrackId(trackId);
-  }
-
-  function handlePhaseSelect(phaseId: string) {
-    const phase = plan.phases.find((item) => item.id === phaseId) ?? plan.phases[0];
-
-    setPlanPhaseId(phase.id);
-    setPlanDuration(phase.duration);
-    if (!selectedPlan || planGoal === selectedPhase.goal) {
-      setPlanGoal(phase.goal);
+  function handleCreateTask() {
+    const normalizedTitle = taskTitle.trim();
+    if (!normalizedTitle) {
+      return;
     }
-    setActivePhaseId(phase.id);
-  }
 
-  function handleCreatePlan() {
-    const phase = plan.phases.find((item) => item.id === planPhaseId) ?? activePhase;
-    const normalizedTitle = planTitle.trim() || `${selectedTrack.title} 计划`;
-
-    createPlan({
+    createTask({
       title: normalizedTitle,
-      trackId: planTrackId,
-      phaseId: planPhaseId,
-      duration: planDuration.trim() || phase.duration,
-      goal: planGoal.trim() || phase.goal,
-      tasks: phase.milestones.map((milestone) => milestone.label),
+      status: taskStatus,
+    });
+    setActiveFilter("all");
+  }
+
+  function handleUpdateTask() {
+    if (!selectedTask || !taskTitle.trim()) {
+      return;
+    }
+
+    updateTask(selectedTask.id, {
+      title: taskTitle.trim(),
+      status: taskStatus,
     });
   }
 
-  function handleUpdatePlan() {
-    if (!selectedPlan) {
+  function handleDeleteTask() {
+    if (!selectedTask) {
       return;
     }
 
-    updatePlan(selectedPlan.id, {
-      title: planTitle.trim() || selectedPlan.title,
-      trackId: planTrackId,
-      phaseId: planPhaseId,
-      duration: planDuration.trim() || selectedPlan.duration,
-      goal: planGoal.trim() || selectedPlan.goal,
-    });
+    deleteTask(selectedTask.id);
   }
 
-  function handleDeletePlan() {
-    if (!selectedPlan) {
-      return;
-    }
-
-    deletePlan(selectedPlan.id);
+  function handleStartCreate() {
+    selectTask(null);
+    setTaskTitle("");
+    setTaskStatus("todo");
+    setIsFormOpen((current) => !current || Boolean(selectedTask));
   }
 
-  function handleAddTask() {
-    if (!selectedPlan || !newTaskLabel.trim()) {
-      return;
-    }
-
-    addPlanTask(selectedPlan.id, newTaskLabel);
-    setNewTaskLabel("");
+  function handleEditTask(taskId: string) {
+    selectTask(taskId);
+    setIsFormOpen(true);
   }
 
   return (
     <section className="study-plan-system">
-      <section className="study-plan-system__workspace">
-        <div className="study-plan-system__workspace-layout">
-          <aside className="study-plan-system__workspace-nav">
-            <div className="study-plan-system__workspace-group">
-              <div className="study-plan-system__workspace-label">计划设置</div>
-              <div className="study-plan-system__editor">
-                <label className="study-plan-system__field">
-                  <span>计划名称</span>
-                  <input
-                    onChange={(event) => setPlanTitle(event.target.value)}
-                    placeholder="例如：7 月材质专项计划"
-                    type="text"
-                    value={planTitle}
-                  />
-                </label>
+      <section className="study-plan-system__workspace study-plan-system__workspace--reference">
+        <div className="study-plan-system__hero">
+          <h2>任务管理</h2>
+          <p>只保留任务本身，统一用未完成、进行中、已完成三种状态管理，并支持直接增删改查。</p>
+        </div>
 
-                <label className="study-plan-system__field">
-                  <span>计划周期</span>
-                  <input
-                    onChange={(event) => setPlanDuration(event.target.value)}
-                    placeholder="例如：4 周"
-                    type="text"
-                    value={planDuration}
-                  />
-                </label>
-
-                <label className="study-plan-system__field">
-                  <span>阶段目标</span>
-                  <textarea
-                    onChange={(event) => setPlanGoal(event.target.value)}
-                    placeholder="写下当前计划的目标"
-                    rows={4}
-                    value={planGoal}
-                  />
-                </label>
-
-                <div className="study-plan-system__editor-actions">
-                  <button className="is-primary" onClick={handleCreatePlan} type="button">
-                    <Plus size={16} />
-                    <span>新增计划</span>
-                  </button>
-                  <button disabled={!selectedPlan} onClick={handleUpdatePlan} type="button">
-                    <Save size={16} />
-                    <span>保存修改</span>
-                  </button>
-                  <button className="is-danger" disabled={!selectedPlan} onClick={handleDeletePlan} type="button">
-                    <Trash2 size={16} />
-                    <span>删除计划</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="study-plan-system__workspace-group">
-              <div className="study-plan-system__workspace-label">主线模板</div>
-              <div className="study-plan-system__track-tabs">
-                {plan.tracks.map((track) => (
-                  <button
-                    className={track.id === planTrackId ? "is-active" : ""}
-                    key={track.id}
-                    onClick={() => handleTrackSelect(track.id)}
-                    type="button"
-                  >
-                    <span>{track.title}</span>
-                    <p>{track.summary}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="study-plan-system__workspace-group">
-              <div className="study-plan-system__workspace-label">阶段模板</div>
-              <div className="study-plan-system__phase-switcher">
-                {plan.phases.map((phase) => (
-                  <button
-                    className={phase.id === planPhaseId ? "is-active" : ""}
-                    key={phase.id}
-                    onClick={() => handlePhaseSelect(phase.id)}
-                    type="button"
-                  >
-                    <span>{phase.phase}</span>
-                    <strong>{phase.duration}</strong>
-                    <p>
-                      {phase.milestones.filter((milestone) => completedTaskIds.includes(milestone.id)).length} / {phase.milestones.length} 已完成
-                    </p>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="study-plan-system__workspace-group">
-              <div className="study-plan-system__workspace-label">计划列表</div>
-              <div className="study-plan-system__saved-list">
-                {customPlans.length > 0 ? (
-                  customPlans.map((item) => (
-                    <button
-                      className={item.id === selectedPlanId ? "is-active" : ""}
-                      key={item.id}
-                      onClick={() => selectPlan(item.id)}
-                      type="button"
-                    >
-                      <strong>{item.title}</strong>
-                      <span>{item.duration}</span>
-                    </button>
-                  ))
-                ) : (
-                  <div className="study-plan-system__empty">先在上面填写内容，再新增第一条计划。</div>
-                )}
-              </div>
-            </div>
-          </aside>
-
-          <div className="study-plan-system__workspace-main">
-            {selectedPlan ? (
-              <article className="study-plan-system__phase is-active">
-                <div className="study-plan-system__phase-meta">
-                  <span>{selectedTrack.title}</span>
-                  <strong>{selectedPhase.phase}</strong>
-                </div>
-
-                <h3>{selectedPlan.title}</h3>
-                <p className="study-plan-system__phase-goal">{selectedPlan.goal}</p>
-
-                <div className="study-plan-system__phase-progress">
-                  <div className="study-plan-system__progress-head">
-                    <span>计划进度</span>
-                    <strong>
-                      {selectedPlanCompletedCount} / {selectedPlanTaskCount}
-                    </strong>
-                  </div>
-                  <div className="study-plan-system__progress-bar" aria-hidden="true">
-                    <span
-                      style={{
-                        width: `${selectedPlanProgress}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div className="study-plan-system__checklist">
-                  {selectedPlan.tasks.map((task) => (
-                    <div className={`study-plan-system__checkitem ${task.completed ? "is-checked" : ""}`} key={task.id}>
-                      <button
-                        className="study-plan-system__checktoggle"
-                        onClick={() => togglePlanTask(selectedPlan.id, task.id)}
-                        type="button"
-                      >
-                        <span className="study-plan-system__checkicon" aria-hidden="true">
-                          {task.completed ? <Check size={16} /> : <Target size={16} />}
-                        </span>
-                      </button>
-                      <input
-                        aria-label="计划任务"
-                        className="study-plan-system__task-input"
-                        onChange={(event) => updatePlanTask(selectedPlan.id, task.id, event.target.value)}
-                        type="text"
-                        value={task.label}
-                      />
-                      <button
-                        className="study-plan-system__task-delete"
-                        onClick={() => deletePlanTask(selectedPlan.id, task.id)}
-                        type="button"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="study-plan-system__task-creator">
-                  <input
-                    onChange={(event) => setNewTaskLabel(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        event.preventDefault();
-                        handleAddTask();
-                      }
-                    }}
-                    placeholder="添加新的计划任务"
-                    type="text"
-                    value={newTaskLabel}
-                  />
-                  <button onClick={handleAddTask} type="button">
-                    <Plus size={16} />
-                    <span>添加任务</span>
-                  </button>
-                </div>
-
-                <div className="study-plan-system__phase-summary">
-                  <span>当前周期</span>
-                  <strong>{selectedPlan.duration}</strong>
-                </div>
-              </article>
-            ) : (
-              <article className="study-plan-system__phase is-empty">
-                <div className="study-plan-system__phase-meta">
-                  <span>{activeTrack.title}</span>
-                  <strong>{activePhase.phase}</strong>
-                </div>
-                <h3>{activePhase.goal}</h3>
-                <p className="study-plan-system__phase-goal">
-                  先在左侧填写计划名称和目标，然后点击“新增计划”，右侧就会生成可编辑、可勾选、可删除的任务进度。
-                </p>
-                <div className="study-plan-system__phase-progress">
-                  <div className="study-plan-system__progress-head">
-                    <span>模板参考进度</span>
-                    <strong>
-                      {activePhaseCompletedCount} / {activePhase.milestones.length}
-                    </strong>
-                  </div>
-                  <div className="study-plan-system__progress-bar" aria-hidden="true">
-                    <span
-                      style={{
-                        width: `${activePhase.milestones.length > 0 ? (activePhaseCompletedCount / activePhase.milestones.length) * 100 : 0}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="study-plan-system__checklist">
-                  {activePhase.milestones.map((milestone) => {
-                    const checked = completedTaskIds.includes(milestone.id);
-
-                    return (
-                      <button
-                        className={`study-plan-system__checkitem ${checked ? "is-checked" : ""}`}
-                        key={milestone.id}
-                        onClick={() => toggleTask(milestone.id)}
-                        type="button"
-                      >
-                        <span className="study-plan-system__checkicon" aria-hidden="true">
-                          {checked ? <Check size={16} /> : <Target size={16} />}
-                        </span>
-                        <span>{milestone.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="study-plan-system__phase-summary">
-                  <span>当前模板周期</span>
-                  <strong>{activePhase.duration}</strong>
-                </div>
-              </article>
-            )}
+        <div className="study-plan-system__status-grid study-plan-system__status-grid--overview">
+          <div className="study-plan-system__status-card">
+            <span>总任务</span>
+            <strong>{tasks.length}</strong>
           </div>
+          <div className="study-plan-system__status-card study-plan-system__status-card--todo">
+            <span>未完成</span>
+            <strong>{statusCounts.todo}</strong>
+          </div>
+          <div className="study-plan-system__status-card study-plan-system__status-card--doing">
+            <span>进行中</span>
+            <strong>{statusCounts.doing}</strong>
+          </div>
+          <div className="study-plan-system__status-card study-plan-system__status-card--done">
+            <span>已完成</span>
+            <strong>{statusCounts.done}</strong>
+          </div>
+        </div>
+
+        <div className="study-plan-system__toolbar">
+          <div className="study-plan-system__filters">
+            {filterOptions.map((option) => {
+              const Icon = option.icon;
+
+              return (
+                <button
+                  className={activeFilter === option.value ? "is-active" : ""}
+                  key={option.value}
+                  onClick={() => setActiveFilter(option.value)}
+                  type="button"
+                >
+                  <Icon size={14} />
+                  <span>{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <button className="study-plan-system__create-button" onClick={handleStartCreate} type="button">
+            <Plus size={16} />
+            <span>{isFormOpen && !selectedTask ? "收起表单" : "添加任务"}</span>
+          </button>
+        </div>
+
+        {isFormOpen ? (
+          <div className="study-plan-system__editor study-plan-system__editor--reference">
+            <label className="study-plan-system__field">
+              <span>任务名称</span>
+              <input
+                onChange={(event) => setTaskTitle(event.target.value)}
+                placeholder="输入任务名称..."
+                type="text"
+                value={taskTitle}
+              />
+            </label>
+
+            <label className="study-plan-system__field">
+              <span>任务状态</span>
+              <select
+                className="study-plan-system__select"
+                onChange={(event) => setTaskStatus(event.target.value as StudyTaskStatus)}
+                value={taskStatus}
+              >
+                {statusOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="study-plan-system__editor-actions">
+              <button className="is-primary" onClick={handleCreateTask} type="button">
+                <Plus size={16} />
+                <span>新增任务</span>
+              </button>
+              <button disabled={!selectedTask} onClick={handleUpdateTask} type="button">
+                <Save size={16} />
+                <span>保存修改</span>
+              </button>
+              <button className="is-danger" disabled={!selectedTask} onClick={handleDeleteTask} type="button">
+                <Trash2 size={16} />
+                <span>删除任务</span>
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="study-plan-system__task-list study-plan-system__task-list--cards">
+          {filteredTasks.length > 0 ? (
+            filteredTasks.map((task) => (
+              <article className={`study-plan-system__task-card study-plan-system__task-card--${task.status}`} key={task.id}>
+                <div className="study-plan-system__task-card-main">
+                  <button className="study-plan-system__task-card-toggle" onClick={() => handleEditTask(task.id)} type="button">
+                    <span className={`study-plan-system__status-dot study-plan-system__status-dot--${task.status}`} />
+                  </button>
+                  <div className="study-plan-system__task-card-copy">
+                    <h3>{task.title}</h3>
+                    <div className="study-plan-system__task-card-meta">
+                      <span>{getStatusLabel(task.status)}</span>
+                      <span>{new Date(task.updatedAt).toLocaleDateString("zh-CN")}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="study-plan-system__task-card-actions">
+                  <button onClick={() => handleEditTask(task.id)} type="button">
+                    <Pencil size={14} />
+                    <span>编辑</span>
+                  </button>
+                  <button
+                    className="is-danger"
+                    onClick={() => {
+                      if (selectedTaskId === task.id) {
+                        selectTask(task.id);
+                      }
+                      deleteTask(task.id);
+                    }}
+                    type="button"
+                  >
+                    <Trash2 size={14} />
+                    <span>删除</span>
+                  </button>
+                </div>
+              </article>
+            ))
+          ) : (
+            <div className="study-plan-system__empty">当前筛选条件下没有任务，先添加一条新的任务。</div>
+          )}
         </div>
       </section>
     </section>

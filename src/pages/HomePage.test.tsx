@@ -1,11 +1,15 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useCustomInterviewStore } from "@/store/customInterviewStore";
 import { useStudyPlanStore } from "@/store/studyPlanStore";
+import { useInterviewNotesStore } from "@/store/interviewNotesStore";
 import AboutPage from "./AboutPage";
 import CategoryPage from "./CategoryPage";
+import CustomInterviewWikiPage from "./CustomInterviewWikiPage";
 import HomePage from "./HomePage";
 import ArticlePage from "./ArticlePage";
+import TechnicalArtInterviewWikiPage from "./TechnicalArtInterviewWikiPage";
 
 vi.mock("@/components/Particles", () => ({
   default: () => <div data-testid="particles-mock" />,
@@ -14,13 +18,13 @@ vi.mock("@/components/Particles", () => ({
 describe("blog pages", () => {
   beforeEach(() => {
     useStudyPlanStore.persist.clearStorage();
+    useCustomInterviewStore.persist.clearStorage();
+    useInterviewNotesStore.persist.clearStorage();
+    useInterviewNotesStore.setState({ notes: {} });
+    useCustomInterviewStore.setState({ questions: [] });
     useStudyPlanStore.setState({
-      activePhaseId: "foundation",
-      activeTrackId: "rendering",
-      completedTaskIds: [],
-      completedRoutineIds: [],
-      customPlans: [],
-      selectedPlanId: null,
+      tasks: [],
+      selectedTaskId: null,
     });
   });
 
@@ -79,11 +83,131 @@ describe("blog pages", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText("计划设置")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /新增计划/i })).toBeInTheDocument();
-    expect(screen.getByText("计划列表")).toBeInTheDocument();
-    expect(screen.getByText("模板参考进度")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "任务管理" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /添加任务/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "全部" })).toBeInTheDocument();
+    expect(screen.getAllByText("未完成").length).toBeGreaterThan(0);
   });
+
+  it("renders the technical art wiki tool card", () => {
+    render(
+      <MemoryRouter initialEntries={["/category/tools"]}>
+        <Routes>
+          <Route path="/category/:categoryKey" element={<CategoryPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("link", { name: /技术美术面试 Wiki/i })).toHaveAttribute(
+      "href",
+      "/tools/ta-interview-wiki",
+    );
+    expect(screen.getByText("240 道题 · 9 模块")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /我的面试题库/i })).toHaveAttribute(
+      "href",
+      "/tools/custom-interview-wiki",
+    );
+  });
+
+  it("creates and reviews a personal interview question", () => {
+    render(
+      <MemoryRouter initialEntries={["/tools/custom-interview-wiki"]}>
+        <CustomInterviewWikiPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("heading", { level: 1, name: /自定义\s*面试题库/i })).toBeInTheDocument();
+    expect(screen.getByText("这里还没有题目。")).toBeInTheDocument();
+    expect(screen.queryByText("难度等级")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "添加第一道题" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "题目 *" }), {
+      target: { value: "Lumen 的 Surface Cache 有什么作用？" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "正确答案 *" }), {
+      target: { value: "它缓存场景表面的材质与光照表示，供间接光和反射查询。" },
+    });
+    fireEvent.change(screen.getByRole("combobox", { name: "所属模块 *" }), {
+      target: { value: "UE 光照" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "标签" }), {
+      target: { value: "Lumen，GI" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "保存题目" }));
+
+    expect(screen.getByText("Lumen 的 Surface Cache 有什么作用？")).toBeInTheDocument();
+    expect(screen.queryByText(/它缓存场景表面的材质与光照表示/i)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /查看答案/i }));
+    expect(screen.getByText(/它缓存场景表面的材质与光照表示/i)).toBeInTheDocument();
+  });
+
+  it("fuzzy searches the technical art interview questions", () => {
+    render(
+      <MemoryRouter initialEntries={["/tools/ta-interview-wiki"]}>
+        <TechnicalArtInterviewWikiPage />
+      </MemoryRouter>,
+    );
+
+    const searchInput = screen.getByRole("searchbox", { name: /模糊搜索 240 道面试题/i });
+    fireEvent.change(searchInput, { target: { value: "shadr" } });
+
+    const fuzzyResults = screen.getAllByRole("button", { name: /查看答案/i });
+    expect(fuzzyResults.length).toBeGreaterThan(0);
+    expect(fuzzyResults.length).toBeLessThan(240);
+    expect(screen.getByText(`${fuzzyResults.length} / 240`)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "清空搜索" }));
+    expect(searchInput).toHaveValue("");
+    expect(screen.getAllByRole("button", { name: /查看答案/i })).toHaveLength(240);
+  });
+
+  it("keeps interview methods hidden until requested", () => {
+    render(
+      <MemoryRouter initialEntries={["/tools/ta-interview-wiki"]}>
+        <TechnicalArtInterviewWikiPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("heading", { level: 1, name: /技术美术\s*面试 Wiki/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /01\.02 阴影系统/i })).toHaveAttribute("href", "#wiki-low-shadows");
+    fireEvent.click(screen.getByRole("button", { name: /收起低阶 · 基础认知二级目录/i }));
+    expect(screen.queryByRole("link", { name: /01\.02 阴影系统/i })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /展开低阶 · 基础认知二级目录/i }));
+    expect(screen.getByRole("link", { name: /01\.02 阴影系统/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /查看答案/i })).toHaveLength(240);
+    expect(screen.queryByText(/先定义参数，再说明它们如何改变入射光/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getAllByRole("button", { name: /查看答案/i })[0]);
+
+    expect(screen.getByText(/先定义参数，再说明它们如何改变入射光/i)).toBeInTheDocument();
+    expect(screen.getByText("正确参考答案")).toBeInTheDocument();
+    expect(screen.getByText(/金属度区分导体与非导体.*能量守恒意味着/i)).toBeInTheDocument();
+    expect(screen.getByText("答案拆解")).toBeInTheDocument();
+    expect(screen.getByText("项目落地参考")).toBeInTheDocument();
+    expect(screen.getByText("常见误区")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /收起答案/i }).length).toBe(1);
+
+    fireEvent.click(screen.getByRole("button", { name: /收起答案/i }));
+    expect(screen.queryByText(/先定义参数，再说明它们如何改变入射光/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getAllByRole("button", { name: /打开笔记/i })[0]);
+    const noteInput = screen.getByRole("textbox", { name: /我的笔记/i });
+    expect(screen.getByText("截图附件")).toBeInTheDocument();
+    expect(screen.getByText(/上传图片，或复制截图后在笔记框中/i)).toBeInTheDocument();
+    expect(screen.getByLabelText("添加截图")).toHaveAttribute("accept", "image/*");
+    fireEvent.change(noteInput, { target: { value: "复习时补充一个项目案例。" } });
+    expect(noteInput).toHaveValue("复习时补充一个项目案例。");
+
+    fireEvent.click(screen.getByRole("button", { name: /关闭笔记/i }));
+    expect(screen.queryByRole("textbox", { name: /我的笔记/i })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getAllByRole("button", { name: /打开笔记/i })[0]);
+    expect(screen.getByRole("textbox", { name: /我的笔记/i })).toHaveValue("复习时补充一个项目案例。");
+
+    fireEvent.click(screen.getAllByRole("button", { name: /查看答案/i })[0]);
+    fireEvent.click(screen.getByRole("button", { name: /收起答案/i }));
+    expect(screen.queryByRole("textbox", { name: /我的笔记/i })).not.toBeInTheDocument();
+  }, 15000);
 
   it("renders about page", () => {
     render(
