@@ -1,11 +1,10 @@
 import { Link, useParams } from "react-router-dom";
 import ArticleCard from "@/components/ArticleCard";
-import CustomInterviewToolCard from "@/components/CustomInterviewToolCard";
 import FooterSection from "@/components/FooterSection";
+import InterviewResourceToolCard from "@/components/InterviewResourceToolCard";
 import SectionBadge from "@/components/SectionBadge";
 import SiteHeader from "@/components/SiteHeader";
 import StudyPlanSystem from "@/components/StudyPlanSystem";
-import ToolCard from "@/components/ToolCard";
 import {
   getArticlesByCategory,
   getCategoryByKey,
@@ -53,8 +52,8 @@ export default function CategoryPage() {
             <StudyPlanSystem plan={studyPlanSystem} />
           ) : isToolsPage ? (
             <section className="tool-grid" aria-label="工具列表">
-              <ToolCard />
-              <CustomInterviewToolCard />
+              <InterviewResourceToolCard kind="mihoyo" />
+              <InterviewResourceToolCard kind="ta100" />
             </section>
           ) : (
             <section className="article-grid">

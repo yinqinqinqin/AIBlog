@@ -1,15 +1,20 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useCustomInterviewStore } from "@/store/customInterviewStore";
 import { useStudyPlanStore } from "@/store/studyPlanStore";
 import { useInterviewNotesStore } from "@/store/interviewNotesStore";
+import { useThemeStore } from "@/store/themeStore";
 import AboutPage from "./AboutPage";
 import CategoryPage from "./CategoryPage";
 import CustomInterviewWikiPage from "./CustomInterviewWikiPage";
+import GameTaOriginalFormatPage from "./GameTaOriginalFormatPage";
 import HomePage from "./HomePage";
 import ArticlePage from "./ArticlePage";
 import TechnicalArtInterviewWikiPage from "./TechnicalArtInterviewWikiPage";
+import gameTaHtmlArchive from "@/data/generated/gameTaHtmlArchive.json";
+import mihoyoInterviewBank from "@/data/generated/mihoyoInterviewBank.json";
+import type { InterviewResourceBank } from "@/data/interviewResourceTypes";
 
 vi.mock("@/components/Particles", () => ({
   default: () => <div data-testid="particles-mock" />,
@@ -17,15 +22,18 @@ vi.mock("@/components/Particles", () => ({
 
 describe("blog pages", () => {
   beforeEach(() => {
+    vi.stubGlobal("scrollTo", vi.fn());
     useStudyPlanStore.persist.clearStorage();
     useCustomInterviewStore.persist.clearStorage();
     useInterviewNotesStore.persist.clearStorage();
+    useThemeStore.persist.clearStorage();
     useInterviewNotesStore.setState({ notes: {} });
     useCustomInterviewStore.setState({ questions: [] });
     useStudyPlanStore.setState({
       tasks: [],
       selectedTaskId: null,
     });
+    useThemeStore.setState({ theme: "dark" });
   });
 
   it("renders home page sections", () => {
@@ -89,7 +97,7 @@ describe("blog pages", () => {
     expect(screen.getAllByText("未完成").length).toBeGreaterThan(0);
   });
 
-  it("renders the technical art wiki tool card", () => {
+  it("renders only the two imported interview resource cards", () => {
     render(
       <MemoryRouter initialEntries={["/category/tools"]}>
         <Routes>
@@ -98,15 +106,58 @@ describe("blog pages", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("link", { name: /技术美术面试 Wiki/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /米哈游技术美术真题集/i })).toHaveAttribute(
       "href",
-      "/tools/ta-interview-wiki",
+      "/tools/mihoyo-ta-interview",
     );
-    expect(screen.getByText("240 道题 · 9 模块")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /我的面试题库/i })).toHaveAttribute(
+    expect(screen.getByText("410 道题 · 答案配对")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /游戏 TA 面试 100 问/i })).toHaveAttribute(
       "href",
-      "/tools/custom-interview-wiki",
+      "/tools/game-ta-interview-100",
     );
+    expect(screen.queryByRole("link", { name: /技术美术面试 Wiki/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /我的面试题库/i })).not.toBeInTheDocument();
+  });
+
+  it("keeps the Word questions paired with their answers", () => {
+    const mihoyoBank = mihoyoInterviewBank as InterviewResourceBank;
+    expect(mihoyoBank.modules.flatMap((module) => module.questions)).toHaveLength(410);
+    expect(mihoyoBank.modules.every((module) => module.questions.every((question) => question.answer))).toBe(true);
+  });
+
+  it("preserves the original HTML catalog and chapter format in React routes", async () => {
+    expect(
+      gameTaHtmlArchive.pages.every((page) => !/\\[0-9A-Fa-f]{1,6}/.test(page.bodyHtml)),
+    ).toBe(true);
+
+    render(
+      <MemoryRouter initialEntries={["/tools/game-ta-interview-100"]}>
+        <Routes>
+          <Route path="/tools/game-ta-interview-100" element={<GameTaOriginalFormatPage />} />
+          <Route path="/tools/game-ta-interview-100/:pageId" element={<GameTaOriginalFormatPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const archiveHost = screen.getByTestId("game-ta-html-archive");
+    expect(archiveHost).toHaveAttribute("data-blog-theme", "dark");
+    await waitFor(() => expect(archiveHost.shadowRoot?.querySelectorAll(".catalog-card")).toHaveLength(20));
+
+    useThemeStore.getState().setTheme("light");
+    await waitFor(() => expect(archiveHost).toHaveAttribute("data-blog-theme", "light"));
+
+    const firstChapterLink = archiveHost.shadowRoot?.querySelector<HTMLAnchorElement>('a[href="01.html"]');
+    expect(firstChapterLink).not.toBeNull();
+    fireEvent.click(firstChapterLink!);
+    await waitFor(() => {
+      expect(archiveHost.shadowRoot?.querySelector(".chapter-header h2")?.textContent).toContain("第1章");
+      expect(archiveHost.shadowRoot?.querySelectorAll(".question-card")).toHaveLength(2);
+    });
+    const chapterBody = archiveHost.shadowRoot?.querySelector(".html-archive-page")?.textContent ?? "";
+    expect(chapterBody).toContain("👤");
+    expect(chapterBody).toContain("⏱");
+    expect(chapterBody).toContain("🔧");
+    expect(chapterBody).not.toMatch(/\\[0-9A-Fa-f]{1,6}/);
   });
 
   it("creates and reviews a personal interview question", () => {

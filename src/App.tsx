@@ -6,8 +6,12 @@ import AboutPage from "@/pages/AboutPage";
 import ArticlePage from "@/pages/ArticlePage";
 import CategoryPage from "@/pages/CategoryPage";
 import CustomInterviewWikiPage from "@/pages/CustomInterviewWikiPage";
+import GameTaOriginalFormatPage from "@/pages/GameTaOriginalFormatPage";
 import HomePage from "@/pages/HomePage";
+import ImportedInterviewWikiPage from "@/pages/ImportedInterviewWikiPage";
 import TechnicalArtInterviewWikiPage from "@/pages/TechnicalArtInterviewWikiPage";
+import mihoyoInterviewBank from "@/data/generated/mihoyoInterviewBank.json";
+import type { InterviewResourceBank } from "@/data/interviewResourceTypes";
 import { applyTheme, useThemeStore } from "@/store/themeStore";
 
 export default function App() {
@@ -35,6 +39,15 @@ export default function App() {
         <Route path="/article/:slug" element={<ArticlePage />} />
         <Route path="/tools/ta-interview-wiki" element={<TechnicalArtInterviewWikiPage />} />
         <Route path="/tools/custom-interview-wiki" element={<CustomInterviewWikiPage />} />
+        <Route
+          path="/tools/mihoyo-ta-interview"
+          element={<ImportedInterviewWikiPage bank={mihoyoInterviewBank as InterviewResourceBank} />}
+        />
+        <Route
+          path="/tools/game-ta-interview-100"
+          element={<GameTaOriginalFormatPage />}
+        />
+        <Route path="/tools/game-ta-interview-100/:pageId" element={<GameTaOriginalFormatPage />} />
       </Routes>
     </BrowserRouter>
   );

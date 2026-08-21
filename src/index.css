@@ -2619,6 +2619,28 @@ button {
   filter: drop-shadow(0 18px 34px rgba(73, 214, 181, 0.34));
 }
 
+.tool-card--mihoyo .tool-card__visual {
+  background:
+    radial-gradient(circle at 24% 18%, rgba(248, 195, 92, 0.44), transparent 30%),
+    radial-gradient(circle at 82% 78%, rgba(235, 96, 109, 0.3), transparent 34%),
+    linear-gradient(145deg, #241811 0%, #0c090d 72%);
+}
+
+.tool-card--mihoyo .tool-card__visual-icon {
+  filter: drop-shadow(0 18px 34px rgba(242, 169, 72, 0.34));
+}
+
+.tool-card--ta100 .tool-card__visual {
+  background:
+    radial-gradient(circle at 76% 18%, rgba(80, 191, 222, 0.42), transparent 30%),
+    radial-gradient(circle at 18% 84%, rgba(125, 105, 231, 0.28), transparent 35%),
+    linear-gradient(145deg, #0d1d24 0%, #090910 72%);
+}
+
+.tool-card--ta100 .tool-card__visual-icon {
+  filter: drop-shadow(0 18px 34px rgba(67, 184, 222, 0.32));
+}
+
 .interview-wiki-page {
   --wiki-low: #70d5ad;
   --wiki-mid: #e5bd6c;
@@ -4999,6 +5021,304 @@ html body .interview-wiki-search label {
 
 .article-page__missing {
   margin-top: 0;
+}
+
+.game-ta-original-page {
+  min-height: 100vh;
+  background: var(--page-background);
+  background-attachment: fixed;
+}
+
+.game-ta-original-page__main {
+  padding: 150px 0 80px;
+}
+
+.game-ta-original-page__toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.game-ta-original-page__toolbar a,
+.game-ta-original-page__toolbar span,
+.game-ta-original-page__toolbar strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.game-ta-original-page__toolbar a {
+  justify-self: start;
+  transition: color 180ms ease, border-color 180ms ease;
+}
+
+.game-ta-original-page__toolbar a:hover {
+  border-color: var(--line-strong);
+  color: var(--text-strong);
+}
+
+.game-ta-original-page__toolbar span {
+  color: var(--accent);
+}
+
+.game-ta-original-page__toolbar strong {
+  color: var(--text-strong);
+}
+
+.game-ta-original-page__archive {
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 30px;
+  background: var(--bg-elevated);
+  box-shadow: var(--glass-shadow-strong);
+  transition: background-color 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.resource-wiki-hero .interview-wiki-hero__copy {
+  max-width: 920px;
+}
+
+.resource-wiki-hero .interview-wiki-hero__copy h1 {
+  font-size: clamp(64px, 6.2vw, 100px);
+}
+
+.resource-wiki-content {
+  display: grid;
+  gap: 0;
+}
+
+.resource-wiki-search {
+  margin-bottom: 70px;
+}
+
+.resource-wiki-toc__source {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--wiki-matte-line);
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.resource-wiki-toc__source svg {
+  flex: none;
+  color: var(--accent);
+}
+
+.resource-wiki-module {
+  scroll-margin-top: 112px;
+}
+
+.resource-wiki-module__brief {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin: 26px 0 18px;
+  padding: 20px;
+  border: 1px solid color-mix(in srgb, var(--wiki-level-color) 24%, var(--wiki-matte-line));
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--wiki-level-color) 6%, var(--wiki-matte-soft));
+  box-shadow: inset 0 1px 0 var(--wiki-matte-highlight);
+}
+
+.resource-wiki-module__brief > div {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.resource-wiki-module__brief > div > span,
+.resource-question__detail header > span,
+.resource-question__followups > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--wiki-level-color);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+}
+
+.resource-wiki-module__brief ul,
+.resource-question__followups ul,
+.resource-wiki-review ol {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--content-body);
+  font-size: 11px;
+  line-height: 1.75;
+}
+
+.resource-wiki-module__concepts p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0;
+}
+
+.resource-wiki-module__concepts em {
+  padding: 6px 9px;
+  border: 1px solid color-mix(in srgb, var(--wiki-level-color) 25%, var(--wiki-matte-line));
+  border-radius: 999px;
+  background: var(--wiki-matte-raised);
+  color: var(--muted);
+  font-size: 9px;
+  font-style: normal;
+}
+
+.resource-wiki-questions {
+  padding-top: 22px;
+}
+
+.resource-question__options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: -7px 20px 18px 82px;
+}
+
+.resource-question__options span {
+  padding: 9px 11px;
+  border: 1px solid var(--wiki-matte-line);
+  border-radius: 10px;
+  background: var(--wiki-matte-soft);
+  color: var(--content-body);
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.resource-question.is-open .resource-question__options {
+  border-color: color-mix(in srgb, var(--wiki-level-color) 24%, var(--wiki-matte-line));
+}
+
+.resource-question__answer {
+  gap: 18px;
+}
+
+.resource-question__detail {
+  display: grid;
+  gap: 13px;
+  padding: 18px;
+  border: 1px solid var(--wiki-matte-line);
+  border-radius: 14px;
+  background: var(--wiki-matte-raised);
+}
+
+.resource-question__detail header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--wiki-matte-line);
+}
+
+.resource-question__detail header small {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.resource-question__detail > p {
+  margin: 0;
+  color: var(--content-body);
+  font-size: 13px;
+  line-height: 1.95;
+  white-space: pre-wrap;
+}
+
+.resource-question__followups {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px;
+  border: 1px dashed color-mix(in srgb, var(--wiki-level-color) 30%, var(--wiki-matte-line));
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--wiki-level-color) 5%, var(--wiki-matte-raised));
+}
+
+.resource-question__tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding-top: 15px;
+  border-top: 1px solid var(--wiki-matte-line);
+  color: var(--wiki-level-color);
+}
+
+.resource-question__tags span {
+  padding: 5px 8px;
+  border: 1px solid var(--wiki-matte-line);
+  border-radius: 999px;
+  background: var(--wiki-matte-raised);
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.resource-wiki-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.resource-wiki-review {
+  overflow: hidden;
+  border: 1px solid var(--wiki-matte-line);
+  border-radius: 14px;
+  background: var(--wiki-matte-soft);
+}
+
+.resource-wiki-review summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.resource-wiki-review summary::-webkit-details-marker {
+  display: none;
+}
+
+.resource-wiki-review summary svg {
+  color: var(--wiki-level-color);
+}
+
+.resource-wiki-review[open] summary {
+  border-bottom: 1px solid var(--wiki-matte-line);
+  color: var(--text-strong);
+}
+
+.resource-wiki-review ol {
+  padding: 16px 18px 18px 36px;
+}
+
+@media (max-width: 1280px) {
+  .resource-wiki-module__brief,
+  .resource-wiki-review-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 1600px) {

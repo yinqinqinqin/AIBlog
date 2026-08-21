@@ -1,0 +1,5679 @@
+{
+  "key": "mihoyo-ta-2026",
+  "eyebrow": "MIHOYO / TECHNICAL ART INTERVIEW",
+  "title": [
+    "26届米哈游",
+    "技术美术多方向"
+  ],
+  "description": "按七种题型重新配对题目与参考答案。可搜索、按题型跳转，并逐题展开复习。",
+  "sourceLabel": "2020–2025 真题集",
+  "answerLabel": "参考答案",
+  "modules": [
+    {
+      "id": "case-analysis",
+      "title": "案例分析题",
+      "description": "围绕渲染、资源、性能、协作与技术方案的完整案例分析。",
+      "concepts": [
+        "方案设计",
+        "技术取舍",
+        "项目落地"
+      ],
+      "learnPoints": [],
+      "reviewQuestions": [],
+      "practice": [],
+      "questions": [
+        {
+          "id": "mihoyo-case-001",
+          "question": "（米哈游技术美术管培生）某款开放世界游戏中，玩家反馈手机端画面表现力不足，尤其是在植被细节和光影效果上。考虑到性能限制，请你提出三种优化方案，并分析各自的优缺点及预期效果。请详细描述你在方案实施过程中可能遇到的问题以及应对策略。 (出处：参考米哈游历年技术美术相关岗位面经)",
+          "answer": "优化方案1：LOD (Level of Detail) 技术\n优点： 根据玩家距离动态调整植被模型的复杂度，远距离使用低模，近距离使用高模，显著降低渲染负担。\n缺点： 需要制作多个不同精度的模型，增加美术工作量。切换LOD时可能出现视觉跳变，需要优化过渡效果。\n预期效果： 远距离大幅降低顶点数量和绘制调用次数，提升帧率。\n问题及应对： 视觉跳变：使用平滑过渡算法，如Dither Fade，减少视觉差异。模型制作量大：建立标准化的LOD制作流程，使用自动化工具辅助生成低模。\n优化方案2：植被着色器优化\n优点： 通过shader优化，降低单个像素的计算量。例如，简化光照模型，使用Look-Up Table (LUT) 预计算光照结果，减少实时计算。\n缺点： 效果可能不如物理光照真实。需要仔细调整LUT，保证色彩和光影效果符合游戏风格。\n预期效果： 降低像素着色器的复杂度，提升填充率。\n问题及应对： 光照不真实：仔细调整LUT，并结合环境光遮蔽 (Ambient Occlusion) 等技术弥补。色彩失真：使用更高精度的LUT，并进行色彩校正。\n优化方案3：光照烘焙\n优点： 将静态光照信息烘焙到光照贴图中，减少实时光照计算。\n缺点： 动态光照效果受限。需要合理划分静态和动态物体，并仔细调整烘焙参数。\n预期效果： 显著降低实时光照计算量，提升帧率。\n问题及应对： 动态光照不足：使用Light Probe或Reflection Probe弥补动态光照效果。烘焙时间长：使用GPU烘焙或分布式烘焙，缩短烘焙时间。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-case-002",
+          "question": "（米哈游技术美术）你负责项目中角色模型的优化工作，发现某个角色的多边形数量远超规定上限，严重影响游戏运行效率。该角色在剧情中非常重要，不能简单删除。请详细阐述你如何与美术设计师、程序员沟通协调，在保证视觉效果的前提下，有效降低模型复杂度，并确保最终效果符合游戏整体风格。(出处：综合技术美术岗位工作内容)",
+          "answer": "沟通协调：\n与美术设计师沟通： 明确告知模型复杂度超标的原因和影响，强调优化的必要性。共同分析模型细节，确定哪些部分可以简化或删除，同时保持角色特征。\n与程序员沟通： 了解程序对模型的要求，例如顶点数、材质数量等。共同制定优化方案，并评估对游戏性能的影响。\n优化方案：\n多边形简化： 使用多边形简化工具，例如Maya的Reduce或ZBrush的Decimation Master，自动降低模型复杂度。\n合并网格： 将多个小的网格合并成一个大的网格，减少绘制调用次数。\nLOD技术： 为角色制作多个不同精度的模型，根据玩家距离动态切换。\n法线贴图烘焙： 将高模的细节烘焙到低模的法线贴图中，保留视觉效果的同时降低模型复杂度。\n保证风格：\n在简化模型时，优先保留角色的关键特征，例如面部表情、服装细节等。\n使用高质量的贴图，弥补模型细节的损失。\n与美术设计师紧密合作，不断迭代优化方案，确保最终效果符合游戏整体风格。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-case-003",
+          "question": "（游戏公司技术美术）公司计划开发一款卡通渲染风格的AR手游。在技术选型阶段，需要评估Unity和Unreal Engine的适用性。请从渲染管线、材质系统、shader编写、AR支持以及开发效率等方面，对比分析两款引擎的优劣势，并给出你的推荐理由。(出处：常见游戏引擎选型问题)",
+          "answer": "Unity:\n渲染管线： 支持多种渲染管线，包括前向渲染、延迟渲染和SRP (Scriptable Render Pipeline)。SRP允许自定义渲染管线，灵活性高。\n材质系统： 材质系统较为简单，易于上手。Shader Graph 可视化编程工具降低了shader编写门槛。\nShader编写： 支持ShaderLab和HLSL。ShaderLab封装程度高，易于编写简单的shader。\nAR支持： AR Foundation 提供了跨平台的AR开发接口，支持主流的AR平台。\n开发效率： Asset Store 提供了丰富的资源和插件，可以快速搭建原型。C 语言易于学习和使用。\n优势： 易上手，资源丰富，开发效率高。\n劣势： 渲染效果相对较弱，性能优化难度较大。\nUnreal Engine:\n渲染管线： 基于延迟渲染，渲染效果优秀。支持全局光照、体积光照等高级特效。\n材质系统： 材质系统强大，支持复杂的材质节点和材质函数。\nShader编写： 使用材质编辑器可视化编程，降低了shader编写门槛。也支持HLSL。\nAR支持： 提供了AR开发框架，支持主流的AR平台。\n开发效率： Blueprints 可视化编程工具降低了编程门槛。C++ 语言性能高，但学习曲线陡峭。\n优势： 渲染效果优秀，性能优化空间大。\n劣势： 学习曲线陡峭，资源相对较少，开发效率较低。\n推荐理由：\n对于卡通渲染风格的AR手游，考虑到美术风格对渲染效果要求较高，且AR应用对性能要求较高，Unreal Engine更适合。虽然Unreal Engine学习曲线较陡峭，但其强大的材质系统和渲染效果可以更好地实现卡通渲染风格，并且其性能优化空间更大，可以更好地满足AR应用的需求。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-case-004",
+          "question": "（游戏公司技术美术）在多人在线游戏中，服务器需要实时同步大量玩家的角色动画数据。考虑到网络带宽和服务器性能，请你设计一种高效的动画压缩和传输方案，并详细说明压缩算法的选择、数据格式的定义，以及在客户端和服务器端的实现细节。(出处：多人在线游戏技术难点)",
+          "answer": "压缩算法选择：\n差分编码： 传输相邻帧之间的动画数据差值，减少数据量。\n量化编码： 将浮点数动画数据量化为整数，减少数据精度。\n关键帧提取： 只传输关键帧数据，中间帧通过插值计算。\nPCA (Principal Component Analysis) 主成分分析： 提取动画数据的主成分，减少数据维度。\n数据格式定义：\n定义统一的数据格式，包括帧ID、时间戳、角色ID、动画数据等。\n使用protobuf或flatbuffers等序列化工具，提高序列化和反序列化效率。\n客户端实现：\n接收服务器发送的动画数据，进行解压缩和反序列化。\n根据动画数据更新角色模型。\n使用插值算法平滑动画过渡。\n服务器端实现：\n采集角色动画数据，进行压缩和序列化。\n将动画数据发送给客户端。\n根据网络状况调整压缩策略。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-case-005",
+          "question": "（游戏公司技术美术）你负责优化一款老游戏的画面表现。该游戏使用较旧的渲染技术，光照效果和材质质感都比较粗糙。请你提出三种改造方案，分别针对光照、材质和后处理效果，并详细说明改造思路、技术原理以及预期效果。考虑到项目成本和时间限制，请给出优先选择方案的理由。(出处：老游戏画面优化案例)",
+          "answer": "改造方案1：光照升级\n思路： 升级光照模型，引入物理光照 (PBR)，使用IBL (Image-Based Lighting) 模拟环境光照。\n技术原理： PBR基于物理原理，模拟光线与物体表面的相互作用，提供更真实的光照效果。IBL使用环境贴图模拟环境光照，提供更自然的光照效果。\n预期效果： 提升光照的真实感和细节，增强场景的沉浸感。\n改造方案2：材质升级\n思路： 升级材质系统，引入PBR材质，使用Albedo、Normal、Roughness、Metallic等贴图，更精细地控制材质属性。\n技术原理： PBR材质基于物理原理，模拟物体表面的光反射特性，提供更真实的材质质感。\n预期效果： 提升材质的真实感和细节，增强场景的质感。\n改造方案3：后处理升级\n思路： 引入Bloom、Ambient Occlusion、Color Grading等后处理效果，提升画面的整体视觉效果。\n技术原理： Bloom模拟光线散射效果，增强画面的亮度和色彩。Ambient Occlusion模拟环境光遮蔽效果，增强画面的阴影细节。Color Grading调整画面的色彩风格，增强画面的艺术表现力。\n预期效果： 提升画面的整体视觉效果，增强场景的氛围。\n优先选择方案：\n考虑到项目成本和时间限制，优先选择光照升级方案。光照是影响画面效果的关键因素，升级光照模型可以显著提升画面的整体质量。同时，光照升级相对简单，不需要大量修改美术资源。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-case-006",
+          "question": "（游戏公司技术美术）某款游戏中出现贴图错误，导致角色模型显示异常。经过排查，发现是贴图mipmap层级生成错误，导致远距离观看时出现闪烁和锯齿。请详细说明mipmap的原理，并分析造成mipmap层级生成错误的可能原因，以及如何解决该问题。(出处：贴图常见问题)",
+          "answer": "mipmap原理：\nmipmap是一种多层级的贴图，每一层都是上一层的缩小版本。用于解决远距离观看贴图时出现的闪烁和锯齿问题。\nGPU在渲染时，根据像素在贴图上的投影面积，选择合适的mipmap层级进行采样，避免过度采样或欠采样。\nmipmap层级生成错误原因：\n贴图导入设置错误，未开启mipmap生成选项。\n贴图尺寸不符合mipmap要求，例如尺寸不是2的幂次方。\nmipmap层级生成算法错误，导致层级之间的过渡不平滑。\nshader采样错误，使用了错误的mipmap层级。\n解决方法：\n检查贴图导入设置，确保开启mipmap生成选项。\n修改贴图尺寸，使其符合mipmap要求。\n使用高质量的mipmap层级生成算法，例如Lanczos resampling。\n检查shader采样代码，确保使用了正确的mipmap层级。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-case-007",
+          "question": "（游戏公司技术美术）项目中需要实现一个动态天气系统，包括晴天、阴天、雨天和雪天等多种效果。请你设计一个完整的解决方案，包括天空盒的制作、云层的渲染、雨雪粒子的生成和模拟、以及光照效果的调整。请详细说明每个环节的技术实现原理和关键参数设置。(出处：游戏天气系统设计)",
+          "answer": "天空盒制作：\n可以使用CubeMap或Procedural Skybox。CubeMap使用6张图片拼接成一个立方体，Procedural Skybox使用shader程序生成天空。\nCubeMap可以提供更真实的天空效果，Procedural Skybox可以实现动态的天空效果。\n云层渲染：\n可以使用Particle System或Volumetric Clouds。Particle System使用粒子模拟云层，Volumetric Clouds使用体积渲染技术模拟云层。\nParticle System性能较高，Volumetric Clouds效果更好。\n雨雪粒子生成和模拟：\n使用Particle System生成雨雪粒子。\n使用物理引擎模拟雨雪粒子的运动轨迹。\n调整粒子的颜色、大小、速度和密度，模拟不同的天气效果。\n光照效果调整：\n调整环境光颜色和强度，模拟不同的天气光照效果。\n调整太阳光颜色和强度，模拟不同的天气光照效果。\n使用Light Probe或Reflection Probe，模拟动态光照效果。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-case-008",
+          "question": "（游戏公司技术美术）在开发移动端游戏时，需要考虑GPU的性能瓶颈。请列举至少五种常见的GPU性能优化方法，并详细说明每种方法的原理、适用场景和预期效果。请结合实际项目经验，说明你在优化过程中遇到的问题以及如何解决的。(出处：移动端GPU优化)",
+          "answer": "GPU性能优化方法：\n减少绘制调用次数 (Draw Call)： 合并网格、使用静态批处理和动态批处理。\n原理： 每次绘制调用都会产生CPU和GPU之间的通信开销。减少绘制调用次数可以降低CPU的负担，提升渲染效率。\n适用场景： 场景中存在大量静态或动态物体时。\n预期效果： 降低CPU占用率，提升帧率。\n减少多边形数量： 使用LOD技术、多边形简化工具和法线贴图。\n原理： 多边形数量直接影响GPU的顶点处理负担。减少多边形数量可以降低GPU的顶点处理压力，提升渲染效率。\n适用场景： 模型复杂度过高时。\n预期效果： 降低GPU占用率，提升帧率。\n优化Shader： 减少shader的计算复杂度、使用低精度浮点数和避免不必要的纹理采样。\n原理： Shader的计算复杂度直接影响GPU的像素处理负担。优化shader可以降低GPU的像素处理压力，提升渲染效率。\n适用场景： shader计算量过大时。\n预期效果： 降低GPU占用率，提升帧率。\n优化纹理： 压缩纹理、使用mipmap和减少纹理尺寸。\n原理： 纹理的尺寸和格式直接影响GPU的纹理采样负担。优化纹理可以降低GPU的纹理采样压力，提升渲染效率。\n适用场景： 纹理尺寸过大或格式不合理时。\n预期效果： 降低GPU占用率，提升帧率。\n使用Occlusion Culling： 剔除被遮挡的物体，减少不必要的渲染。\n原理： Occlusion Culling可以剔除被其他物体遮挡的物体，减少不必要的渲染，降低GPU的渲染压力。\n适用场景： 场景中存在大量遮挡关系时。\n预期效果： 降低GPU占用率，提升帧率。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-case-009",
+          "question": "（游戏公司技术美术）你负责项目中的特效制作。美术设计师希望实现一个火焰燃烧的效果，要求火焰颜色鲜艳、形态自然、运动流畅。请详细描述你制作该特效的流程，包括粒子系统的设置、材质的调整、shader的编写，以及优化策略。请说明你在制作过程中遇到的挑战以及如何解决的。(出处：游戏特效制作)",
+          "answer": "制作流程：\n粒子系统设置： 创建粒子系统，调整粒子的发射器形状、速度、生命周期和数量。\n材质调整： 创建火焰材质，使用渐变色贴图模拟火焰颜色，使用噪声贴图模拟火焰的随机性。\nShader编写： 编写shader程序，实现火焰的动态效果，例如使用时间函数控制火焰的运动，使用菲涅尔效应模拟火焰边缘的亮度。\n优化策略： 减少粒子数量、使用低精度浮点数和优化shader代码。\n挑战及解决方法：\n火焰颜色不鲜艳： 调整渐变色贴图，增加火焰的亮度和饱和度。\n火焰形态不自然： 调整噪声贴图的参数，增加火焰的随机性和细节。\n火焰运动不流畅： 调整时间函数的参数，使火焰的运动更加平滑。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-case-010",
+          "question": "（游戏公司技术美术）项目中需要实现水面的真实感渲染效果。请你提出三种不同的水面渲染方案，并详细说明各自的技术原理、优缺点以及适用场景。请重点分析如何模拟水面的反射、折射和波浪效果，并考虑性能优化。(出处：游戏水面渲染)",
+          "answer": "水面渲染方案1：平面反射 (Planar Reflection)\n技术原理： 在水面下方创建一个镜像相机，渲染水面以上的场景，并将渲染结果作为水面的反射贴图。\n优点： 实现简单，效果较好。\n缺点： 性能消耗较大，只能模拟简单的反射效果。\n适用场景： 静态场景或对反射效果要求不高的场景。\n水面渲染方案2：屏幕空间反射 (Screen Space Reflection, SSR)\n技术原理： 基于屏幕空间的深度信息，计算像素的反射方向，并采样屏幕上的颜色作为反射颜色。\n优点： 性能消耗较低，可以模拟复杂的反射效果。\n缺点： 只能反射屏幕上已有的物体，无法反射屏幕外的物体。\n适用场景： 动态场景或对反射效果要求较高的场景。\n水面渲染方案3：折射 (Refraction)\n技术原理： 根据菲涅尔方程计算光线在水面上的反射和折射比例，并根据折射率计算光线的折射方向。\n优点： 可以模拟真实的水面折射效果。\n缺点： 计算复杂，性能消耗较大。\n适用场景： 对折射效果要求较高的场景。\n波浪效果模拟：\n可以使用Gerstner波或FFT (Fast Fourier Transform) 算法模拟水面的波浪效果。\nGerstner波实现简单，性能较高，但效果相对简单。\nFFT算法效果更好，但性能消耗较大。\n性能优化：\n使用低分辨率的反射贴图和折射贴图。\n简化波浪算法。\n使用LOD技术，根据玩家距离动态调整水面的细节。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-case-011",
+          "question": "（米哈游技术美术）游戏场景中需要实现草地的动态效果，风吹过时，草地会随风摆动。请设计一个实现方案，详细说明草的建模方式、顶点动画的实现、风力场的模拟，以及性能优化策略。请考虑不同配置的设备，给出相应的优化方案。(出处：开放世界游戏草地模拟)",
+          "answer": "建模方式：\n可以使用程序化生成或手工建模。\n程序化生成可以快速生成大量草地，但效果可能不够精细。\n手工建模可以制作出更精细的草地，但需要更多的时间和精力。\n顶点动画实现：\n使用shader程序控制草的顶点位置，模拟风的吹动效果。\n可以使用正弦函数或噪声函数控制草的摆动幅度和频率。\n风力场模拟：\n可以使用噪声贴图或向量场模拟风力场。\n噪声贴图可以提供随机的风力效果。\n向量场可以提供更真实的风力效果，例如可以模拟风的流动方向和速度。\n性能优化策略：\n使用LOD技术，根据玩家距离动态调整草的密度和细节。\n使用Instancing技术，减少绘制调用次数。\n使用shader程序进行优化，例如使用低精度浮点数和避免不必要的计算。\n不同配置设备优化：\n高配置设备： 使用高分辨率的草地模型、高质量的贴图和复杂的shader程序，提供更真实的效果。\n中配置设备： 降低草地的密度和细节，使用中等分辨率的贴图和简单的shader程序，保证流畅运行。\n低配置设备： 使用低分辨率的草地模型、低质量的贴图和简化的shader程序，尽量减少性能消耗。可以考虑使用简单的静态草地贴图，代替动态草地模型。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        }
+      ]
+    },
+    {
+      "id": "judgment",
+      "title": "判断题",
+      "description": "快速核对图形学、引擎、资源规范与工作流基础认知。",
+      "concepts": [
+        "基础概念",
+        "对错辨析",
+        "快速复习"
+      ],
+      "learnPoints": [],
+      "reviewQuestions": [],
+      "practice": [],
+      "questions": [
+        {
+          "id": "mihoyo-judgment-001",
+          "question": "在技术美术岗位上，优化游戏资源可以降低玩家的设备负担，提升游戏流畅度。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-002",
+          "question": "Shader编程是技术美术的核心技能之一，主要用于实现各种视觉效果。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-003",
+          "question": "使用Photoshop创建的贴图可以直接无损地导入到Unity或Unreal引擎中。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：通常需要根据引擎要求进行压缩和格式转换。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-004",
+          "question": "Mipmap技术主要用于解决远距离物体渲染时的锯齿问题。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-005",
+          "question": "PBR（Physically Based Rendering）渲染管线更真实地模拟了光照和材质的物理特性。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-006",
+          "question": "法线贴图（Normal Map）可以改变物体的实际几何形状，增加细节。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：法线贴图只是模拟光照效果，并不改变几何形状。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-007",
+          "question": "LOD（Level of Detail）技术用于在不同距离上显示不同精度的模型，以优化性能。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-008",
+          "question": "顶点色（Vertex Color）只能用于控制模型的颜色，不能用于其他效果。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：顶点色可以用于各种效果，例如地形混合、遮罩等。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-009",
+          "question": "动态光照一定比静态光照效果好，但性能消耗也更高。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-010",
+          "question": "技术美术不需要掌握任何编程知识。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：需要掌握Shader编程、脚本编程等。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-011",
+          "question": "GPU粒子系统比CPU粒子系统性能更高。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-012",
+          "question": "光照贴图（Lightmap）是实时计算光照的一种方式。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：光照贴图是预计算的光照信息。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-013",
+          "question": "骨骼动画主要通过改变模型的顶点位置来实现。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-014",
+          "question": "Blend Shape 可以用于创建更自然的表情和形变。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-015",
+          "question": "技术美术只负责视觉效果，不需要考虑游戏玩法。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：需要和玩法紧密结合。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-016",
+          "question": "游戏中的所有资源都应该使用最高精度，以保证最佳视觉效果。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：需要根据性能要求进行优化。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-017",
+          "question": "Prefab 在 Unity 中是一种资源，可以被多次实例化。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-018",
+          "question": "遮挡剔除（Occlusion Culling）可以减少渲染的三角形数量，提高性能。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-019",
+          "question": "Profiler 是一个可以用来分析游戏性能的工具。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-020",
+          "question": "技术美术只需要关注美术效果，不需要了解底层渲染原理。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：需要了解渲染原理才能更好地优化。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-021",
+          "question": "动画状态机用于控制动画之间的切换。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-022",
+          "question": "post-processing effects 后期处理特效不会影响游戏的性能。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：会影响性能，需要优化。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-023",
+          "question": "在美术制作中，模型面数越多越好。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：需要根据需求和性能进行平衡。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-024",
+          "question": "UGUI是Unity的UI系统，只能用于2D游戏。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：也可以用于3D游戏。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-025",
+          "question": "Unity的Asset Store中所有的资源都是免费的。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：有很多收费资源。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-026",
+          "question": "Unreal Engine中的蓝图系统是一种可视化脚本语言。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-027",
+          "question": "技术美术的职责不包括管理美术资源。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：资源管理也是职责之一。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-028",
+          "question": "Git是一个版本控制系统，可以用于协同开发。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-029",
+          "question": "在游戏开发中，只要美术效果好，就可以忽略性能问题。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：性能和效果需要平衡。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-030",
+          "question": "所有的shader都必须在CPU上运行。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：shader在GPU上运行。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-031",
+          "question": "线性工作流对游戏的美术表现没有影响。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：线性工作流可以提高色彩的准确性。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-032",
+          "question": "Unity的Light Probe可以为动态物体提供光照信息。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-033",
+          "question": "Unreal Engine的Material Instance可以快速创建材质变体。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-034",
+          "question": "Shader Graph是一种可视化shader编辑工具。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-035",
+          "question": "技术美术不需要了解游戏引擎的渲染管线。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：需要了解渲染管线才能更好地优化。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-036",
+          "question": "光栅化是将3D模型转换为2D像素的过程。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-037",
+          "question": "Alpha通道只能用于控制透明度。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：还可以用于存储其他数据，例如粗糙度。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-038",
+          "question": "烘焙光照贴图可以减少运行时光照计算的开销。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-039",
+          "question": "反射探针用于捕捉场景的反射信息。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-040",
+          "question": "技术美术的工作只需要懂美术，不需要与程序员沟通。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：需要与程序员紧密合作。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-041",
+          "question": "PBR材质的粗糙度（Roughness）属性控制了材质的光滑程度。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-042",
+          "question": "法线贴图中的颜色值必须是RGB(128, 128, 255)。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-043",
+          "question": "在Unity中，Static Batching可以合并静态物体，减少Draw Call。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-044",
+          "question": "在Unreal Engine中，Nanite技术可以渲染极高多边形数量的模型。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-045",
+          "question": "技术美术只需要关注最终的游戏效果，不需要关心开发流程。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：需要关注开发流程，并优化流程。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-046",
+          "question": "各向异性过滤（Anisotropic Filtering）可以提高远处纹理的清晰度。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-047",
+          "question": "Unity的Timeline可以用于创建游戏过场动画。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-048",
+          "question": "Unreal Engine的Sequencer是类似Timeline的工具。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-049",
+          "question": "技术美术不需要具备解决问题的能力。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：需要具备解决问题的能力。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-050",
+          "question": "延迟渲染（Deferred Rendering）可以提高光照计算的效率。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-051",
+          "question": "Forward Rendering正向渲染无法处理多个实时光源。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：可以处理多个光源，但性能消耗较高。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-052",
+          "question": "在Unity中，可以通过使用Occlusion Area来辅助遮挡剔除。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-053",
+          "question": "Unreal Engine的 Niagara是粒子特效系统。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-054",
+          "question": "技术美术只需要完成领导安排的任务，不需要主动学习新技术。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：需要主动学习新技术。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-055",
+          "question": "bloom 辉光特效不会影响游戏帧率。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：会影响帧率，需要适当调整参数。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-056",
+          "question": "UE5 Lumen是全局光照和反射解决方案。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-057",
+          "question": "游戏开发中，越早优化美术资源越好。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：通常在开发后期进行优化。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-058",
+          "question": "使用shader实现水面效果只能通过顶点偏移。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：还可以使用法线扰动等方法。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-059",
+          "question": "技术美术在游戏上线后就没有任何工作了。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：需要持续优化和维护。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-060",
+          "question": "Unity的Addressable Asset System可以更灵活地管理资源。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-061",
+          "question": "角色动画混合（Animation Blending）可以使动画过渡更加自然。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-062",
+          "question": "技术美术不需要了解游戏引擎的物理引擎。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：了解物理引擎可以更好地制作相关特效。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-063",
+          "question": "HDR（High Dynamic Range）可以提供更广的颜色范围。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-064",
+          "question": "Gamma校正对游戏画面没有影响。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：Gamma校正可以改善画面亮度。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-065",
+          "question": "在Unity中，可以通过C脚本来控制Shader的属性。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-066",
+          "question": "在Unreal Engine中，可以通过蓝图来控制材质的参数。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-067",
+          "question": "技术美术只需要关注自己负责的部分，不需要了解整个游戏项目。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：需要了解整个项目，才能更好地配合。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-068",
+          "question": "SSAO（Screen Space Ambient Occlusion）可以模拟物体之间的阴影。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-069",
+          "question": "光线追踪技术是实时渲染技术。(米哈游技术美术)",
+          "answer": "判断：正确。\n解析：现在可以做到实时。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-070",
+          "question": "技术美术不需要了解硬件设备的限制。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：需要了解硬件限制，才能更好地优化。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-071",
+          "question": "模型UV拆分对贴图效果没有影响。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：UV拆分会直接影响贴图效果。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-072",
+          "question": "LOD Group 组件只能控制模型的LOD，不能控制其他组件的LOD。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：可以控制其他组件的LOD。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-073",
+          "question": "技术美术只需要使用现成的工具，不需要自己开发工具。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：有时需要自己开发工具。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-074",
+          "question": "蒙皮（Skinning）是将模型顶点绑定到骨骼的过程。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-075",
+          "question": "技术美术不需要了解游戏引擎的碰撞检测系统。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：了解碰撞检测系统有助于优化特效和性能。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-076",
+          "question": "Cubemap可以用于模拟环境光照。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-077",
+          "question": "视差贴图（Parallax Mapping）可以模拟物体表面的凹凸感，而不需要改变实际的几何形状。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-078",
+          "question": "动态阴影的性能开销比静态阴影小。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：动态阴影性能开销更大。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-079",
+          "question": "技术美术只需要学习一种游戏引擎即可。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：掌握多种引擎更有竞争力。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-080",
+          "question": "Unity的Animation Rigging可以用于创建复杂的角色动画。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-081",
+          "question": "Unreal Engine的Control Rig是类似Animation Rigging的工具。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-082",
+          "question": "技术美术不需要了解游戏引擎的AI系统。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：了解AI系统有助于优化相关特效。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-083",
+          "question": "反锯齿技术可以减少图像的锯齿现象。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-084",
+          "question": "技术美术只需要关注视觉效果，不需要考虑代码的可维护性。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：代码可维护性很重要。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-085",
+          "question": "Frame Debugger 可以帮助分析渲染过程中的问题。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-086",
+          "question": "技术美术不需要了解游戏引擎的网络系统。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：了解网络系统有助于优化相关特效，例如网络同步。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-087",
+          "question": "线性雾效（Linear Fog）是游戏中常用的雾效类型。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-088",
+          "question": "指数雾效（Exponential Fog）比线性雾效性能开销小。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：通常指数雾效性能开销更大。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-089",
+          "question": "技术美术只需要了解客户端的技术，不需要了解服务器的技术。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：了解服务器技术有助于优化网络相关特效。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-090",
+          "question": "Light Cookies可以控制光照的形状。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-091",
+          "question": "技术美术不需要了解游戏引擎的音频系统。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：了解音频系统有助于优化相关特效，例如音画同步。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-092",
+          "question": "GPU Instance可以减少Draw Call，提高性能。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-093",
+          "question": "技术美术只需要使用现有的工具和技术，不需要创新。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：创新能力也很重要。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-094",
+          "question": "SSR(Screen Space Reflection)屏幕空间反射不需要额外的渲染通道。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：需要额外的渲染通道。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-095",
+          "question": "技术美术只需要关注自己的工作，不需要关心团队其他成员的工作。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：团队合作很重要。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-096",
+          "question": "Render Texture 可以将渲染结果保存为纹理。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-097",
+          "question": "技术美术只需要完成任务，不需要考虑如何提高工作效率。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：提高效率也很重要。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-098",
+          "question": "预计算阴影贴图（Baked Shadow Map）可以用于静态物体。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-099",
+          "question": "技术美术不需要学习美术理论知识。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：美术理论知识很重要。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-100",
+          "question": "UE5的World Partition技术主要用于管理大型开放世界场景。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-101",
+          "question": "流式纹理技术可以在运行时按需加载纹理。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-102",
+          "question": "骨骼动画的权重（Weight）决定了每个顶点受哪个骨骼的影响。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-103",
+          "question": "顶点动画（Vertex Animation）可以直接在GPU上改变模型的顶点位置。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-104",
+          "question": "动画事件（Animation Event）可以在动画播放到特定时间点时触发函数。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-105",
+          "question": "混合形状（Blend Shape）动画只能改变模型的顶点位置，不能改变法线。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：可以改变法线。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-106",
+          "question": "动画重定向（Animation Retargeting）可以将动画从一个骨骼结构应用到另一个骨骼结构。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-107",
+          "question": "动态骨骼（Dynamic Bone）可以模拟物理效果，使动画更加自然。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-108",
+          "question": "反向动力学（Inverse Kinematics，IK）可以根据目标位置自动调整骨骼的旋转。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-109",
+          "question": "程序化动画（Procedural Animation）可以根据代码动态生成动画。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-110",
+          "question": "动画蓝图（Animation Blueprint）可以控制动画状态机和混合空间。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-111",
+          "question": "技术美术只需要关注动画效果，不需要考虑动画的性能。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：动画性能也很重要。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-112",
+          "question": "卡通渲染（Cel Shading）是一种非真实感渲染技术。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-113",
+          "question": "渲染队列（Render Queue）决定了物体的渲染顺序。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-114",
+          "question": "Shader的Pass定义了渲染管道中的一个阶段。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-115",
+          "question": "HLSL（High Level Shading Language）是微软开发的一种着色器语言。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-116",
+          "question": "GLSL（OpenGL Shading Language）是OpenGL使用的着色器语言。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-117",
+          "question": "Cg（C for Graphics）是英伟达开发的一种着色器语言。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-118",
+          "question": "ShaderLab是Unity中用于定义Shader结构的语言。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-119",
+          "question": "Subsurface Scattering (SSS) 次表面散射模拟光线穿透物体表面的效果。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-120",
+          "question": "shader关键字fixed是最高精度的浮点数类型。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：fixed是最低精度。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-121",
+          "question": "float类型shader变量精度高于half类型。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-122",
+          "question": "技术美术只需要掌握一种shader语言即可。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：掌握多种shader语言更有竞争力。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-123",
+          "question": "shader中的sampler2D类型变量用于采样2D纹理。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-124",
+          "question": "Normal Map只能用于PBR材质。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：也可以用于非PBR材质。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-125",
+          "question": "Metallic 金属度贴图只影响PBR材质的高光反射。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-126",
+          "question": "Ambient Occlusion (AO)环境光遮蔽贴图模拟物体表面由于遮挡而变暗的效果。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-127",
+          "question": "Detail Mask 细节遮罩贴图可以控制细节纹理的应用范围。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-128",
+          "question": "技术美术只需要关注贴图的质量，不需要考虑贴图的大小。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：贴图大小直接影响性能。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-129",
+          "question": "Mipmap可以减少远处物体渲染时的闪烁现象。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-130",
+          "question": "UV动画只能沿着U轴方向移动纹理。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：可以沿着U轴和V轴方向移动纹理。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-131",
+          "question": "技术美术可以使用粒子系统模拟火焰、烟雾等效果。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-132",
+          "question": "粒子系统的发射器形状只能是点或球形。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：可以是各种形状。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-133",
+          "question": "粒子系统的速度曲线只能是线性的。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：可以是各种曲线。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-134",
+          "question": "粒子系统的生命周期只能是固定的。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：可以是随机的。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-135",
+          "question": "粒子系统的材质只能是Unlit的。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：可以是各种材质。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-136",
+          "question": "VFX Graph是Unity中用于创建可视化特效的工具。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-137",
+          "question": "Niagara是Unreal Engine中用于创建特效的工具。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-138",
+          "question": "技术美术只需要会使用特效工具，不需要了解特效的原理。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：了解原理才能更好地创作。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-139",
+          "question": "特效的性能消耗与粒子数量成正比。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-140",
+          "question": "特效的Overdraw越多，性能消耗越大。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-141",
+          "question": "Shader的编译时间越长，性能越好。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：编译时间长通常意味着更复杂的计算，性能可能更差。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-142",
+          "question": "技术美术只需要关注最终的游戏效果，不需要关注开发成本。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：开发成本也很重要。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-143",
+          "question": "资源版本控制只用于代码管理，不适用于美术资源。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：美术资源也需要版本控制。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-144",
+          "question": "技术美术需要参与游戏的美术风格设计。(米哈游技术美术)",
+          "answer": "判断：正确。",
+          "quickAnswer": "正确",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-145",
+          "question": "提交资源到版本控制系统时，不需要写提交说明。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：提交说明很重要，方便团队成员了解修改内容。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-146",
+          "question": "技术美术只需要听从领导的安排，不需要提出自己的建议。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：提出建议可以帮助改进项目。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-147",
+          "question": "在制作游戏资源时，只需要考虑PC平台的性能，不需要考虑移动平台的性能。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：需要根据目标平台进行优化。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-judgment-148",
+          "question": "只有程序员才能使用脚本语言，技术美术不需要学习。(米哈游技术美术)",
+          "answer": "判断：错误。\n解析：技术美术也需要使用脚本来控制特效和行为。",
+          "quickAnswer": "错误",
+          "options": [],
+          "tags": [
+            "判断题"
+          ],
+          "followUps": [],
+          "source": ""
+        }
+      ]
+    },
+    {
+      "id": "short-answer",
+      "title": "简答题",
+      "description": "训练用清晰结构解释技术原理、岗位职责与项目方法。",
+      "concepts": [
+        "技术表达",
+        "原理说明",
+        "项目经验"
+      ],
+      "learnPoints": [],
+      "reviewQuestions": [],
+      "practice": [],
+      "questions": [
+        {
+          "id": "mihoyo-short-001",
+          "question": "请简述你对米哈游游戏美术风格的理解，并举例说明。（出处：参考米哈游历年招聘面试题，以及行业对米哈游美术风格的普遍认知）",
+          "answer": "米哈游游戏美术风格具有鲜明的特点，通常融合了二次元、幻想、精致、细节丰富的元素。色彩明亮鲜艳，角色设计通常具有吸引力，场景设计具有较高的艺术性。以《原神》为例，其美术风格兼具日系动漫的清新唯美和开放世界的壮丽景色，角色造型各具特色，细节刻画到位，场景氛围渲染出色，体现了米哈游对美术品质的极致追求。（出处：参考米哈游历年招聘面试题，以及行业对米哈游美术风格的普遍认知）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-002",
+          "question": "技术美术的核心职责是什么？你认为技术美术在游戏开发流程中扮演什么角色？（出处：GDC (Game Developers Conference) 技术美术相关演讲，行业技术美术岗位职责描述）",
+          "answer": "技术美术的核心职责是连接美术和技术，确保美术资源的质量、性能和效率。技术美术在游戏开发流程中扮演桥梁的角色，负责解决美术制作中遇到的技术问题，优化美术管线，开发工具和流程，并确保美术资源能够流畅地在游戏引擎中运行。他们需要具备美术功底和技术能力，能够理解美术需求，并将其转化为技术解决方案。（出处：GDC (Game Developers Conference) 技术美术相关演讲，行业技术美术岗位职责描述）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-003",
+          "question": "解释PBR（Physically Based Rendering）的概念，并说明它在游戏美术中的重要性。（出处：《Real-Time Rendering》等图形学经典书籍，Unity/Unreal引擎官方文档）",
+          "answer": "PBR（Physically Based Rendering）是一种基于物理原理的渲染方法，它模拟光线与物体表面的真实交互，从而产生更真实、更自然的视觉效果。PBR在游戏美术中的重要性在于：它能够使游戏画面更加逼真，提高沉浸感；它可以简化材质制作流程，减少主观性；它可以提高不同光照环境下的材质表现一致性。（出处：《Real-Time Rendering》等图形学经典书籍，Unity/Unreal引擎官方文档）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-004",
+          "question": "简述你常用的材质编辑器的名称，并列举使用过的材质节点，并说明其作用。（出处：个人项目经验， Substance Designer/Painter 官方文档，Unity Shader Graph/Unreal Material Editor官方文档）",
+          "answer": "我常用的材质编辑器是Substance Designer 和 Unreal Engine 的 Material Editor。 Substance Designer中，我经常使用的节点有：\nTile Generator: 用于生成重复的图案。\nBlur HQ: 用于模糊图像，平滑表面。\nHeight to Normal: 将高度图转换为法线贴图。\nColor Transform: 调整颜色。\nBlend: 混合两个图像或颜色。\nUnreal Engine 的 Material Editor中，我经常使用的节点有：\nTexture Sample: 采样纹理。\nNormal Vector: 创建法线贴图。\nMultiply: 执行乘法运算。\nAdd: 执行加法运算。\nPower: 执行幂运算。（出处：个人项目经验， Substance Designer/Painter 官方文档，Unity Shader Graph/Unreal Material Editor官方文档）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-005",
+          "question": "谈谈你对Shader的理解，它在游戏美术中起到的作用是什么？（出处：Shader编程相关书籍，图形学基础知识）",
+          "answer": "Shader是一种运行在GPU上的程序，用于控制物体的渲染方式。它在游戏美术中起到的作用包括：控制物体的颜色、纹理、光照、阴影等视觉效果；实现各种特殊效果，如水面、火焰、粒子等；优化渲染性能，提高游戏帧率。（出处：Shader编程相关书籍，图形学基础知识）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-006",
+          "question": "解释什么是光照贴图(Lightmap)，它在优化游戏性能方面有什么作用？（出处：Unity/Unreal引擎官方文档，游戏优化相关书籍）",
+          "answer": "光照贴图(Lightmap)是一种预先计算好的光照信息纹理，它存储了场景中静态物体的光照信息。在运行时，引擎只需要采样光照贴图，而不需要实时计算光照，从而大大降低了渲染开销，提高了游戏性能。（出处：Unity/Unreal引擎官方文档，游戏优化相关书籍）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-007",
+          "question": "你了解哪些模型优化技术？请举例说明。（出处：3D建模软件文档，游戏开发优化教程）",
+          "answer": "常用的模型优化技术包括：\n减少多边形数量： 通过减面工具或手动调整，降低模型的复杂度。\n合并网格： 将多个小网格合并成一个大网格，减少Draw Call。\n使用LOD（Level of Detail）： 根据物体与摄像机的距离，使用不同细节程度的模型。\n优化UV布局： 避免UV重叠，减少纹理采样次数。\n使用压缩纹理： 降低纹理的内存占用。（出处：3D建模软件文档，游戏开发优化教程）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-008",
+          "question": "简述你对程序化生成（Procedural Generation）的理解，并说明它在游戏美术中的应用。（出处：GDC相关演讲，程序化生成相关论文）",
+          "answer": "程序化生成（Procedural Generation）是指使用算法和规则自动生成游戏内容的技术。它在游戏美术中的应用包括：生成地形、植被、建筑、角色等。程序化生成可以大大提高内容制作效率，减少重复劳动，并创造出更加丰富多样的游戏世界。（出处：GDC相关演讲，程序化生成相关论文）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-009",
+          "question": "什么是骨骼动画（Skeletal Animation）？它与顶点动画（Vertex Animation）有什么区别？（出处：动画原理相关书籍，游戏开发教程）",
+          "answer": "骨骼动画（Skeletal Animation）是一种通过骨骼系统控制模型变形的动画技术。顶点动画（Vertex Animation）是一种直接控制模型顶点位置的动画技术。骨骼动画的优点是：数据量小，便于编辑和控制，可以实现复杂的动画效果。顶点动画的优点是：可以实现一些特殊的变形效果，但数据量大，不易控制。（出处：动画原理相关书籍，游戏开发教程）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-010",
+          "question": "你了解哪些常用的游戏引擎？请选择一个你最熟悉的引擎，并简述其特点。（出处：个人项目经验，Unity/Unreal引擎官方文档）",
+          "answer": "我了解的游戏引擎包括Unity、Unreal Engine、Cocos Creator等。我最熟悉的是Unreal Engine。Unreal Engine的特点是：强大的渲染能力，丰富的内置工具，蓝图可视化编程，适合开发高质量的3D游戏。（出处：个人项目经验，Unity/Unreal引擎官方文档）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-011",
+          "question": "描述你解决过的一个最具挑战性的技术美术问题，并详细说明你的解决方案。（出处：个人项目经验，技术博客）",
+          "answer": "(此处需要结合个人项目经验，详细描述问题、解决方案和最终结果，例如：在项目中遇到了角色衣服布料模拟效果不佳的问题，通过调整布料的物理参数，修改约束条件，并优化碰撞体，最终实现了逼真的布料模拟效果。)（出处：个人项目经验，技术博客）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-012",
+          "question": "如何确保美术资源在不同平台（PC、移动端）上的表现一致？（出处：游戏开发经验，平台特性研究）",
+          "answer": "为了确保美术资源在不同平台上的表现一致，可以采取以下措施：\n使用PBR材质： PBR材质在不同光照环境下表现稳定。\n统一纹理格式： 使用平台通用的纹理格式，并进行适当的压缩。\n调整光照参数： 根据不同平台的硬件性能，调整光照强度、阴影质量等参数。\n进行性能测试： 在不同平台上进行性能测试，根据测试结果进行优化。（出处：游戏开发经验，平台特性研究）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-013",
+          "question": "简述你对色彩理论的理解，以及它在游戏美术设计中的应用。（出处：色彩理论相关书籍，美术设计基础）",
+          "answer": "色彩理论是研究色彩的原理和规律的学科。它在游戏美术设计中的应用包括：确定游戏整体的色彩基调，营造氛围；设计角色和场景的配色方案，增强视觉吸引力；使用色彩对比和色彩和谐，引导玩家的视线；利用色彩的心理效应，表达情感。（出处：色彩理论相关书籍，美术设计基础）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-014",
+          "question": "什么是Gamma校正？为什么在游戏开发中需要进行Gamma校正？（出处：图形学基础知识，显示器技术相关资料）",
+          "answer": "Gamma校正是指对图像的亮度进行非线性调整，以补偿显示器的非线性响应。在游戏开发中需要进行Gamma校正的原因是：显示器通常具有Gamma值约为2.2的非线性响应，如果不进行Gamma校正，游戏画面会显得偏暗。Gamma校正可以使游戏画面在显示器上呈现出正确的亮度。（出处：图形学基础知识，显示器技术相关资料）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-015",
+          "question": "你如何与美术设计师和程序员进行有效沟通？（出处：团队协作经验，项目管理相关知识）",
+          "answer": "与美术设计师和程序员进行有效沟通的关键在于：\n使用共同的语言： 尽量使用通俗易懂的语言，避免使用过于专业的技术术语。\n明确需求： 清楚地了解美术设计师和程序员的需求，并确保双方理解一致。\n及时反馈： 及时向美术设计师和程序员反馈问题和进展，保持沟通顺畅。\n积极合作： 积极参与讨论，共同解决问题。（出处：团队协作经验，项目管理相关知识）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-016",
+          "question": "解释什么是延迟渲染（Deferred Rendering），并说明它的优缺点。（出处：《Real-Time Rendering》等图形学经典书籍，渲染技术相关论文）",
+          "answer": "延迟渲染（Deferred Rendering）是一种将光照计算延迟到几何阶段之后的渲染方法。它的优点是：可以减少Overdraw，提高渲染效率；可以方便地实现多种光照效果。它的缺点是：需要较大的内存带宽；不适用于透明物体。（出处：《Real-Time Rendering》等图形学经典书籍，渲染技术相关论文）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-017",
+          "question": "你了解哪些常用的性能分析工具？请举例说明。（出处：游戏开发经验，性能分析工具官方文档）",
+          "answer": "常用的性能分析工具包括：\nUnity Profiler： 用于分析Unity游戏的CPU、GPU、内存等性能瓶颈。\nUnreal Insights： 用于分析Unreal Engine游戏的性能数据。\nRenderDoc： 用于调试GPU渲染过程，分析Shader性能。（出处：游戏开发经验，性能分析工具官方文档）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-018",
+          "question": "什么是 LOD (Level of Detail)？在游戏开发中如何应用LOD技术？（出处：Unity/Unreal引擎官方文档，游戏优化相关书籍）",
+          "answer": "LOD (Level of Detail)是指根据物体与摄像机的距离，使用不同细节程度的模型。在游戏开发中应用LOD技术可以：降低渲染开销，提高游戏帧率；减少内存占用，提高游戏运行效率。LOD技术通常通过自动生成或手动创建不同细节程度的模型来实现。（出处：Unity/Unreal引擎官方文档，游戏优化相关书籍）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-019",
+          "question": "简述你对顶点着色器（Vertex Shader）和片元着色器（Fragment Shader）的理解。（出处：Shader编程相关书籍，图形学基础知识）",
+          "answer": "顶点着色器（Vertex Shader）是运行在GPU上的程序，用于处理模型的顶点数据。它负责将顶点坐标从模型空间转换到裁剪空间，并进行一些额外的计算，如法线变换、纹理坐标变换等。片元着色器（Fragment Shader）是运行在GPU上的程序，用于处理模型的像素数据。它负责计算每个像素的颜色，并进行一些额外的计算，如光照、阴影、纹理采样等。（出处：Shader编程相关书籍，图形学基础知识）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-020",
+          "question": "谈谈你对未来游戏美术发展趋势的看法。（出处：行业观察，技术发展趋势分析）",
+          "answer": "我认为未来游戏美术的发展趋势包括：更加逼真的画面效果（如光线追踪、全局光照）、更加智能化的内容生成（如AI辅助美术创作）、更加个性化的用户体验（如动态材质、自适应分辨率）。同时，技术美术的角色将变得更加重要，他们需要掌握更多的技术，并能够将最新的技术应用于游戏美术制作中。（出处：行业观察，技术发展趋势分析）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-021",
+          "question": "什么是屏幕空间反射（Screen Space Reflection，SSR）？它有什么局限性？（出处：渲染技术相关论文，技术博客）",
+          "answer": "屏幕空间反射（Screen Space Reflection，SSR）是一种利用屏幕上的像素信息来模拟反射效果的技术。它的优点是实现简单，性能较高。它的局限性在于：只能反射屏幕上可见的物体，无法反射屏幕外的物体；对于粗糙表面，反射效果不准确。（出处：渲染技术相关论文，技术博客）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-022",
+          "question": "如何在移动平台上优化美术资源以保证流畅的游戏体验？（出处：移动平台游戏开发经验，优化技巧总结）",
+          "answer": "在移动平台上优化美术资源以保证流畅的游戏体验，可以采取以下措施：\n使用低多边形模型： 减少模型的复杂度。\n使用压缩纹理： 降低纹理的内存占用。\n使用光照贴图： 减少实时光照的计算。\n优化Shader： 减少Shader的计算复杂度。\n减少Draw Call： 合并网格，使用材质球合并等。（出处：移动平台游戏开发经验，优化技巧总结）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-short-023",
+          "question": "你对米哈游未来的游戏美术发展有什么建议或想法？（出处：对米哈游游戏产品的了解，个人思考） ---",
+          "answer": "我对米哈游未来的游戏美术发展有以下建议：继续保持对美术品质的极致追求，不断探索新的美术风格和技术，加强与其他领域（如AI、AR/VR）的合作，为玩家带来更加震撼和沉浸式的游戏体验。例如，可以尝试将AI技术应用于角色动画和场景生成，开发更具表现力和互动性的美术资源；可以探索AR/VR技术，为玩家提供更加身临其境的游戏体验。（出处：对米哈游游戏产品的了解，个人思考）",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        }
+      ]
+    },
+    {
+      "id": "multiple-choice",
+      "title": "多选题",
+      "description": "覆盖渲染优化、PBR、引擎功能、美术规范与工具链。",
+      "concepts": [
+        "多项判断",
+        "知识覆盖",
+        "答案解析"
+      ],
+      "learnPoints": [],
+      "reviewQuestions": [],
+      "practice": [],
+      "questions": [
+        {
+          "id": "mihoyo-multiple-001",
+          "question": "以下哪些技术可以用于优化游戏中的渲染性能？（米哈游技术美术）",
+          "answer": "正确选项：ABCDE\n解析：LOD降低远距离模型复杂度，Occlusion Culling剔除不可见物体，Shader优化提升渲染效率，纹理压缩减少纹理占用，光照贴图烘焙预计算光照。",
+          "quickAnswer": "ABCDE",
+          "options": [
+            "A. LOD（Level of Detail）",
+            "B. Occlusion Culling（遮挡剔除）",
+            "C. Shader优化",
+            "D. 纹理压缩",
+            "E. 光照贴图烘焙"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-002",
+          "question": "关于PBR（Physically Based Rendering，基于物理的渲染）材质，以下哪些描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：ABD\n解析：PBR材质基于物理规律，需要Albedo, Metallic, Roughness等参数，在不同光照下表现稳定，但需要正确的光照设置，流程有区别。",
+          "quickAnswer": "ABD",
+          "options": [
+            "A. PBR材质参数包括Albedo（反照率）、Metallic（金属度）、Roughness（粗糙度）等。",
+            "B. PBR材质更符合真实世界的物理规律，可以实现更逼真的渲染效果。",
+            "C. PBR材质需要使用全局光照技术才能正确显示。",
+            "D. PBR材质在不同光照环境下的表现更加稳定。",
+            "E. PBR材质的制作流程与传统材质完全相同。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-003",
+          "question": "以下哪些软件可以用于制作游戏中的3D模型？（米哈游技术美术）",
+          "answer": "正确选项：ABCDE\n解析：这些都是常用的3D建模软件。",
+          "quickAnswer": "ABCDE",
+          "options": [
+            "A. Maya",
+            "B. 3ds Max",
+            "C. Blender",
+            "D. ZBrush",
+            "E. Substance Painter"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-004",
+          "question": "以下哪些关于游戏引擎中的材质系统描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：ABCD\n解析：材质决定外观和光照效果，包含多种纹理，可以在引擎中动态修改。",
+          "quickAnswer": "ABCD",
+          "options": [
+            "A. 材质决定了物体表面的颜色和纹理。",
+            "B. 材质可以影响物体的光照效果。",
+            "C. 材质可以包含法线贴图、高光贴图等多种纹理。",
+            "D. 材质可以在游戏引擎中动态修改。",
+            "E. 材质是静态的，不能在运行时改变。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-005",
+          "question": "以下哪些技术可以用于实现游戏中的角色动画？（米哈游技术美术）",
+          "answer": "正确选项：ABCDE\n解析：这些都是实现角色动画的技术。",
+          "quickAnswer": "ABCDE",
+          "options": [
+            "A. 骨骼动画",
+            "B. 蒙皮（Skinning）",
+            "C. Blend Shape（混合变形）",
+            "D. 物理动画",
+            "E. 程序化动画"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-006",
+          "question": "关于UV展开（UV Unwrapping），以下哪些描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：ABCD\n解析：UV展开是将3D表面展开为2D平面，用于贴图，质量影响显示效果，应尽量均匀。",
+          "quickAnswer": "ABCD",
+          "options": [
+            "A. UV展开是将3D模型表面展开成2D平面。",
+            "B. UV展开的目的是为了在模型上贴图。",
+            "C. UV展开的质量直接影响贴图在模型上的显示效果。",
+            "D. UV展开越均匀越好。",
+            "E. UV展开不需要考虑模型表面的接缝问题。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-007",
+          "question": "以下哪些是常用的图像压缩格式？（米哈游技术美术）",
+          "answer": "正确选项：ABCE\n解析：JPEG、PNG、TIFF和TGA都是常用的图像压缩格式。PSD是Photoshop文件格式，不属于图像压缩格式。",
+          "quickAnswer": "ABCE",
+          "options": [
+            "A. JPEG",
+            "B. PNG",
+            "C. TIFF",
+            "D. PSD",
+            "E. TGA"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-008",
+          "question": "关于法线贴图（Normal Map），以下哪些描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：ABC\n解析：法线贴图模拟细节，是RGB图像，减少模型面数。",
+          "quickAnswer": "ABC",
+          "options": [
+            "A. 法线贴图可以模拟物体表面的细节。",
+            "B. 法线贴图是一种RGB图像。",
+            "C. 法线贴图可以减少模型面数。",
+            "D. 法线贴图必须配合高模使用。",
+            "E. 法线贴图无法在低模上使用。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-009",
+          "question": "以下哪些是常用的版本控制系统？（米哈游技术美术）",
+          "answer": "正确选项：ABCDE\n解析：这些都是常用的版本控制系统。",
+          "quickAnswer": "ABCDE",
+          "options": [
+            "A. Git",
+            "B. SVN",
+            "C. Perforce",
+            "D. CVS",
+            "E. Mercurial"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-010",
+          "question": "关于游戏中的光照技术，以下哪些描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：ABCD\n解析：全局光照模拟光线反弹，直接光照是光源直射，阴影增加真实感，光照贴图预计算光照，光照会影响性能。",
+          "quickAnswer": "ABCD",
+          "options": [
+            "A. 全局光照可以模拟光线在场景中的反弹。",
+            "B. 直接光照只考虑光源直接照射到物体表面的光线。",
+            "C. 阴影可以增加场景的真实感。",
+            "D. 光照贴图可以将光照信息预先计算好并存储起来。",
+            "E. 光照对游戏性能没有影响。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-011",
+          "question": "以下哪些是常用的着色器语言？（米哈游技术美术）",
+          "answer": "正确选项：ABC\n解析：HLSL、GLSL和Cg是常用的着色器语言，CUDA用于GPU并行计算，Python是脚本语言。",
+          "quickAnswer": "ABC",
+          "options": [
+            "A. HLSL",
+            "B. GLSL",
+            "C. Cg",
+            "D. CUDA",
+            "E. Python"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-012",
+          "question": "关于游戏中的性能优化，以下哪些方法是有效的？（米哈游技术美术）",
+          "answer": "正确选项：ABCD\n解析：减少Draw Call、优化Shader、使用LOD和减少多边形数量都是有效的优化方法。",
+          "quickAnswer": "ABCD",
+          "options": [
+            "A. 减少Draw Call",
+            "B. 优化Shader",
+            "C. 使用LOD技术",
+            "D. 减少多边形数量",
+            "E. 强制所有玩家使用最高画质"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-013",
+          "question": "以下哪些是常用的纹理类型？（米哈游技术美术）",
+          "answer": "正确选项：ABCDE\n解析：这些都是常用的纹理类型。",
+          "quickAnswer": "ABCDE",
+          "options": [
+            "A. Diffuse Map（漫反射贴图）",
+            "B. Normal Map（法线贴图）",
+            "C. Specular Map（高光贴图）",
+            "D. Ambient Occlusion Map（环境光遮蔽贴图）",
+            "E. Height Map（高度图）"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-014",
+          "question": "以下哪些关于游戏美术风格的描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：ABCD\n解析：卡通风格色彩鲜艳，写实风格追求真实，Low Poly风格面数少，风格选择应与游戏匹配。",
+          "quickAnswer": "ABCD",
+          "options": [
+            "A. 卡通风格注重色彩鲜艳和造型夸张。",
+            "B. 写实风格追求真实还原现实世界。",
+            "C. Low Poly风格使用较少的面数来构建模型。",
+            "D. 风格的选择应与游戏类型和目标受众相符。",
+            "E. 游戏美术风格一旦确定，就不能改变。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-015",
+          "question": "以下哪些关于mipmap的描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：ABCD\n解析：Mipmap 是一系列优化过的纹理集合，用于优化远距离物体的纹理显示，减少计算量，但会增加存储空间。",
+          "quickAnswer": "ABCD",
+          "options": [
+            "A. mipmap是一系列预先计算好的、优化过的图片集合。",
+            "B. mipmap用于优化远距离物体的纹理显示效果。",
+            "C. 使用mipmap可以减少纹理采样时的计算量。",
+            "D. mipmap会增加纹理的存储空间占用。",
+            "E. mipmap对所有纹理都有优化效果。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-016",
+          "question": "下面哪些是常见的shader类型？（米哈游技术美术）",
+          "answer": "正确选项：ABCDE\n解析：都是常见的shader类型",
+          "quickAnswer": "ABCDE",
+          "options": [
+            "A. Vertex Shader（顶点着色器）",
+            "B. Fragment Shader（片元着色器）",
+            "C. Geometry Shader（几何着色器）",
+            "D. Compute Shader（计算着色器）",
+            "E. Pixel Shader （像素着色器）"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-017",
+          "question": "以下哪些是游戏开发中常用的光源类型？（米哈游技术美术）",
+          "answer": "正确选项：ABCD\n解析：都是游戏开发中常用的光源类型",
+          "quickAnswer": "ABCD",
+          "options": [
+            "A. Directional Light（平行光）",
+            "B. Point Light（点光源）",
+            "C. Spot Light（聚光灯）",
+            "D. Area Light（面光源）",
+            "E. Volume Light (体积光)"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-018",
+          "question": "下面哪些是渲染管线（Rendering Pipeline）的主要阶段？（米哈游技术美术）",
+          "answer": "正确选项：ABCDE\n解析：都是渲染管线的主要阶段。",
+          "quickAnswer": "ABCDE",
+          "options": [
+            "A. 顶点着色（Vertex Shading）",
+            "B. 光栅化（Rasterization）",
+            "C. 像素着色（Pixel Shading）",
+            "D. 纹理采样（Texture Sampling）",
+            "E. 混合（Blending）"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-019",
+          "question": "以下哪些是Unity引擎中常用的组件？（米哈游技术美术）",
+          "answer": "正确选项：ABCDE\n解析：都是Unity引擎中常用的组件",
+          "quickAnswer": "ABCDE",
+          "options": [
+            "A. Transform（变换）",
+            "B. Mesh Renderer（网格渲染器）",
+            "C. Collider（碰撞器）",
+            "D. Rigidbody（刚体）",
+            "E. Audio Source (音频源)"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-020",
+          "question": "以下哪些软件可以用于制作游戏中的特效？（米哈游技术美术）",
+          "answer": "正确选项：ABCD\n解析：这些软件都可以用来制作游戏特效。 Photoshop主要用于处理静态图像特效，其他主要做动态粒子特效。",
+          "quickAnswer": "ABCD",
+          "options": [
+            "A. After Effects",
+            "B. Houdini",
+            "C. Unity Particle System",
+            "D. Unreal Engine Niagara",
+            "E. Photoshop"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-021",
+          "question": "关于渲染队列(Render Queue)，以下哪些描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：ABD\n解析：渲染队列决定渲染顺序，值越小越先渲染，可通过修改材质调整顺序。",
+          "quickAnswer": "ABD",
+          "options": [
+            "A. 渲染队列决定了物体渲染的先后顺序。",
+            "B. 渲染队列的值越小，物体越先被渲染。",
+            "C. 渲染队列的值越大，物体越先被渲染。",
+            "D. 可以通过修改材质的渲染队列来控制物体的渲染顺序。",
+            "E. 渲染队列只对透明物体有效。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-022",
+          "question": "以下哪些关于顶点动画的描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：AB\n解析：顶点动画修改顶点位置，可用Shader实现。",
+          "quickAnswer": "AB",
+          "options": [
+            "A. 顶点动画直接修改模型的顶点位置。",
+            "B. 顶点动画可以使用Shader实现。",
+            "C. 顶点动画比骨骼动画性能更高。",
+            "D. 顶点动画更适合表现复杂的形变。",
+            "E. 顶点动画只能在CPU中实现。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-023",
+          "question": "以下哪些是常用的美术资源管理工具？（米哈游技术美术）",
+          "answer": "正确选项：ABC\n解析：这些是常用的美术资源管理工具。",
+          "quickAnswer": "ABC",
+          "options": [
+            "A. Plastic SCM",
+            "B. Helix Core (Perforce)",
+            "C. Alienbrain",
+            "D. Articy Draft",
+            "E. HacknPlan"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-024",
+          "question": "关于GPU Instancing，以下哪些描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：ABC\n解析：GPU Instancing 减少Draw Call，适用于渲染大量相同物体，需修改Shader。",
+          "quickAnswer": "ABC",
+          "options": [
+            "A. GPU Instancing可以减少Draw Call。",
+            "B. GPU Instancing适用于渲染大量相同的物体。",
+            "C. GPU Instancing需要修改Shader来实现。",
+            "D. GPU Instancing对所有类型的物体都有优化效果。",
+            "E. GPU Instancing只能在高端GPU上使用。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-025",
+          "question": "以下哪些关于后期处理（Post-Processing）的描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：ABC\n解析：后期处理在渲染后处理图像，改善视觉效果，会增加性能负担。",
+          "quickAnswer": "ABC",
+          "options": [
+            "A. 后期处理是在渲染完成后对图像进行处理。",
+            "B. 后期处理可以改善图像的视觉效果。",
+            "C. 后期处理会增加游戏的性能负担。",
+            "D. 后期处理必须使用额外的插件。",
+            "E. 后期处理只能调整颜色。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-026",
+          "question": "以下哪些关于各向异性过滤（Anisotropic Filtering）的描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：ABC\n解析：各向异性过滤是一种纹理过滤技术，提高倾斜表面纹理清晰度，增加性能负担。",
+          "quickAnswer": "ABC",
+          "options": [
+            "A. 各向异性过滤是一种纹理过滤技术。",
+            "B. 各向异性过滤可以提高倾斜表面纹理的清晰度。",
+            "C. 各向异性过滤会增加游戏的性能负担。",
+            "D. 各向异性过滤对所有纹理都有优化效果。",
+            "E. 各向异性过滤只能在高端GPU上使用。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-027",
+          "question": "以下哪些可以作为游戏模型优化的手段？（米哈游技术美术）",
+          "answer": "正确选项：ABCD\n解析：为了优化模型面数，纹理尺寸，UV都需要优化",
+          "quickAnswer": "ABCD",
+          "options": [
+            "A. 合理的面数规划",
+            "B. 优化UV布局",
+            "C. 减少材质数量",
+            "D. 使用高效的压缩纹理格式",
+            "E. 使用高精度贴图"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-028",
+          "question": "关于顶点缓冲对象（VBO），以下哪些描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：ABD\n解析：VBO存储顶点数据，索引数据，位于GPU内存中。",
+          "quickAnswer": "ABD",
+          "options": [
+            "A. VBO存储顶点数据。",
+            "B. VBO存储索引数据。",
+            "C. VBO存储纹理数据。",
+            "D. VBO位于GPU内存中。",
+            "E. VBO位于CPU内存中。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-029",
+          "question": "以下哪些关于阴影技术的描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：ABC\n解析：阴影增加真实感，Shadow Map常用，质量影响性能。",
+          "quickAnswer": "ABC",
+          "options": [
+            "A. 阴影可以增加场景的真实感。",
+            "B. Shadow Map是一种常用的阴影技术。",
+            "C. 阴影的质量会影响游戏的性能。",
+            "D. 阴影不需要额外计算资源。",
+            "E. 阴影对所有类型的游戏都适用。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-030",
+          "question": "下列哪些属于美术资产规范需要包含的内容？（米哈游技术美术）",
+          "answer": "正确选项：ABCDE\n解析：都是美术资产规范需要包含的内容，方便团队协作。",
+          "quickAnswer": "ABCDE",
+          "options": [
+            "A. 命名规范",
+            "B. 文件目录结构",
+            "C. 贴图尺寸和格式",
+            "D. 模型面数限制",
+            "E. 提交和版本控制流程"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-031",
+          "question": "关于TGA格式图片，以下哪些描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：ABC\n解析：支持无损压缩和Alpha通道，是常用纹理格式。",
+          "quickAnswer": "ABC",
+          "options": [
+            "A. 支持无损压缩。",
+            "B. 可以存储Alpha通道信息。",
+            "C. 是一种常用的纹理格式。",
+            "D. 压缩比很高。",
+            "E. 占用空间小。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-032",
+          "question": "以下哪些操作可以有效降低模型的Draw Call数量? (米哈游技术美术)",
+          "answer": "正确选项：ABC\n解析：静态批处理、动态批处理和GPU Instancing都可以减少Draw Call。",
+          "quickAnswer": "ABC",
+          "options": [
+            "A. 使用静态批处理 (Static Batching)",
+            "B. 使用动态批处理 (Dynamic Batching)",
+            "C. 使用GPU Instancing",
+            "D. 减少场景中的光源数量",
+            "E. 增加模型的复杂度"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-033",
+          "question": "以下哪些做法可以提高游戏UI的渲染效率? （米哈游技术美术）",
+          "answer": "正确选项：ABCD\n解析：尽可能使用矢量图，减少UI元素，合理使用遮罩，避免过度绘制可以提高游戏UI的渲染效率",
+          "quickAnswer": "ABCD",
+          "options": [
+            "A. 尽可能使用矢量图",
+            "B. 减少UI元素的数量",
+            "C. 合理使用遮罩 (Mask)",
+            "D. 避免过度绘制 (Overdraw)",
+            "E. 将所有UI元素放在一个Canvas下"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-034",
+          "question": "以下哪些是常见的渲染模式？（米哈游技术美术）",
+          "answer": "正确选项：ABCD\n解析：这些都是常见的渲染模式。",
+          "quickAnswer": "ABCD",
+          "options": [
+            "A. Forward Rendering（正向渲染）",
+            "B. Deferred Rendering（延迟渲染）",
+            "C. Ray Tracing (光线追踪)",
+            "D. Path Tracing (路径追踪)",
+            "E. Scanline Rendering (扫描线渲染)"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-035",
+          "question": "在游戏中，以下哪些因素会影响玩家的沉浸感？（米哈游技术美术）",
+          "answer": "正确选项：ABCD\n解析：精美的画面、逼真的音效、引人入胜的剧情和流畅的操作体验都可以提高玩家的沉浸感。",
+          "quickAnswer": "ABCD",
+          "options": [
+            "A. 精美的画面",
+            "B. 逼真的音效",
+            "C. 引人入胜的剧情",
+            "D. 流畅的操作体验",
+            "E. 复杂的操作界面"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-036",
+          "question": "关于Shader Graph，以下哪些描述是正确的？（米哈游技术美术）",
+          "answer": "正确选项：ABE\n解析：Shader Graph是一种可视化Shader编辑器，无需编写代码即可创建Shader，可以创建复杂的Shader效果。",
+          "quickAnswer": "ABE",
+          "options": [
+            "A. Shader Graph是一种可视化Shader编辑器。",
+            "B. Shader Graph可以无需编写代码即可创建Shader。",
+            "C. Shader Graph生成的Shader性能比手写Shader更好。",
+            "D. Shader Graph只能在Unity中使用。",
+            "E. Shader Graph可以创建复杂的Shader效果。"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-037",
+          "question": "以下哪些是常用的程序化生成技术？（米哈游技术美术）",
+          "answer": "正确选项：ABCD\n解析：都是常见的程序化生成技术",
+          "quickAnswer": "ABCD",
+          "options": [
+            "A. L-系统（L-System）",
+            "B. Perlin噪声（Perlin Noise）",
+            "C. Voronoi图（Voronoi Diagram）",
+            "D. Cellular Automata（细胞自动机）",
+            "E. 手动建模"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-multiple-038",
+          "question": "以下哪些因素会影响游戏运行时的内存占用？（米哈游技术美术）",
+          "answer": "正确选项：ABCD\n解析：纹理大小和数量、模型面数、音频文件和代码复杂度都会影响游戏运行时的内存占用。",
+          "quickAnswer": "ABCD",
+          "options": [
+            "A. 纹理的大小和数量",
+            "B. 模型面数",
+            "C. 音频文件的数量和大小",
+            "D. 代码的复杂度",
+            "E. 玩家的操作习惯"
+          ],
+          "tags": [
+            "多选题"
+          ],
+          "followUps": [],
+          "source": ""
+        }
+      ]
+    },
+    {
+      "id": "writing",
+      "title": "写作题",
+      "description": "聚焦技术美术价值、团队协作、行业趋势与方案论述。",
+      "concepts": [
+        "综合论述",
+        "团队协作",
+        "职业判断"
+      ],
+      "learnPoints": [],
+      "reviewQuestions": [],
+      "practice": [],
+      "questions": [
+        {
+          "id": "mihoyo-writing-001",
+          "question": "“技术迭代日新月异，美术风格层出不穷，作为米哈游的技术美术，你如何看待传统美术与新兴技术在游戏美术中的融合与发展？请结合你对米哈游现有游戏产品的理解，谈谈你的看法，并提出你对未来米哈游技术美术发展的建议。”（出处：参考米哈游历年招聘的技术美术岗位要求，以及行业内对技术美术发展趋势的讨论）",
+          "answer": "传统美术是游戏美术的根基，它提供了丰富的视觉语言和情感表达方式。新兴技术则为美术的呈现提供了更多可能性，比如程序化生成、实时渲染、物理材质等。在米哈游的游戏中，例如《原神》，我们既能看到细腻的手绘贴图和精美的角色设计，也能感受到全局光照和物理碰撞带来的真实感。我认为，未来的技术美术应该更加注重将两者融合，利用技术手段更好地呈现美术创意，同时也要保留传统美术的精髓。我对米哈游技术美术发展的建议是：一是加强对前沿技术的学习和研究，比如机器学习在美术资源生成中的应用；二是建立更加完善的技术美术工具链，提高工作效率；三是鼓励技术美术与美术设计师之间的沟通与合作，共同探索新的美术风格和技术实现方式。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-writing-002",
+          "question": "“假设你负责游戏中一个重要角色的美术资源制作，在项目中期，主策对该角色提出了推翻性的设计修改意见，且时间非常紧张。你将如何处理这种情况？请详细描述你的应对方案，包括沟通、资源分配、风险评估等方面。”（出处：模拟游戏项目开发中常见的突发状况，考察候选人的问题解决能力和团队协作能力）",
+          "answer": "面对主策提出的推翻性修改意见，首先我会保持冷静，理解修改的意图和原因。然后，我会第一时间与主策进行深入沟通，详细了解修改的具体内容和时间节点。接下来，我会组织团队成员进行评估，分析修改对现有资源的影响，包括模型、贴图、动画等。同时，我会进行风险评估，预测可能出现的问题和延误。我会根据评估结果，制定详细的修改方案，并与主策协商确定最终方案。在资源分配方面，我会优先保证核心资源的修改，并合理安排团队成员的工作任务。在执行过程中，我会密切关注进度，及时发现和解决问题。同时，我会与主策保持沟通，及时反馈进展情况。如果时间实在紧张，我会考虑采用一些折衷方案，比如简化部分细节，或者采用已有的资源进行修改。总之，我的目标是在保证美术质量的前提下，尽可能按时完成修改任务。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-writing-003",
+          "question": "“请选择一款你认为在美术风格和技术实现上都非常优秀的游戏，分析其成功之处，并阐述其美术风格和技术特点对你的启发。这款游戏不一定是米哈游的产品。”（出处：考察候选人对游戏美术的鉴赏能力，以及从优秀作品中学习的能力）",
+          "answer": "我认为《塞尔达传说：旷野之息》在美术风格和技术实现上都非常优秀。它的美术风格清新明快，色彩鲜艳，给人一种舒适和放松的感觉。同时，游戏采用了开放世界的设定，玩家可以在广阔的地图上自由探索。在技术实现方面，游戏采用了卡通渲染技术，使得画面看起来更加简洁和卡通化。此外，游戏还采用了程序化生成技术，用于生成地形和植被，大大提高了开发效率。这款游戏的美术风格和技术特点对我的启发是：一是美术风格要与游戏的主题和玩法相契合；二是技术手段要服务于美术创意，而不是限制美术创意；三是要注重用户体验，让玩家感受到游戏的乐趣。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-writing-004",
+          "question": "“你认为在游戏美术制作中，技术美术的核心价值是什么？请结合实际工作经验或案例，谈谈你如何通过技术手段提升美术质量和效率。”（出处：考察候选人对技术美术角色定位的理解，以及技术能力在实际工作中的应用）",
+          "answer": "我认为技术美术的核心价值在于连接美术与技术，通过技术手段提升美术质量和效率。具体来说，技术美术可以帮助美术设计师更好地实现创意，比如开发自定义的着色器，实现特殊的光影效果；也可以提高美术资源制作的效率，比如开发自动化工具，批量处理模型和贴图。在实际工作中，我曾参与过一个项目的角色模型优化工作。由于模型面数过高，导致游戏运行卡顿。我通过分析模型结构，发现有很多冗余的面。于是，我开发了一个自动减面工具，可以批量减少模型面数，同时保证模型的外观质量。通过这个工具，我们成功地优化了角色模型，提高了游戏运行效率。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-writing-005",
+          "question": "“米哈游以其独特的美术风格著称，你认为米哈游的美术风格有哪些特点？这种风格在技术实现上存在哪些挑战？你认为未来如何进一步发展和创新米哈游的美术风格？”（出处：考察候选人对米哈游企业文化的理解，以及对公司未来发展的思考）",
+          "answer": "米哈游的美术风格具有独特的二次元风格，其特点包括：精致的角色设计、细腻的场景表现、以及充满活力的色彩运用。这种风格在技术实现上存在一些挑战，比如：如何实现高精度的模型和贴图，同时保证游戏运行效率；如何实现逼真的光影效果，同时保持画面的卡通感；如何实现流畅的动画效果，同时保证角色的动作自然流畅。我认为，未来米哈游的美术风格可以朝着以下几个方向发展：一是更加注重美术的原创性，创造出更加独特和具有辨识度的角色和场景；二是更加注重美术的细节表现，提高画面的精致度和真实感；三是更加注重美术与技术的融合，利用新技术手段提升美术表现力。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-writing-006",
+          "question": "“请描述一次你在美术资源制作过程中遇到的技术难题，你是如何分析问题、寻找解决方案并最终解决问题的？请详细说明你使用的技术方法和工具。”（出处：考察候选人的技术能力和解决问题的能力，通过具体案例了解候选人的实际水平）",
+          "answer": "在一次美术资源制作过程中，我遇到了一个技术难题：游戏中一个场景的地面材质需要实现动态积雪效果，即雪花会随着时间推移逐渐覆盖地面，并且角色走过后会留下脚印。我首先分析了问题，发现传统的贴图混合方式无法实现这种动态效果。于是，我开始寻找解决方案。我了解到可以使用Shader来实现动态积雪效果。我查阅了大量的资料，学习了相关的Shader语法和算法。然后，我开始编写Shader代码，实现了雪花覆盖和脚印效果。在调试过程中，我遇到了很多问题，比如：雪花覆盖不均匀、脚印效果不自然等。我通过不断地修改代码和调整参数，最终解决了这些问题。最终，我成功地实现了动态积雪效果，得到了美术设计师和主程的认可。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-writing-007",
+          "question": "“未来的游戏引擎和美术工具将会朝着哪些方向发展？这些发展趋势会对技术美术的工作带来哪些影响？你将如何应对这些变化？”（出处：考察候选人对行业发展趋势的关注，以及适应变化的能力）",
+          "answer": "我认为未来的游戏引擎和美术工具将会朝着以下几个方向发展：一是更加智能化，比如利用人工智能技术自动生成美术资源；二是更加模块化，比如提供更多的插件和工具，方便用户自定义功能；三是更加云端化，比如将美术资源存储在云端，方便团队协作。这些发展趋势会对技术美术的工作带来以下影响：一是技术美术需要学习更多的新技术，比如人工智能、云计算等；二是技术美术需要具备更强的工具开发能力，能够利用现有工具开发出满足特定需求的插件；三是技术美术需要更加注重团队协作，能够与其他成员高效地合作。为了应对这些变化，我将不断学习新的技术知识，提高自己的技术能力，并积极参与团队协作，共同推动游戏美术的发展。",
+          "quickAnswer": "",
+          "options": [],
+          "tags": [],
+          "followUps": [],
+          "source": ""
+        }
+      ]
+    },
+    {
+      "id": "fill-blank",
+      "title": "填空题",
+      "description": "通过关键词回忆巩固数学、Shader、引擎与渲染基础。",
+      "concepts": [
+        "关键词",
+        "概念回忆",
+        "基础巩固"
+      ],
+      "learnPoints": [],
+      "reviewQuestions": [],
+      "practice": [],
+      "questions": [
+        {
+          "id": "mihoyo-fill-001",
+          "question": "在三维空间中，一个点P(1, 2, 3)绕X轴旋转90度后的坐标为________。（线性代数基础）",
+          "answer": "参考答案：(1, -3, 2) (绕X轴旋转，X坐标不变，Y和Z坐标根据旋转矩阵计算)",
+          "quickAnswer": "(1, -3, 2) (绕X轴旋转，X坐标不变，Y和Z坐标根据旋转矩阵计算)",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-002",
+          "question": "shader中，float类型的精度分为lowp、mediump和highp，其中精度最高的是________。（Shader基础）",
+          "answer": "参考答案：highp (精度越高，计算越精确，但消耗资源也越多)",
+          "quickAnswer": "highp",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-003",
+          "question": "法线贴图存储的是表面法线的________空间向量。（贴图基础）",
+          "answer": "参考答案：切线 (法线贴图存储的是相对于表面的法线方向偏移)",
+          "quickAnswer": "切线",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-004",
+          "question": "PBR材质中，控制光滑度的参数通常是roughness或________。（PBR材质）",
+          "answer": "参考答案：glossiness (两者通常互斥，roughness越大，glossiness越小)",
+          "quickAnswer": "glossiness",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-005",
+          "question": "在Unity中，用于查找场景中名为\"Player\"的GameObject的函数是________。（Unity API）",
+          "answer": "参考答案：GameObject.Find(\"Player\") (Unity API 中查找对象的基本方法)",
+          "quickAnswer": "GameObject.Find",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-006",
+          "question": "mipmap技术的目的是为了解决远距离物体的________问题。（图像处理）",
+          "answer": "参考答案：闪烁/锯齿 (mipmap 通过预先计算不同尺寸的贴图，解决远距离缩小带来的问题)",
+          "quickAnswer": "闪烁/锯齿",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-007",
+          "question": "贝塞尔曲线由一系列控制点定义，二阶贝塞尔曲线需要________个控制点。（曲线基础）",
+          "answer": "参考答案：3 (贝塞尔曲线的阶数由控制点数量决定)",
+          "quickAnswer": "3",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-008",
+          "question": "在Blender中，快捷键________用于进入编辑模式。（Blender基础）",
+          "answer": "参考答案：Tab (Blender 编辑模式允许修改模型顶点)",
+          "quickAnswer": "Tab",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-009",
+          "question": "ZBrush中使用________笔刷可以模拟雕刻泥土效果。（ZBrush笔刷）",
+          "answer": "参考答案：Clay Buildup (模拟堆积泥土，快速构建体积)",
+          "quickAnswer": "Clay Buildup",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-010",
+          "question": "Substance Painter中，bake贴图的目的是为了生成________信息。（烘焙贴图）",
+          "answer": "参考答案：法线/曲率/AO (烘焙贴图获取模型的细节信息，用于增强材质表现)",
+          "quickAnswer": "法线/曲率/AO",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-011",
+          "question": "UV展开的目的是将三维模型表面映射到________空间。（UV展开）",
+          "answer": "参考答案：二维 (UV展开是将三维表面展平成二维，便于贴图绘制)",
+          "quickAnswer": "二维",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-012",
+          "question": "在Unreal Engine 4中，用于创建材质实例的节点是________。（UE4材质）",
+          "answer": "参考答案：Create Dynamic Material Instance (UE4 中动态修改材质参数的常用方法)",
+          "quickAnswer": "Create Dynamic Material Instance",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-013",
+          "question": "Git中，用于将本地仓库的更改推送到远程仓库的命令是________。（版本控制）",
+          "answer": "参考答案：git push (将本地更改上传到远程仓库)",
+          "quickAnswer": "git push",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-014",
+          "question": "mipmap链中，level 0 代表的是原贴图的________。（mipmap细节）",
+          "answer": "参考答案：原始尺寸 (mipmap 链的顶层是原始大小的贴图)",
+          "quickAnswer": "原始尺寸",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-015",
+          "question": "顶点着色器主要负责处理顶点的________和变换。（顶点着色器）",
+          "answer": "参考答案：位置 (顶点着色器负责顶点坐标变换和传递数据)",
+          "quickAnswer": "位置",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-016",
+          "question": "像素着色器主要负责处理像素的________和颜色计算。（像素着色器）",
+          "answer": "参考答案：颜色 (像素着色器负责计算最终像素颜色)",
+          "quickAnswer": "颜色",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-017",
+          "question": "使用AlphaTest时，当Alpha值大于某个阈值时，像素会被________。（Alpha混合）",
+          "answer": "参考答案：显示 (AlphaTest 决定像素是否可见，而非透明度)",
+          "quickAnswer": "显示",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-018",
+          "question": "环境光遮蔽（AO）模拟的是物体表面被________光线遮蔽的程度。（环境光遮蔽）",
+          "answer": "参考答案：周围 (AO 模拟光线被遮挡的阴影效果)",
+          "quickAnswer": "周围",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-019",
+          "question": "Bloom效果是通过模糊图像并叠加来实现________效果。（Bloom效果）",
+          "answer": "参考答案：辉光 (Bloom 增强发光物体的亮度，产生辉光)",
+          "quickAnswer": "辉光",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-020",
+          "question": "景深效果模拟的是相机镜头对焦范围外的物体________的程度。（景深效果）",
+          "answer": "参考答案：模糊 (景深效果模拟相机对焦不清的模糊)",
+          "quickAnswer": "模糊",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-021",
+          "question": "在渲染管线中，模型数据首先经过________阶段。（渲染管线）",
+          "answer": "参考答案：顶点着色 (渲染管线的起始阶段)",
+          "quickAnswer": "顶点着色",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-022",
+          "question": "各向异性反射会导致物体表面出现________的光泽效果。（各向异性反射）",
+          "answer": "参考答案：丝绸般 (各向异性反射在特定方向上形成光泽)",
+          "quickAnswer": "丝绸般",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-023",
+          "question": "菲涅尔效应描述的是物体表面反射率随________变化的现象。（菲涅尔效应）",
+          "answer": "参考答案：视角 (不同视角下，反射强度不同)",
+          "quickAnswer": "视角",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-024",
+          "question": "次表面散射（SSS）模拟的是光线进入物体内部________的现象。（次表面散射）",
+          "answer": "参考答案：散射 (光线在物体内部的传播和散射)",
+          "quickAnswer": "散射",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-025",
+          "question": "LOD技术用于在不同距离上使用不同________的模型。（LOD技术）",
+          "answer": "参考答案：精细度/细节 (LOD 用于优化性能，减少远距离模型复杂度)",
+          "quickAnswer": "精细度/细节",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-026",
+          "question": "在Unity中，可以使用________组件来创建粒子效果。（Unity粒子系统）",
+          "answer": "参考答案：Particle System (Unity 自带的粒子系统组件)",
+          "quickAnswer": "Particle System",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-027",
+          "question": "ShaderLab中，Pass块定义了一个渲染________。（ShaderLab）",
+          "answer": "参考答案：渲染通道 (Pass 定义一次渲染过程)",
+          "quickAnswer": "渲染通道",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-028",
+          "question": "CG语言中，float4表示一个包含4个________类型数据的向量。（CG语言）",
+          "answer": "参考答案：浮点数 (float4 是包含四个浮点数的向量)",
+          "quickAnswer": "浮点数",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-029",
+          "question": "HLSL语言中，tex2D函数用于采样________纹理。（HLSL语言）",
+          "answer": "参考答案：二维 (tex2D 用于采样 2D 纹理)",
+          "quickAnswer": "二维",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-030",
+          "question": "GLSL语言中，normalize函数用于将向量________。（GLSL语言）",
+          "answer": "参考答案：单位化 (normalize 使向量长度为 1)",
+          "quickAnswer": "单位化",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-031",
+          "question": "在物理引擎中，刚体（Rigidbody）具有质量、惯性和________等属性。（物理引擎）",
+          "answer": "参考答案：摩擦力 (刚体具有质量、惯性、摩擦力等物理属性)",
+          "quickAnswer": "摩擦力",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-032",
+          "question": "骨骼动画通过控制________的变换来实现角色动画。（骨骼动画）",
+          "answer": "参考答案：骨骼/关节 (骨骼动画通过控制骨骼的旋转和位移来驱动模型)",
+          "quickAnswer": "骨骼/关节",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-033",
+          "question": "蒙皮（Skinning）是将顶点绑定到________的过程。（蒙皮）",
+          "answer": "参考答案：骨骼 (蒙皮将顶点绑定到骨骼，使其跟随骨骼运动)",
+          "quickAnswer": "骨骼",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-034",
+          "question": "动画混合（Animation Blending）用于平滑过渡不同的________。（动画混合）",
+          "answer": "参考答案：动画 (平滑过渡动画，避免突兀切换)",
+          "quickAnswer": "动画",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-035",
+          "question": "IK（Inverse Kinematics）技术可以通过控制末端执行器来推算________的姿态。（IK）",
+          "answer": "参考答案：骨骼/关节 (IK 通过末端位置反推骨骼角度)",
+          "quickAnswer": "骨骼/关节",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-036",
+          "question": "A寻路算法是一种启发式搜索算法，用于找到________最短路径。（A寻路）",
+          "answer": "参考答案：两点之间 (A 是一种常用的寻路算法)",
+          "quickAnswer": "两点之间",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-037",
+          "question": "状态机（State Machine）用于管理游戏对象在不同________之间的转换。（状态机）",
+          "answer": "参考答案：状态 (状态机用于控制游戏对象的行为逻辑)",
+          "quickAnswer": "状态",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-038",
+          "question": "行为树（Behavior Tree）是一种用于创建AI行为的________模型。（行为树）",
+          "answer": "参考答案：图形化 (行为树易于可视化和编辑 AI 行为)",
+          "quickAnswer": "图形化",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-039",
+          "question": "资源管理的目标是提高资源利用率和减少________。（资源管理）",
+          "answer": "参考答案：内存占用/加载时间 (资源管理目标是提高效率和减少资源消耗)",
+          "quickAnswer": "内存占用/加载时间",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-040",
+          "question": "纹理压缩可以减少纹理的________，从而提高性能。（纹理压缩）",
+          "answer": "参考答案：大小 (纹理压缩减少存储空间和带宽)",
+          "quickAnswer": "大小",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-041",
+          "question": "光照贴图（Lightmap）是预先计算好的________信息。（光照贴图）",
+          "answer": "参考答案：光照 (光照贴图预先计算光照，提高渲染效率)",
+          "quickAnswer": "光照",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-042",
+          "question": "反射探针（Reflection Probe）用于捕捉场景中的________信息。（反射探针）",
+          "answer": "参考答案：反射 (反射探针捕捉周围环境的反射信息)",
+          "quickAnswer": "反射",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-043",
+          "question": "在移动平台上，Draw Call的数量直接影响________。（移动平台优化）",
+          "answer": "参考答案：性能 (Draw Call 越多，CPU 和 GPU 负担越大)",
+          "quickAnswer": "性能",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-044",
+          "question": "GPU Profiler可以用于分析GPU的________瓶颈。（GPU Profiler）",
+          "answer": "参考答案：性能 (GPU Profiler 分析 GPU 占用和瓶颈)",
+          "quickAnswer": "性能",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-045",
+          "question": "Overdraw是指像素被________渲染多次的现象。（Overdraw）",
+          "answer": "参考答案：多次 (Overdraw 降低渲染效率)",
+          "quickAnswer": "多次",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-046",
+          "question": "静态批处理（Static Batching）可以将多个静态物体合并成一个________。（静态批处理）",
+          "answer": "参考答案：个网格 (静态批处理减少 Draw Call)",
+          "quickAnswer": "个网格",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-047",
+          "question": "动态批处理（Dynamic Batching）可以将多个使用相同________的物体合并成一个。（动态批处理）",
+          "answer": "参考答案：材质 (动态批处理减少 Draw Call)",
+          "quickAnswer": "材质",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-048",
+          "question": "Shader Variants指的是同一Shader的不同________。（Shader Variants）",
+          "answer": "参考答案：变体 (不同配置和选项的 Shader)",
+          "quickAnswer": "变体",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-049",
+          "question": "在shader中，pragma multi_compile 指令用于定义多个________。（shader编译指令）",
+          "answer": "参考答案：关键字 (multi_compile 定义多个 shader 关键字)",
+          "quickAnswer": "关键字",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-050",
+          "question": "代码优化中，应该尽量避免使用________操作。（代码优化）",
+          "answer": "参考答案：反射 (反射性能消耗较大)",
+          "quickAnswer": "反射",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-051",
+          "question": "色彩空间分为sRGB和________两种主要类型。（色彩空间）",
+          "answer": "参考答案：Linear (常见的色彩空间类型)",
+          "quickAnswer": "Linear",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-052",
+          "question": "伽马校正用于校正显示器的________特性。（伽马校正）",
+          "answer": "参考答案：非线性 (伽马校正校正显示器的显示偏差)",
+          "quickAnswer": "非线性",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-053",
+          "question": "HDR（High Dynamic Range）渲染可以表现更广的________范围。（HDR渲染）",
+          "answer": "参考答案：亮度 (HDR 渲染可以表现更真实的亮度范围)",
+          "quickAnswer": "亮度",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-054",
+          "question": "Tone Mapping是将HDR颜色映射到________颜色范围的过程。（Tone Mapping）",
+          "answer": "参考答案：LDR (将 HDR 颜色映射到显示器可显示的范围)",
+          "quickAnswer": "LDR",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-055",
+          "question": "颜色分级（Color Grading）是对图像颜色进行________的过程。（颜色分级）",
+          "answer": "参考答案：调整 (颜色分级调整图像的整体颜色风格)",
+          "quickAnswer": "调整",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-056",
+          "question": "LUT（Look-Up Table）是一种用于颜色校正的________。（LUT）",
+          "answer": "参考答案：颜色查找表 (LUT 是一种预先定义好的颜色映射表)",
+          "quickAnswer": "颜色查找表",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-057",
+          "question": "VFX Graph是Unity中用于创建________效果的工具。（VFX Graph）",
+          "answer": "参考答案：视觉 (VFX Graph 用于创建各种视觉特效)",
+          "quickAnswer": "视觉",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-058",
+          "question": "Shader Graph是Unity中用于创建________的工具。（Shader Graph）",
+          "answer": "参考答案：Shader (Shader Graph 是一种可视化 Shader 编辑器)",
+          "quickAnswer": "Shader",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-059",
+          "question": "Timeline是Unity中用于创建________的工具。（Unity Timeline）",
+          "answer": "参考答案：过场动画 (Timeline 用于创建线性动画序列)",
+          "quickAnswer": "过场动画",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-060",
+          "question": "ProBuilder是Unity中用于创建________的工具。（ProBuilder）",
+          "answer": "参考答案：模型 (ProBuilder 是一种快速建模工具)",
+          "quickAnswer": "模型",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-061",
+          "question": "Polybrush是Unity中用于在场景中直接绘制________的工具。（Polybrush）",
+          "answer": "参考答案：网格 (Polybrush 可以直接在场景中绘制模型)",
+          "quickAnswer": "网格",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-062",
+          "question": "顶点颜色（Vertex Color）可以用于存储额外的________信息。（顶点颜色）",
+          "answer": "参考答案：数据 (顶点颜色可以存储额外的信息，如遮罩)",
+          "quickAnswer": "数据",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-063",
+          "question": "程序化生成（Procedural Generation）是指通过算法自动生成________的过程。（程序化生成）",
+          "answer": "参考答案：内容 (通过算法自动生成游戏内容)",
+          "quickAnswer": "内容",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-064",
+          "question": "Noise函数可以用于生成________的纹理。（Noise函数）",
+          "answer": "参考答案：随机 (Noise 函数可以生成随机的纹理，用于创建自然效果)",
+          "quickAnswer": "随机",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-065",
+          "question": "分形（Fractal）是一种具有自相似性的________。（分形）",
+          "answer": "参考答案：几何图形 (分形具有自相似的特性)",
+          "quickAnswer": "几何图形",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-066",
+          "question": "元胞自动机（Cellular Automaton）是一种用于模拟复杂系统的________。（元胞自动机）",
+          "answer": "参考答案：离散模型 (元胞自动机模拟细胞的演化规则)",
+          "quickAnswer": "离散模型",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-067",
+          "question": "光栅化是将________转化为像素的过程。（光栅化）",
+          "answer": "参考答案：矢量图形 (光栅化将矢量图形转换为像素)",
+          "quickAnswer": "矢量图形",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-068",
+          "question": "深度测试用于判断像素是否被________。（深度测试）",
+          "answer": "参考答案：遮挡 (深度测试判断像素是否被遮挡)",
+          "quickAnswer": "遮挡",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-069",
+          "question": "模板测试（Stencil Test）可以用于实现复杂的________效果。（模板测试）",
+          "answer": "参考答案：遮罩 (模板测试用于创建复杂的遮罩效果)",
+          "quickAnswer": "遮罩",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-070",
+          "question": "Alpha混合用于实现________效果。（Alpha混合）",
+          "answer": "参考答案：透明 (Alpha 混合用于实现透明效果)",
+          "quickAnswer": "透明",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-071",
+          "question": "CullingMask用于控制摄像机________的Layer。（CullingMask）",
+          "answer": "参考答案：渲染 (CullingMask 控制摄像机渲染哪些层)",
+          "quickAnswer": "渲染",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-072",
+          "question": "Render Queue用于控制物体的________顺序。（Render Queue）",
+          "answer": "参考答案：渲染 (Render Queue 控制物体的渲染顺序)",
+          "quickAnswer": "渲染",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-073",
+          "question": "Shadow Mapping用于生成________。（Shadow Mapping）",
+          "answer": "参考答案：阴影 (Shadow Mapping 用于生成阴影)",
+          "quickAnswer": "阴影",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-074",
+          "question": "Shadow Cascade用于提高远距离阴影的________。（Shadow Cascade）",
+          "answer": "参考答案：精度 (Shadow Cascade 提高远距离阴影的精度)",
+          "quickAnswer": "精度",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-075",
+          "question": "屏幕空间反射（SSR）用于模拟________。（屏幕空间反射）",
+          "answer": "参考答案：反射 (屏幕空间反射模拟屏幕上的反射效果)",
+          "quickAnswer": "反射",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-076",
+          "question": "环境光（Ambient Light）提供场景中的________光照。（环境光）",
+          "answer": "参考答案：基础 (环境光提供场景中的基础光照)",
+          "quickAnswer": "基础",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-077",
+          "question": "定向光（Directional Light）模拟________的光照。（定向光）",
+          "answer": "参考答案：太阳 (定向光模拟太阳光)",
+          "quickAnswer": "太阳",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-078",
+          "question": "点光（Point Light）模拟________的光照。（点光）",
+          "answer": "参考答案：灯泡 (点光模拟灯泡光照)",
+          "quickAnswer": "灯泡",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-079",
+          "question": "聚光灯（Spot Light）模拟________的光照。（聚光灯）",
+          "answer": "参考答案：手电筒 (聚光灯模拟手电筒光照)",
+          "quickAnswer": "手电筒",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-080",
+          "question": "烘焙（Baking）是将动态光照信息预先计算并存储到________的过程。（烘焙）",
+          "answer": "参考答案：纹理 (烘焙将光照信息存储到纹理中)",
+          "quickAnswer": "纹理",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-081",
+          "question": "实时全局光照（Realtime GI）可以动态更新________。（实时全局光照）",
+          "answer": "参考答案：光照 (实时全局光照可以动态更新光照)",
+          "quickAnswer": "光照",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-082",
+          "question": "预计算实时全局光照（Precomputed Realtime GI）需要在________时预先计算光照信息。（预计算实时全局光照）",
+          "answer": "参考答案：编辑 (预计算实时全局光照需要在编辑器中预先计算)",
+          "quickAnswer": "编辑",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-083",
+          "question": "遮挡剔除（Occlusion Culling）可以剔除被________的物体。（遮挡剔除）",
+          "answer": "参考答案：遮挡 (遮挡剔除可以剔除被遮挡的物体)",
+          "quickAnswer": "遮挡",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-fill-084",
+          "question": "Animation Rigging是Unity中用于创建复杂的角色________的工具。（Animation Rigging）",
+          "answer": "参考答案：绑定 (Animation Rigging 可以创建复杂的角色绑定)",
+          "quickAnswer": "绑定",
+          "options": [],
+          "tags": [
+            "填空题"
+          ],
+          "followUps": [],
+          "source": ""
+        }
+      ]
+    },
+    {
+      "id": "single-choice",
+      "title": "单选题",
+      "description": "系统覆盖程序基础、图形学、DCC、引擎和项目常识。",
+      "concepts": [
+        "单项选择",
+        "综合基础",
+        "查漏补缺"
+      ],
+      "learnPoints": [],
+      "reviewQuestions": [],
+      "practice": [],
+      "questions": [
+        {
+          "id": "mihoyo-single-001",
+          "question": "下列哪个排序算法在最坏情况下的时间复杂度为O(n^2)？（数据结构与算法）",
+          "answer": "正确答案：B. 快速排序。快速排序在最坏情况下（例如，已排序的数组）会退化为O(n^2)。",
+          "quickAnswer": "B. 快速排序",
+          "options": [
+            "A. 归并排序",
+            "B. 快速排序",
+            "C. 堆排序",
+            "D. 希尔排序"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-002",
+          "question": "在C++中，以下哪个关键字用于声明一个常量？（C++程序设计）",
+          "answer": "正确答案：B. const。`const`关键字用于声明一个常量，表示该变量的值在程序执行期间不能被修改。",
+          "quickAnswer": "B. const",
+          "options": [
+            "A. static",
+            "B. const",
+            "C. volatile",
+            "D. extern"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-003",
+          "question": "以下哪个着色器不是渲染管线中的标准着色器？（图形学原理）",
+          "answer": "正确答案：D. 物理着色器。顶点着色器、片段着色器和几何着色器都是渲染管线中的标准着色器。物理着色器通常指的是基于物理的渲染（PBR）中使用的着色器，它实际上是片段着色器的一种。",
+          "quickAnswer": "D. 物理着色器",
+          "options": [
+            "A. 顶点着色器",
+            "B. 片段着色器",
+            "C. 几何着色器",
+            "D. 物理着色器"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-004",
+          "question": "在Photoshop中，调整图像色相/饱和度时，以下哪个选项可以调整整个图像的颜色？（Photoshop基础）",
+          "answer": "正确答案：A. 颜色化。颜色化选项允许你为图像添加一种统一的颜色，并调整图像的整体颜色。",
+          "quickAnswer": "A. 颜色化",
+          "options": [
+            "A. 颜色化",
+            "B. 蒙版",
+            "C. 图层混合模式",
+            "D. 曲线"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-005",
+          "question": "在3D建模中，NURBS曲线的优点是什么？（3D建模理论）",
+          "answer": "正确答案：A. 容易控制。NURBS曲线通过控制点进行控制，可以创建平滑的曲线和曲面。",
+          "quickAnswer": "A. 容易控制",
+          "options": [
+            "A. 容易控制",
+            "B. 运算速度快",
+            "C. 占用内存小",
+            "D. 渲染速度快"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-006",
+          "question": "以下哪种纹理贴图主要用于模拟物体表面的凹凸细节？（纹理贴图）",
+          "answer": "正确答案：C. 法线贴图。法线贴图存储了物体表面的法线方向，可以模拟凹凸不平的细节。",
+          "quickAnswer": "C. 法线贴图",
+          "options": [
+            "A. 漫反射贴图",
+            "B. 高光贴图",
+            "C. 法线贴图",
+            "D. 环境光遮蔽贴图"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-007",
+          "question": "在游戏引擎中，以下哪种碰撞检测方法效率最高？（游戏引擎原理）",
+          "answer": "正确答案：C. 基于AABB盒的碰撞检测。AABB盒是最简单的包围盒，碰撞检测速度最快，适合初步筛选。",
+          "quickAnswer": "C. 基于AABB盒的碰撞检测",
+          "options": [
+            "A. 像素级别的碰撞检测",
+            "B. 基于凸包的碰撞检测",
+            "C. 基于AABB盒的碰撞检测",
+            "D. 基于OBB盒的碰撞检测"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-008",
+          "question": "以下哪个文件格式常用于存储3D模型数据？（3D文件格式）",
+          "answer": "正确答案：C. .fbx。FBX是一种常用的3D模型文件格式，可以存储模型、动画、材质等信息。",
+          "quickAnswer": "C. .fbx",
+          "options": [
+            "A. .txt",
+            "B. .jpg",
+            "C. .fbx",
+            "D. .mp4"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-009",
+          "question": "在Unity中，以下哪个组件用于控制游戏对象的物理行为？（Unity引擎）",
+          "answer": "正确答案：C. Collider。Collider组件用于定义游戏对象的碰撞体积，使其能够与其它物体发生碰撞。",
+          "quickAnswer": "C. Collider",
+          "options": [
+            "A. Transform",
+            "B. Renderer",
+            "C. Collider",
+            "D. Material"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-010",
+          "question": "以下哪个操作不属于美术资源优化的范畴？（美术资源优化）",
+          "answer": "正确答案：C. 增加多边形数量。美术资源优化的目标是减少资源占用，提高性能，增加多边形数量会降低性能。",
+          "quickAnswer": "C. 增加多边形数量",
+          "options": [
+            "A. 减少贴图尺寸",
+            "B. 合并模型网格",
+            "C. 增加多边形数量",
+            "D. 使用LOD技术"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-011",
+          "question": "关于光照模型，以下哪个选项描述的是环境光？（光照模型）",
+          "answer": "正确答案：C. 来自环境的间接光照。环境光是一种间接的光照，模拟了来自环境的散射光。",
+          "quickAnswer": "C. 来自环境的间接光照",
+          "options": [
+            "A. 来自特定光源的直接光照",
+            "B. 物体表面反射的光照",
+            "C. 来自环境的间接光照",
+            "D. 物体自身发出的光照"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-012",
+          "question": "在色彩空间中，以下哪个色彩空间更适合用于图像的存储和传输？（色彩空间）",
+          "answer": "正确答案：D. sRGB。sRGB是一种标准色彩空间，适合用于图像的存储和传输，可以保证在不同设备上颜色显示一致。",
+          "quickAnswer": "D. sRGB",
+          "options": [
+            "A. RGB",
+            "B. CMYK",
+            "C. HSB",
+            "D. sRGB"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-013",
+          "question": "下列哪个属于非破坏性编辑方法？（图像处理）",
+          "answer": "正确答案：C. 使用调整图层修改色彩。调整图层不会直接修改原始像素，而是创建一个新的图层来应用调整，可以随时修改或删除。",
+          "quickAnswer": "C. 使用调整图层修改色彩",
+          "options": [
+            "A. 使用裁剪工具裁切图像",
+            "B. 直接在原始图层上进行绘画",
+            "C. 使用调整图层修改色彩",
+            "D. 使用橡皮擦工具擦除像素"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-014",
+          "question": "下列哪一项不属于PBR（Physically Based Rendering）的特性？（PBR理论）",
+          "answer": "正确答案：C. 非线性光照。PBR是线性工作流，需要保证光照计算的线性关系。",
+          "quickAnswer": "C. 非线性光照",
+          "options": [
+            "A. 能量守恒",
+            "B. 微表面模型",
+            "C. 非线性光照",
+            "D. 基于物理的光照衰减"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-015",
+          "question": "在动画制作中，以下哪个概念描述的是两个关键帧之间的过渡过程？（动画原理）",
+          "answer": "正确答案：B. 补间动画。补间动画描述的是两个关键帧之间的过渡过程，也称为插值动画。",
+          "quickAnswer": "B. 补间动画",
+          "options": [
+            "A. 关键帧",
+            "B. 补间动画",
+            "C. 骨骼动画",
+            "D. 蒙皮"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-016",
+          "question": "以下哪个技术可以用于优化模型的渲染性能，通过减少绘制调用的次数？（渲染优化）",
+          "answer": "正确答案：D. 批处理。批处理可以将多个小的绘制调用合并成一个大的绘制调用，从而减少CPU的开销。",
+          "quickAnswer": "D. 批处理",
+          "options": [
+            "A. 遮挡剔除",
+            "B. 光照贴图",
+            "C. 动态阴影",
+            "D. 批处理"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-017",
+          "question": "在版本控制系统中，以下哪个命令用于将本地修改提交到远程仓库？（版本控制）",
+          "answer": "正确答案：C. push。`git push`命令用于将本地的提交推送到远程仓库。",
+          "quickAnswer": "C. push",
+          "options": [
+            "A. clone",
+            "B. pull",
+            "C. push",
+            "D. branch"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-018",
+          "question": "在Linux系统中，以下哪个命令用于查找文件？（Linux基础）",
+          "answer": "正确答案：C. find。`find`命令用于在Linux系统中查找文件。",
+          "quickAnswer": "C. find",
+          "options": [
+            "A. ls",
+            "B. cd",
+            "C. find",
+            "D. grep"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-019",
+          "question": "关于法线贴图，以下哪个描述是正确的？（法线贴图）",
+          "answer": "正确答案：C. 存储表面法线方向。法线贴图存储了模型表面每个点的法线方向，从而可以在低模上模拟高模的细节。",
+          "quickAnswer": "C. 存储表面法线方向",
+          "options": [
+            "A. 存储颜色信息",
+            "B. 存储高度信息",
+            "C. 存储表面法线方向",
+            "D. 存储光照信息"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-020",
+          "question": "下列哪个不是美术设计需要考虑的要素？（游戏美术设计）",
+          "answer": "正确答案：C. 编程语言。美术设计主要关注视觉效果和用户体验，与编程语言关系不大。",
+          "quickAnswer": "C. 编程语言",
+          "options": [
+            "A. 游戏玩法",
+            "B. 目标受众",
+            "C. 编程语言",
+            "D. 视觉风格"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-021",
+          "question": "以下哪个mipmap filtering方式在远处会产生严重的artifact?（Mipmap）",
+          "answer": "正确答案：A. Point Filtering。 Point Filtering(Nearest Neighbor Filtering)在mip level 切换的时候artifact明显。",
+          "quickAnswer": "A. Point Filtering",
+          "options": [
+            "A. Point Filtering",
+            "B. Bilinear Filtering",
+            "C. Trilinear Filtering",
+            "D. Anisotropic Filtering"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-022",
+          "question": "哪个是常用的global illumination技术?（全局光照）",
+          "answer": "正确答案：A. Ray tracing。 Ray Tracing通过模拟光线的物理行为，可以实现真实的光照效果。",
+          "quickAnswer": "A. Ray tracing",
+          "options": [
+            "A. Ray tracing",
+            "B. Occlusion culling",
+            "C. Frustum culling",
+            "D. LOD"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-023",
+          "question": "下列那个不是常用的shader language? （Shader Language）",
+          "answer": "正确答案：D. HTML。 HTML是网页开发语言，不是着色器语言。",
+          "quickAnswer": "D. HTML",
+          "options": [
+            "A. HLSL",
+            "B. GLSL",
+            "C. CG",
+            "D. HTML"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-024",
+          "question": "下列哪个工具常用于创建游戏贴图？ （游戏贴图）",
+          "answer": "正确答案：C. Substance Painter。 Substance Painter是专业的次世代贴图绘制软件。",
+          "quickAnswer": "C. Substance Painter",
+          "options": [
+            "A. Maya",
+            "B. 3Dmax",
+            "C. Substance Painter",
+            "D. Unity"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-025",
+          "question": "以下哪个是常用的3D建模软件？ （3D建模）",
+          "answer": "正确答案：C. Blender。 Blender是开源的3D建模软件，当然maya和3Dmax也是常用的3d建模软件",
+          "quickAnswer": "C. Blender",
+          "options": [
+            "A. Photoshop",
+            "B. Illustrator",
+            "C. Blender",
+            "D. After Effects"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-026",
+          "question": "下列哪个是角色动画中常用的绑定技术？（角色动画）",
+          "answer": "正确答案：C. 蒙皮。 蒙皮是将3D模型的顶点绑定到骨骼的过程。",
+          "quickAnswer": "C. 蒙皮",
+          "options": [
+            "A. UV展开",
+            "B. 拓扑",
+            "C. 蒙皮",
+            "D. 渲染"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-027",
+          "question": "下列哪个属于静态阴影技术？（阴影技术）",
+          "answer": "正确答案：C. Light Mapping。 Light Mapping是一种预计算的阴影技术，属于静态阴影。",
+          "quickAnswer": "C. Light Mapping",
+          "options": [
+            "A. Shadow Mapping",
+            "B. Dynamic Shadow",
+            "C. Light Mapping",
+            "D. Screen Space Shadow"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-028",
+          "question": "下列哪项不属于游戏美术设计原则？（游戏美术设计）",
+          "answer": "正确答案：C. 复杂性。 游戏美术设计应注重简洁明了，避免过度复杂。",
+          "quickAnswer": "C. 复杂性",
+          "options": [
+            "A. 一致性",
+            "B. 可读性",
+            "C. 复杂性",
+            "D. 引导性"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-029",
+          "question": "关于UV展开，以下哪个描述是正确的？（UV展开）",
+          "answer": "正确答案：C. 决定贴图如何应用到模型上。 UV展开是将3D模型的表面展开成2D平面，以便应用贴图。",
+          "quickAnswer": "C. 决定贴图如何应用到模型上",
+          "options": [
+            "A. 决定模型的形状",
+            "B. 决定模型的颜色",
+            "C. 决定贴图如何应用到模型上",
+            "D. 决定模型的多边形数量"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-030",
+          "question": "在进行UI设计时，以下哪个原则最为重要？（UI设计）",
+          "answer": "正确答案：B. 易用性。 UI设计的首要目标是保证用户能够轻松地使用界面。",
+          "quickAnswer": "B. 易用性",
+          "options": [
+            "A. 美观",
+            "B. 易用性",
+            "C. 创新性",
+            "D. 独特性"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-031",
+          "question": "下列哪个技术可以用于实现水面效果？ （水面效果）",
+          "answer": "正确答案：C. Refraction。 折射可以模拟光线穿过水面的效果。",
+          "quickAnswer": "C. Refraction",
+          "options": [
+            "A. Normal Mapping",
+            "B. Parallax Mapping",
+            "C. Refraction",
+            "D. Occlusion Culling"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-032",
+          "question": "下列哪个概念与游戏中的AI行为无关？（游戏AI）",
+          "answer": "正确答案：C. Shader。 Shader是用于控制渲染效果的程序，与游戏AI行为无关。",
+          "quickAnswer": "C. Shader",
+          "options": [
+            "A. Finite State Machine",
+            "B. Pathfinding",
+            "C. Shader",
+            "D. Behavior Tree"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-033",
+          "question": "以下哪个工具常用于进行图像合成和后期处理？（图像合成）",
+          "answer": "正确答案：B. Nuke。 Nuke是专业的合成软件，用于将不同的图像元素组合在一起，并进行后期处理。",
+          "quickAnswer": "B. Nuke",
+          "options": [
+            "A. ZBrush",
+            "B. Nuke",
+            "C. SpeedTree",
+            "D. Marvelous Designer"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-034",
+          "question": "关于游戏引擎中的粒子系统，以下哪个描述是错误的？（粒子系统）",
+          "answer": "正确答案：D. 不占用CPU资源。 粒子系统会占用CPU资源进行计算。",
+          "quickAnswer": "D. 不占用CPU资源",
+          "options": [
+            "A. 可以模拟火焰效果",
+            "B. 可以模拟烟雾效果",
+            "C. 可以模拟水花效果",
+            "D. 不占用CPU资源"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-035",
+          "question": "下列哪一项不属于项目管理的范畴？（项目管理）",
+          "answer": "正确答案：C. 代码编写。 代码编写属于开发工作，不属于项目管理的范畴。",
+          "quickAnswer": "C. 代码编写",
+          "options": [
+            "A. 风险评估",
+            "B. 资源分配",
+            "C. 代码编写",
+            "D. 进度跟踪"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-036",
+          "question": "以下哪个技术可以用于优化游戏场景的绘制效率，通过只渲染屏幕可见的部分？（渲染优化）",
+          "answer": "正确答案：B. 视锥体裁剪。 视锥体裁剪只渲染摄像机视野内的物体，可以提高渲染效率。",
+          "quickAnswer": "B. 视锥体裁剪",
+          "options": [
+            "A. 光照贴图",
+            "B. 视锥体裁剪",
+            "C. 阴影贴图",
+            "D. 粒子系统"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-037",
+          "question": "下列哪个命令用于在Git中创建一个新的分支？（Git）",
+          "answer": "正确答案：C. git branch。 `git branch <branch_name>` 用于创建一个新的分支。",
+          "quickAnswer": "C. git branch",
+          "options": [
+            "A. git commit",
+            "B. git push",
+            "C. git branch",
+            "D. git merge"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-038",
+          "question": "以下哪种贴图格式支持透明通道？（图像格式）",
+          "answer": "正确答案：C. PNG。 PNG格式支持透明通道，可以存储透明图像。",
+          "quickAnswer": "C. PNG",
+          "options": [
+            "A. JPEG",
+            "B. BMP",
+            "C. PNG",
+            "D. GIF"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-039",
+          "question": "在进行光照烘焙时，以下哪个设置会影响烘焙的质量和时间？（光照烘焙）",
+          "answer": "正确答案：D. 光照贴图分辨率。 光照贴图分辨率越高，烘焙质量越高，但时间也越长。",
+          "quickAnswer": "D. 光照贴图分辨率",
+          "options": [
+            "A. 模型复杂度",
+            "B. 光源数量",
+            "C. 贴图分辨率",
+            "D. 光照贴图分辨率"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-040",
+          "question": "下列哪个材质属性会影响物体表面的光泽度？（材质属性）",
+          "answer": "正确答案：C. 粗糙度。 粗糙度决定了物体表面反射光线的漫反射程度，影响光泽度。",
+          "quickAnswer": "C. 粗糙度",
+          "options": [
+            "A. 漫反射颜色",
+            "B. 金属度",
+            "C. 粗糙度",
+            "D. 法线方向"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-041",
+          "question": "以下哪种动画技术可以用于捕捉真实人物的动作？（动画技术）",
+          "answer": "正确答案：D. 动作捕捉。 动作捕捉技术可以捕捉真实人物的动作，并将其应用到3D角色上。",
+          "quickAnswer": "D. 动作捕捉",
+          "options": [
+            "A. 手绘动画",
+            "B. 骨骼动画",
+            "C. 关键帧动画",
+            "D. 动作捕捉"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-042",
+          "question": "下列哪个操作可以在Photoshop中无损地调整图像的亮度和对比度？（Photoshop）",
+          "answer": "正确答案：B. 使用“图层”菜单下的“新建调整图层”选项。 调整图层允许非破坏性地修改图像的亮度、对比度、色彩等。",
+          "quickAnswer": "B. 使用“图层”菜单下的“新建调整图层”选项",
+          "options": [
+            "A. 使用“图像”菜单下的“调整”选项",
+            "B. 使用“图层”菜单下的“新建调整图层”选项",
+            "C. 使用“滤镜”菜单下的“渲染”选项",
+            "D. 使用“编辑”菜单下的“填充”选项"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-043",
+          "question": "在3D游戏中，以下哪个技术可以用于模拟角色行走在不同材质表面时的声音效果？（游戏音频）",
+          "answer": "正确答案：D. 物理材质音频。 物理材质音频可以根据角色行走的材质播放不同的音效。",
+          "quickAnswer": "D. 物理材质音频",
+          "options": [
+            "A. 音效循环",
+            "B. 混响效果",
+            "C. 音频遮蔽",
+            "D. 物理材质音频"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-044",
+          "question": "下列哪个因素不影响游戏的美术风格？（游戏美术风格）",
+          "answer": "正确答案：C. 硬件配置。 硬件配置会影响游戏的画面质量和性能，但不会直接影响美术风格。",
+          "quickAnswer": "C. 硬件配置",
+          "options": [
+            "A. 目标平台",
+            "B. 游戏类型",
+            "C. 硬件配置",
+            "D. 故事情节"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-045",
+          "question": "在使用Substance Painter时，以下哪个功能可以快速创建逼真的锈迹效果？（Substance Painter）",
+          "answer": "正确答案：D. 智能材质。 智能材质是Substance Painter中预设的材质，可以快速创建逼真的效果。",
+          "quickAnswer": "D. 智能材质",
+          "options": [
+            "A. 画笔工具",
+            "B. 填充图层",
+            "C. 蒙版",
+            "D. 智能材质"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-046",
+          "question": "下列哪个渲染管线更适用于移动平台？（渲染管线）",
+          "answer": "正确答案：A. 前向渲染。 前向渲染的性能开销较低，更适合移动平台。",
+          "quickAnswer": "A. 前向渲染",
+          "options": [
+            "A. 前向渲染",
+            "B. 延迟渲染",
+            "C. 光线追踪",
+            "D. 全局光照"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-047",
+          "question": "在设计游戏角色时，以下哪个因素最为重要？（游戏角色设计）",
+          "answer": "正确答案：D. 与游戏玩法的契合度。 角色设计应该服务于游戏玩法，与游戏玩法相契合。",
+          "quickAnswer": "D. 与游戏玩法的契合度",
+          "options": [
+            "A. 外观",
+            "B. 背景故事",
+            "C. 个性",
+            "D. 与游戏玩法的契合度"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-048",
+          "question": "以下哪个概念描述的是游戏中玩家与游戏世界的互动程度？（游戏设计）",
+          "answer": "正确答案：A. 沉浸感。 沉浸感描述的是玩家感觉自己真正存在于游戏世界中的体验。",
+          "quickAnswer": "A. 沉浸感",
+          "options": [
+            "A. 沉浸感",
+            "B. 挑战性",
+            "C. 可玩性",
+            "D. 成就感"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-049",
+          "question": "下列哪个属于游戏关卡设计中的负反馈机制？（游戏关卡设计）",
+          "answer": "正确答案：B. 惩罚玩家。 负反馈机制是指对玩家的不良行为进行惩罚。",
+          "quickAnswer": "B. 惩罚玩家",
+          "options": [
+            "A. 奖励玩家",
+            "B. 惩罚玩家",
+            "C. 引导玩家",
+            "D. 鼓励玩家"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-050",
+          "question": "在进行游戏性能测试时，以下哪个指标最能反映游戏的流畅度？（游戏性能测试）",
+          "answer": "正确答案：C. 帧率(FPS)。 帧率是指每秒钟显示的画面数量，是衡量游戏流畅度的重要指标。",
+          "quickAnswer": "C. 帧率(FPS)",
+          "options": [
+            "A. CPU占用率",
+            "B. 内存占用率",
+            "C. 帧率(FPS)",
+            "D. 磁盘空间占用"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-051",
+          "question": "以下哪个工具常用于进行模型拓扑优化？ （模型拓扑）",
+          "answer": "正确答案：D. 所有的都对",
+          "quickAnswer": "D. 所有的都对",
+          "options": [
+            "A. ZBrush",
+            "B. TopoGun",
+            "C. 3D-Coat",
+            "D. 所有的都对"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-052",
+          "question": "哪个概念描述的是游戏中玩家与游戏世界的互动程度？（游戏设计）",
+          "answer": "正确答案：A. 沉浸感",
+          "quickAnswer": "A. 沉浸感",
+          "options": [
+            "A. 沉浸感",
+            "B. 挑战性",
+            "C. 可玩性",
+            "D. 成就感"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-053",
+          "question": "下列哪个属于游戏关卡设计中的负反馈机制？（游戏关卡设计）",
+          "answer": "正确答案：B. 惩罚玩家",
+          "quickAnswer": "B. 惩罚玩家",
+          "options": [
+            "A. 奖励玩家",
+            "B. 惩罚玩家",
+            "C. 引导玩家",
+            "D. 鼓励玩家"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-054",
+          "question": "在进行游戏性能测试时，以下哪个指标最能反映游戏的流畅度？（游戏性能测试）",
+          "answer": "正确答案：C. 帧率(FPS)",
+          "quickAnswer": "C. 帧率(FPS)",
+          "options": [
+            "A. CPU占用率",
+            "B. 内存占用率",
+            "C. 帧率(FPS)",
+            "D. 磁盘空间占用"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-055",
+          "question": "如果游戏的整体色调偏暗，为了突出角色，应该采用什么样的颜色对比策略？（色彩理论）",
+          "answer": "正确答案：B. 使用互补色",
+          "quickAnswer": "B. 使用互补色",
+          "options": [
+            "A. 使用相似色",
+            "B. 使用互补色",
+            "C. 使用邻近色",
+            "D. 使用单色"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-056",
+          "question": "下列哪个属于美术文档的内容？ （美术文档）",
+          "answer": "正确答案：B. 美术风格规范",
+          "quickAnswer": "B. 美术风格规范",
+          "options": [
+            "A. 代码规范",
+            "B. 美术风格规范",
+            "C. 编程语言",
+            "D. 需求分析"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-057",
+          "question": "以下哪个操作不属于 Unity 中的动画重定向 (Animation Retargeting) 的目的？ (Unity 动画)",
+          "answer": "正确答案：B. 调整动画的速度和时间轴",
+          "quickAnswer": "B. 调整动画的速度和时间轴",
+          "options": [
+            "A. 将动画从一个骨骼结构应用到另一个不同的骨骼结构",
+            "B. 调整动画的速度和时间轴",
+            "C. 纠正不同角色骨骼比例差异导致的动画问题",
+            "D. 为没有动画的角色快速生成动画"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-058",
+          "question": "以下哪个工具最适合用来制作游戏引擎中使用的程序化贴图？ (程序化贴图)",
+          "answer": "正确答案：B. Substance Designer",
+          "quickAnswer": "B. Substance Designer",
+          "options": [
+            "A. Photoshop",
+            "B. Substance Designer",
+            "C. ZBrush",
+            "D. Maya"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-059",
+          "question": "在进行游戏开发时，如果需要创建一个可以重复使用的模型，应该使用哪种方式？ (游戏资源管理)",
+          "answer": "正确答案：B. 创建预制体 (Prefab)",
+          "quickAnswer": "B. 创建预制体 (Prefab)",
+          "options": [
+            "A. 直接复制模型文件",
+            "B. 创建预制体 (Prefab)",
+            "C. 导出为 FBX 文件",
+            "D. 截图保存"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-060",
+          "question": "以下哪个步骤通常是游戏角色建模的最后一步？ (角色建模流程)",
+          "answer": "正确答案：D. 绑定骨骼",
+          "quickAnswer": "D. 绑定骨骼",
+          "options": [
+            "A. 创建基础模型",
+            "B. 细化模型细节",
+            "C. UV展开",
+            "D. 绑定骨骼"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-061",
+          "question": "为了优化移动端游戏的性能，下列哪种做法最有效？ (移动端游戏优化)",
+          "answer": "正确答案：C. 减少DrawCall的数量",
+          "quickAnswer": "C. 减少DrawCall的数量",
+          "options": [
+            "A. 使用高分辨率的贴图",
+            "B. 增加模型的面数",
+            "C. 减少DrawCall的数量",
+            "D. 开启全局光照"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-062",
+          "question": "以下哪个材质参数决定了光线在物体表面的散射程度？（材质）",
+          "answer": "正确答案：C. Roughness/Glossiness",
+          "quickAnswer": "C. Roughness/Glossiness",
+          "options": [
+            "A. Diffuse Color",
+            "B. Specular Color",
+            "C. Roughness/Glossiness",
+            "D. Emissive Color"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-063",
+          "question": "在游戏开发中，下列哪种技术可以用来实现实时阴影效果？（阴影技术）",
+          "answer": "正确答案：B. Shadow Map",
+          "quickAnswer": "B. Shadow Map",
+          "options": [
+            "A. Lightmap",
+            "B. Shadow Map",
+            "C. Ambient Occlusion",
+            "D. Reflection Probe"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-064",
+          "question": "关于角色动画的“权重绘制（Weight Painting）”，以下哪个描述是正确的？ （权重绘制）",
+          "answer": "正确答案：B. 定义顶点受骨骼影响的程度",
+          "quickAnswer": "B. 定义顶点受骨骼影响的程度",
+          "options": [
+            "A. 调整模型的顶点密度",
+            "B. 定义顶点受骨骼影响的程度",
+            "C. 优化模型的UV布局",
+            "D. 控制模型的渲染质量"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-065",
+          "question": "在进行场景光照烘焙时，哪个参数对烘焙质量和时间影响最大？（光照烘焙）",
+          "answer": "正确答案：C. 光照贴图的分辨率",
+          "quickAnswer": "C. 光照贴图的分辨率",
+          "options": [
+            "A. 模型复杂度",
+            "B. 光源数量",
+            "C. 光照贴图的分辨率",
+            "D. 场景中物体的数量"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-066",
+          "question": "下面哪个是常用的顶点动画（Vertex Animation）的应用场景？（顶点动画）",
+          "answer": "正确答案：B. 布料飘动效果",
+          "quickAnswer": "B. 布料飘动效果",
+          "options": [
+            "A. 角色行走动画",
+            "B. 布料飘动效果",
+            "C. 爆炸效果",
+            "D. 骨骼动画"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-067",
+          "question": "在版本控制系统中，如何撤销最近一次提交但保留修改？（版本控制）",
+          "answer": "正确答案：B. git reset --soft HEAD^",
+          "quickAnswer": "B. git reset --soft HEAD^",
+          "options": [
+            "A. git commit --amend",
+            "B. git reset --soft HEAD^",
+            "C. git checkout .",
+            "D. git revert HEAD"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-068",
+          "question": "下列哪个不是游戏引擎中的碰撞检测方法？（碰撞检测）",
+          "answer": "正确答案：D. BSP",
+          "quickAnswer": "D. BSP",
+          "options": [
+            "A. AABB",
+            "B. OBB",
+            "C. Sphere",
+            "D. BSP"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-069",
+          "question": "下列哪种技术可以用于减少游戏场景的遮挡引起的过度绘制？（渲染优化）",
+          "answer": "正确答案：B. Occlusion Culling",
+          "quickAnswer": "B. Occlusion Culling",
+          "options": [
+            "A. LOD (Level of Detail)",
+            "B. Occlusion Culling",
+            "C. Mipmap",
+            "D. Anisotropic Filtering"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-070",
+          "question": "以下哪个术语描述了游戏开发中“让非玩家角色（NPC）看起来更智能、更逼真”的目标？ (游戏AI)",
+          "answer": "正确答案：D. 人工智能 (Artificial Intelligence)",
+          "quickAnswer": "D. 人工智能 (Artificial Intelligence)",
+          "options": [
+            "A. Pathfinding",
+            "B. Behavior Tree",
+            "C. 有限状态机 (Finite State Machine)",
+            "D. 人工智能 (Artificial Intelligence)"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-071",
+          "question": "下列哪个软件不属于三维建模软件？（3D 软件）",
+          "answer": "正确答案：D. Photoshop",
+          "quickAnswer": "D. Photoshop",
+          "options": [
+            "A. Maya",
+            "B. 3ds Max",
+            "C. Blender",
+            "D. Photoshop"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-072",
+          "question": "在 PBR 渲染中，Metallic（金属度）贴图主要用于控制什么属性？（PBR 材质）",
+          "answer": "正确答案：C. 物体是否具有金属质感",
+          "quickAnswer": "C. 物体是否具有金属质感",
+          "options": [
+            "A. 物体的颜色",
+            "B. 物体表面的粗糙度",
+            "C. 物体是否具有金属质感",
+            "D. 物体表面的凹凸"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-073",
+          "question": "以下哪种技术可以用于在低多边形模型上模拟高精度的细节？（贴图技术）",
+          "answer": "正确答案：C. Normal Map",
+          "quickAnswer": "C. Normal Map",
+          "options": [
+            "A. Diffuse Map",
+            "B. Specular Map",
+            "C. Normal Map",
+            "D. Emissive Map"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-074",
+          "question": "下列哪个文件格式最适合存储带透明通道的图像？（图像格式）",
+          "answer": "正确答案：C. PNG",
+          "quickAnswer": "C. PNG",
+          "options": [
+            "A. JPG",
+            "B. BMP",
+            "C. PNG",
+            "D. GIF"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-075",
+          "question": "在Unity中，Animator组件主要用于控制什么？ (Unity 动画系统)",
+          "answer": "正确答案：D. 动画状态机",
+          "quickAnswer": "D. 动画状态机",
+          "options": [
+            "A. 材质球的属性",
+            "B. 碰撞器的形状",
+            "C. 游戏对象的移动",
+            "D. 动画状态机"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-076",
+          "question": "以下哪个操作不属于游戏美术资源优化？ （资源优化）",
+          "answer": "正确答案：C. 增加模型的顶点数",
+          "quickAnswer": "C. 增加模型的顶点数",
+          "options": [
+            "A. 压缩贴图大小",
+            "B. 合并网格",
+            "C. 增加模型的顶点数",
+            "D. 使用LOD技术"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-077",
+          "question": "哪个选项不属于UI/UX设计的基本原则？ (UI/UX 设计)",
+          "answer": "正确答案：D. 复杂性 (Complexity)",
+          "quickAnswer": "D. 复杂性 (Complexity)",
+          "options": [
+            "A. 可用性 (Usability)",
+            "B. 可访问性 (Accessibility)",
+            "C. 一致性 (Consistency)",
+            "D. 复杂性 (Complexity)"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-078",
+          "question": "在3D建模中，Smooth Shading的主要作用是什么？（3D 建模）",
+          "answer": "正确答案：B. 模拟光滑的表面效果",
+          "quickAnswer": "B. 模拟光滑的表面效果",
+          "options": [
+            "A. 优化模型面数",
+            "B. 模拟光滑的表面效果",
+            "C. 调整模型颜色",
+            "D. 添加纹理细节"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-079",
+          "question": "下列哪个贴图类型用于存储模型的表面法线信息，从而在低多边形模型上模拟高精度细节？（贴图）",
+          "answer": "正确答案：C. 法线贴图 (Normal Map)",
+          "quickAnswer": "C. 法线贴图 (Normal Map)",
+          "options": [
+            "A. 漫反射贴图 (Diffuse Map)",
+            "B. 高光贴图 (Specular Map)",
+            "C. 法线贴图 (Normal Map)",
+            "D. 环境光遮蔽贴图 (Ambient Occlusion Map)"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-080",
+          "question": "以下哪种抗锯齿技术在性能消耗和效果之间取得了较好的平衡？（抗锯齿）",
+          "answer": "正确答案：B. FXAA (快速近似抗锯齿)",
+          "quickAnswer": "B. FXAA (快速近似抗锯齿)",
+          "options": [
+            "A. MSAA (多重采样抗锯齿)",
+            "B. FXAA (快速近似抗锯齿)",
+            "C. SSAA (超级采样抗锯齿)",
+            "D. TXAA (时间抗锯齿)"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-081",
+          "question": "在使用Git进行版本控制时，哪个命令用于将本地的修改提交到暂存区？（版本控制）",
+          "answer": "正确答案：A. git add",
+          "quickAnswer": "A. git add",
+          "options": [
+            "A. git add",
+            "B. git commit",
+            "C. git push",
+            "D. git pull"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-082",
+          "question": "以下哪个选项描述的是“在游戏中，玩家感觉自己真正存在于游戏世界中”的体验？（游戏设计）",
+          "answer": "正确答案：A. 沉浸感 (Immersion)",
+          "quickAnswer": "A. 沉浸感 (Immersion)",
+          "options": [
+            "A. 沉浸感 (Immersion)",
+            "B. 可玩性 (Playability)",
+            "C. 挑战性 (Challenge)",
+            "D. 成就感 (Achievement)"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-083",
+          "question": "下列哪个光照模型主要用于模拟粗糙表面的光照效果？（光照模型）",
+          "answer": "正确答案：C. GGX模型",
+          "quickAnswer": "C. GGX模型",
+          "options": [
+            "A. Lambertian模型",
+            "B. Blinn-Phong模型",
+            "C. GGX模型",
+            "D. Phong模型"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-084",
+          "question": "以下哪个工具最适合用于创建游戏中的地形？ (地形编辑)",
+          "answer": "正确答案：C. World Machine",
+          "quickAnswer": "C. World Machine",
+          "options": [
+            "A. Photoshop",
+            "B. ZBrush",
+            "C. World Machine",
+            "D. Substance Painter"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-085",
+          "question": "关于游戏UI设计，以下哪个原则最为重要？（UI 设计）",
+          "answer": "正确答案：B. 可用性",
+          "quickAnswer": "B. 可用性",
+          "options": [
+            "A. 美观性",
+            "B. 可用性",
+            "C. 创新性",
+            "D. 独特性"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-086",
+          "question": "在Unity中，什么是ScriptableObject？ (Unity 脚本)",
+          "answer": "正确答案：B. 一种可以保存大量数据的资源类型",
+          "quickAnswer": "B. 一种可以保存大量数据的资源类型",
+          "options": [
+            "A. 一种用于创建UI元素的类",
+            "B. 一种可以保存大量数据的资源类型",
+            "C. 一种用于控制动画状态机的类",
+            "D. 一种用于处理网络请求的类"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-087",
+          "question": "以下哪个选项不属于游戏测试的类型？ （游戏测试）",
+          "answer": "正确答案：C. 美术风格测试",
+          "quickAnswer": "C. 美术风格测试",
+          "options": [
+            "A. 功能测试",
+            "B. 性能测试",
+            "C. 美术风格测试",
+            "D. 用户体验测试"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-088",
+          "question": "以下哪个技术可以用于实现动态光照效果，例如游戏中角色的影子？（渲染技术）",
+          "answer": "正确答案：B. 阴影贴图（Shadow Map）",
+          "quickAnswer": "B. 阴影贴图（Shadow Map）",
+          "options": [
+            "A. 光照贴图（Lightmap）",
+            "B. 阴影贴图（Shadow Map）",
+            "C. 环境光遮蔽（Ambient Occlusion）",
+            "D. 反射探针（Reflection Probe）"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-089",
+          "question": "在使用Photoshop绘制游戏贴图时，以下哪个选项可以创建无缝贴图？（PS 贴图）",
+          "answer": "正确答案：C. 使用滤镜中的“位移”选项",
+          "quickAnswer": "C. 使用滤镜中的“位移”选项",
+          "options": [
+            "A. 使用裁剪工具",
+            "B. 使用图层样式",
+            "C. 使用滤镜中的“位移”选项",
+            "D. 使用画笔工具"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-090",
+          "question": "以下哪个选项描述的是游戏美术设计中的“黄金分割”？ （美术构图）",
+          "answer": "正确答案：B. 一种构图比例",
+          "quickAnswer": "B. 一种构图比例",
+          "options": [
+            "A. 一种配色方案",
+            "B. 一种构图比例",
+            "C. 一种材质效果",
+            "D. 一种动画技术"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-091",
+          "question": "在制作角色动画时，以下哪个概念指的是角色身体的主要运动方向和节奏？ （动画概念）",
+          "answer": "正确答案：C. 线条 (Line of Action)",
+          "quickAnswer": "C. 线条 (Line of Action)",
+          "options": [
+            "A. 姿势 (Pose)",
+            "B. 关键帧 (Keyframe)",
+            "C. 线条 (Line of Action)",
+            "D. 补间动画 (Tweening)"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-092",
+          "question": "如果需要在一个三维场景中模拟水面的反射和折射效果，应该使用哪个 Shader 技术？ (Shader 技术)",
+          "answer": "正确答案：C. 立方体贴图 (Cubemap)",
+          "quickAnswer": "C. 立方体贴图 (Cubemap)",
+          "options": [
+            "A. 镜面反射 (Specular Reflection)",
+            "B. 法线贴图 (Normal Mapping)",
+            "C. 立方体贴图 (Cubemap)",
+            "D. 视差贴图 (Parallax Mapping)"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-093",
+          "question": "在游戏开发中，什么是 LOD (Level of Detail) 技术的主要作用？ （游戏优化）",
+          "answer": "正确答案：B. 减少模型的细节程度，以优化渲染性能",
+          "quickAnswer": "B. 减少模型的细节程度，以优化渲染性能",
+          "options": [
+            "A. 增加模型的细节程度",
+            "B. 减少模型的细节程度，以优化渲染性能",
+            "C. 改变模型的材质",
+            "D. 调整模型的光照效果"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-094",
+          "question": "下列哪一项不是项目管理中常用的估算技术？ (项目管理)",
+          "answer": "正确答案：D. 代码行估算",
+          "quickAnswer": "D. 代码行估算",
+          "options": [
+            "A. 类比估算",
+            "B. 参数估算",
+            "C. 三点估算",
+            "D. 代码行估算"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-095",
+          "question": "哪个数据结构最适合用于实现寻路算法中的开放列表和关闭列表？(数据结构)",
+          "answer": "正确答案：C. 堆 (Heap)",
+          "quickAnswer": "C. 堆 (Heap)",
+          "options": [
+            "A. 数组",
+            "B. 链表",
+            "C. 堆 (Heap)",
+            "D. 散列表 (Hash Table)"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-096",
+          "question": "以下哪个工具最适合用于创建和管理游戏中的声音效果？（游戏音频）",
+          "answer": "正确答案：B. FMOD Studio",
+          "quickAnswer": "B. FMOD Studio",
+          "options": [
+            "A. Audacity",
+            "B. FMOD Studio",
+            "C. Adobe Premiere Pro",
+            "D. DaVinci Resolve"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-097",
+          "question": "在开发VR游戏时，以下哪个因素对防止玩家产生眩晕感最重要？ (VR 开发)",
+          "answer": "正确答案：B. 保持稳定的帧率",
+          "quickAnswer": "B. 保持稳定的帧率",
+          "options": [
+            "A. 使用高质量的贴图",
+            "B. 保持稳定的帧率",
+            "C. 增加场景的复杂度",
+            "D. 调整音效的立体感"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-098",
+          "question": "以下哪个技术可以用于实现游戏中的布料模拟效果？ （布料模拟）",
+          "answer": "正确答案：C. 物理引擎 (Physics Engine)",
+          "quickAnswer": "C. 物理引擎 (Physics Engine)",
+          "options": [
+            "A. 骨骼动画 (Skeletal Animation)",
+            "B. 顶点动画 (Vertex Animation)",
+            "C. 物理引擎 (Physics Engine)",
+            "D. 粒子系统 (Particle System)"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        },
+        {
+          "id": "mihoyo-single-099",
+          "question": "下列哪个操作可以在Git中用于合并两个分支的代码？（Git）",
+          "answer": "正确答案：C. git merge",
+          "quickAnswer": "C. git merge",
+          "options": [
+            "A. git commit",
+            "B. git push",
+            "C. git merge",
+            "D. git branch"
+          ],
+          "tags": [
+            "单选题"
+          ],
+          "followUps": [],
+          "source": ""
+        }
+      ]
+    }
+  ]
+}
