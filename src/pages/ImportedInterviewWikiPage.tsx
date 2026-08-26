@@ -15,8 +15,6 @@ import {
 import { motion, useReducedMotion } from "motion/react";
 import { Link } from "react-router-dom";
 import FooterSection from "@/components/FooterSection";
-import SiteHeader from "@/components/SiteHeader";
-import { navItems, siteMeta } from "@/data/blog";
 import type {
   InterviewResourceBank,
   InterviewResourceQuestion,
@@ -97,8 +95,6 @@ export default function ImportedInterviewWikiPage({ bank }: ImportedInterviewWik
 
   return (
     <div className="blog-page interview-wiki-page resource-wiki-page">
-      <SiteHeader brand={siteMeta.brand} navItems={navItems} />
-
       <main>
         <section className="interview-wiki-hero resource-wiki-hero">
           <div className="content-shell interview-wiki-hero__inner">

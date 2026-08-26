@@ -1,222 +1,201 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { motion, useReducedMotion } from "motion/react";
+import { ArrowUpRight, ChevronRight } from "lucide-react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import HeroModelScene from "@/components/HeroModelScene";
 import PixelBlast from "@/components/PixelBlast";
 import { useThemeStore } from "@/store/themeStore";
 
 type HeroSectionProps = {
   title: string;
-  poster: string;
-  titleHref: string;
+  summary: string;
 };
 
-export default function HeroSection({
-  title,
-  poster,
-  titleHref,
-}: HeroSectionProps) {
+type ParticleFocus = {
+  centerX: number;
+  centerY: number;
+  radius: number;
+};
+
+const defaultParticleFocus: ParticleFocus = {
+  centerX: 0.73,
+  centerY: 0.45,
+  radius: 0.5,
+};
+
+export default function HeroSection({ title, summary }: HeroSectionProps) {
   const theme = useThemeStore((state) => state.theme);
-  const hoverSoundSrc = "/sounds/select.wav";
-  const canUsePixelBlast = useMemo(() => {
-    if (
-      typeof window === "undefined" ||
-      typeof navigator === "undefined" ||
-      typeof WebGLRenderingContext === "undefined"
-    ) {
-      return false;
-    }
-
-    return !/jsdom/i.test(navigator.userAgent);
-  }, [hoverSoundSrc]);
-
-  const charRefs = useRef<HTMLSpanElement[]>([]);
-  const hoverAudioRef = useRef<HTMLAudioElement | null>(null);
-  const audioUnlockedRef = useRef(false);
-
+  const reduceMotion = useReducedMotion();
+  const [canUsePixelBlast, setCanUsePixelBlast] = useState(false);
+  const [particleFocus, setParticleFocus] = useState(defaultParticleFocus);
+  const heroSectionRef = useRef<HTMLElement | null>(null);
+  const heroLabRef = useRef<HTMLElement | null>(null);
   const titleLines = useMemo(() => title.split("\n"), [title]);
 
-  const unlockHoverAudio = useCallback(async () => {
-    const hoverAudio = hoverAudioRef.current;
-
-    if (!hoverAudio) {
-      return false;
-    }
-
-    if (audioUnlockedRef.current) {
-      return true;
-    }
-
-    try {
-      if (!hoverAudio.src) {
-        hoverAudio.src = hoverSoundSrc;
-        hoverAudio.load();
-      }
-
-      hoverAudio.muted = true;
-      hoverAudio.currentTime = 0;
-      await hoverAudio.play();
-      hoverAudio.pause();
-      hoverAudio.currentTime = 0;
-      hoverAudio.muted = false;
-      audioUnlockedRef.current = true;
-      return true;
-    } catch {
-      hoverAudio.muted = false;
-      return false;
-    }
-  }, []);
-
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
+    if (
+      reduceMotion ||
+      typeof window === "undefined" ||
+      typeof navigator === "undefined" ||
+      typeof WebGLRenderingContext === "undefined" ||
+      /jsdom/i.test(navigator.userAgent)
+    ) {
+      setCanUsePixelBlast(false);
+      return undefined;
     }
 
-    const audio = new Audio();
-    audio.preload = "none";
-    audio.volume = 0.9;
-    hoverAudioRef.current = audio;
+    const mediaQuery = window.matchMedia("(min-width: 961px) and (pointer: fine)");
+    const updateAvailability = () => setCanUsePixelBlast(mediaQuery.matches);
+    updateAvailability();
+    mediaQuery.addEventListener("change", updateAvailability);
 
-    const unlockAudio = async () => {
-      await unlockHoverAudio();
-    };
+    return () => mediaQuery.removeEventListener("change", updateAvailability);
+  }, [reduceMotion]);
 
-    window.addEventListener("pointerdown", unlockAudio, { passive: true });
-    window.addEventListener("keydown", unlockAudio);
-
-    return () => {
-      window.removeEventListener("pointerdown", unlockAudio);
-      window.removeEventListener("keydown", unlockAudio);
-      hoverAudioRef.current?.pause();
-      hoverAudioRef.current = null;
-    };
-    }, [unlockHoverAudio]);
-
-  const playHoverSound = useCallback(async () => {
-    const hoverAudio = hoverAudioRef.current;
-
-    if (!hoverAudio) {
-      return;
+  useLayoutEffect(() => {
+    if (!canUsePixelBlast) {
+      return undefined;
     }
 
-    if (!hoverAudio.src) {
-      hoverAudio.src = hoverSoundSrc;
-      hoverAudio.load();
+    const section = heroSectionRef.current;
+    const lab = heroLabRef.current;
+
+    if (!section || !lab) {
+      return undefined;
     }
 
-    if (!audioUnlockedRef.current) {
-      const unlocked = await unlockHoverAudio();
+    const updateParticleFocus = () => {
+      const sectionRect = section.getBoundingClientRect();
+      const labRect = lab.getBoundingClientRect();
+      const shortestSide = Math.min(sectionRect.width, sectionRect.height);
 
-      if (!unlocked) {
+      if (sectionRect.width <= 0 || sectionRect.height <= 0 || shortestSide <= 0) {
         return;
       }
-    }
 
-    hoverAudio.pause();
-    hoverAudio.currentTime = 0;
-    hoverAudio.volume = 0.9;
-    await hoverAudio.play().catch(() => {
-      audioUnlockedRef.current = false;
-    });
-  }, [hoverSoundSrc, unlockHoverAudio]);
+      const centerX = (labRect.left + labRect.width / 2 - sectionRect.left) / sectionRect.width;
+      const centerFromTop = (labRect.top + labRect.height / 2 - sectionRect.top) / sectionRect.height;
+      const radius = Math.min(0.52, Math.max(0.12, (labRect.width * 0.96) / shortestSide));
+      const nextFocus = {
+        centerX: Math.min(0.94, Math.max(0.06, centerX)),
+        centerY: Math.min(0.94, Math.max(0.06, 1 - centerFromTop)),
+        radius,
+      };
 
-  const animateTitle = useCallback(() => {
-    const chars = charRefs.current.filter(Boolean);
-    const total = chars.length;
+      setParticleFocus((current) => {
+        const hasMeaningfulChange =
+          Math.abs(current.centerX - nextFocus.centerX) > 0.002 ||
+          Math.abs(current.centerY - nextFocus.centerY) > 0.002 ||
+          Math.abs(current.radius - nextFocus.radius) > 0.002;
 
-    chars.forEach((char, index) => {
-      char.getAnimations().forEach((animation) => animation.cancel());
-      char.animate(
-        [
-          {
-            transform: "translate3d(-30px, 0, 0)",
-            clipPath: "inset(0% 100% 120% -5%)",
-          },
-          {
-            transform: "translate3d(0, 0, 0)",
-            clipPath: "inset(0% -100% -100% -5%)",
-          },
-        ],
-        {
-          duration: 1200,
-          delay: (total - index - 1) * 40,
-          easing: "cubic-bezier(0.215, 0.61, 0.355, 1)",
-          fill: "both",
-        },
-      );
-    });
-  }, []);
+        return hasMeaningfulChange ? nextFocus : current;
+      });
+    };
 
-  const triggerTitleInteraction = useCallback(() => {
-    animateTitle();
-    void playHoverSound();
-  }, [animateTitle, playHoverSound]);
+    const resizeObserver = new ResizeObserver(updateParticleFocus);
+    resizeObserver.observe(section);
+    resizeObserver.observe(lab);
+    window.addEventListener("resize", updateParticleFocus);
+
+    const animationFrame = window.requestAnimationFrame(updateParticleFocus);
+    const settleTimer = window.setTimeout(updateParticleFocus, reduceMotion ? 0 : 850);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateParticleFocus);
+      window.cancelAnimationFrame(animationFrame);
+      window.clearTimeout(settleTimer);
+    };
+  }, [canUsePixelBlast, reduceMotion]);
 
   return (
-    <section className="hero-section" id="hero">
+    <section
+      className="hero-section"
+      id="hero"
+      ref={heroSectionRef}
+    >
       {canUsePixelBlast ? (
         <PixelBlast
           className="hero-section__pixelblast"
-          color="#c08bff"
-          edgeFade={0.25}
+          color={theme === "light" ? "#8b5cf6" : "#a855f7"}
+          edgeFade={0}
           enableRipples
+          focusCenterX={particleFocus.centerX}
+          focusCenterY={particleFocus.centerY}
+          focusInnerRadius={0.44}
+          focusRadius={particleFocus.radius}
           liquid
-          liquidRadius={1}
-          liquidStrength={0.1}
+          liquidRadius={0.7}
+          liquidStrength={0.045}
           noiseAmount={0}
-          patternDensity={1}
-          patternScale={2}
-          pixelSize={4}
-          rippleIntensityScale={1}
-          rippleSpeed={0.3}
-          rippleThickness={0.1}
-          speed={0.5}
+          patternDensity={0.78}
+          patternScale={3}
+          pixelSize={6}
+          rippleIntensityScale={0.56}
+          rippleSpeed={0.22}
+          rippleThickness={0.065}
+          speed={0.24}
           variant="square"
         />
       ) : (
-        <div
-          aria-hidden="true"
-          className="hero-section__fallback"
-          style={{ backgroundImage: `url(${poster})` }}
-        />
+        <div aria-hidden="true" className="hero-section__fallback" />
       )}
 
-      <div className="hero-section__overlay" />
+      <div aria-hidden="true" className="hero-section__overlay" />
+      <div aria-hidden="true" className="hero-section__orb hero-section__orb--one" />
+      <div aria-hidden="true" className="hero-section__orb hero-section__orb--two" />
+      <div aria-hidden="true" className="hero-section__horizon" />
 
       <div className="content-shell hero-section__content">
-        <div className="hero-section__copy">
-          <h1>
-            <Link
-              aria-label={`打开 ${title} 页面`}
-              className="hero-section__title-link"
-              onFocus={triggerTitleInteraction}
-              onPointerEnter={triggerTitleInteraction}
-              to={titleHref}
-            >
+        <motion.div
+          animate={{ opacity: 1, y: 0 }}
+          className="hero-section__intro"
+          initial={reduceMotion ? false : { opacity: 0, y: 18 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div className="hero-section__eyebrow">
+            <span>TA JOURNAL / 2026</span>
+            <span className="hero-section__availability">
+              <i aria-hidden="true" />
+              持续更新中
+            </span>
+          </div>
+
+          <div className="hero-section__copy">
+            <p className="hero-section__kicker">TECHNICAL ART · REAL-TIME VISUAL SYSTEMS</p>
+            <h1>
               {titleLines.map((line, lineIndex) => (
                 <span className="hero-section__title-line" key={`${line}-${lineIndex}`}>
-                  {Array.from(line).map((char, charIndex) => (
-                    <span
-                      className="hero-section__title-char"
-                      key={`${lineIndex}-${charIndex}-${char}`}
-                      ref={(node) => {
-                        const flatIndex =
-                          titleLines
-                            .slice(0, lineIndex)
-                            .reduce((count, currentLine) => count + currentLine.length, 0) +
-                          charIndex;
-
-                        if (node) {
-                          charRefs.current[flatIndex] = node;
-                        }
-                      }}
-                    >
-                      {char === " " ? "\u00A0" : char}
-                    </span>
-                  ))}
+                  {line}
                 </span>
               ))}
-            </Link>
-          </h1>
-        </div>
+            </h1>
+            <p className="hero-section__statement">把视觉判断，转译为实时系统。</p>
+            <p className="hero-section__summary">{summary}</p>
+
+            <div className="hero-section__actions">
+              <Link className="button button--primary hero-section__primary" to="/category/portfolio">
+                浏览作品
+                <ArrowUpRight size={17} />
+              </Link>
+              <Link className="hero-section__text-link" to="/category/learning-notes">
+                阅读方法记录
+                <ChevronRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.aside
+          aria-label="交互式 3D 技术美术模型"
+          animate={{ opacity: 1, scale: 1, x: 0 }}
+          className="hero-lab hero-lab--model"
+          initial={reduceMotion ? false : { opacity: 0, scale: 0.96, x: 28 }}
+          ref={heroLabRef}
+          transition={{ delay: reduceMotion ? 0 : 0.16, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <HeroModelScene reduceMotion={Boolean(reduceMotion)} theme={theme} />
+        </motion.aside>
       </div>
     </section>
   );

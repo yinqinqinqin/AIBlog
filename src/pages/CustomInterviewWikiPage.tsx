@@ -19,8 +19,6 @@ import {
 import { motion, useReducedMotion } from "motion/react";
 import { Link } from "react-router-dom";
 import FooterSection from "@/components/FooterSection";
-import SiteHeader from "@/components/SiteHeader";
-import { navItems, siteMeta } from "@/data/blog";
 import {
   useCustomInterviewStore,
   type CustomInterviewQuestion,
@@ -225,8 +223,6 @@ export default function CustomInterviewWikiPage() {
 
   return (
     <div className="blog-page interview-wiki-page custom-interview-page">
-      <SiteHeader brand={siteMeta.brand} navItems={navItems} />
-
       <main>
         <section className="interview-wiki-hero custom-interview-hero">
           <div className="content-shell interview-wiki-hero__inner">

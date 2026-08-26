@@ -1,14 +1,11 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import SectionBadge from "@/components/SectionBadge";
-import SiteHeader from "@/components/SiteHeader";
-import { aboutProfile, navItems, siteMeta } from "@/data/blog";
+import { aboutProfile } from "@/data/blog";
 
 export default function AboutPage() {
   return (
     <div className="blog-page">
-      <SiteHeader brand={siteMeta.brand} navItems={navItems} />
-
       <main className="about-page">
         <div className="content-shell about-page__top">
           <Link className="article-page__back" to="/">

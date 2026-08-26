@@ -19,7 +19,6 @@ import {
 import { motion, useReducedMotion } from "motion/react";
 import { Link } from "react-router-dom";
 import FooterSection from "@/components/FooterSection";
-import SiteHeader from "@/components/SiteHeader";
 import {
   getInterviewCategory,
   getQuestionsByLevel,
@@ -29,7 +28,6 @@ import {
   type InterviewQuestion,
   type InterviewLevelKey,
 } from "@/data/taInterviewWiki";
-import { navItems, siteMeta } from "@/data/blog";
 import {
   deleteInterviewNoteImage,
   listInterviewNoteImages,
@@ -349,8 +347,6 @@ export default function TechnicalArtInterviewWikiPage() {
 
   return (
     <div className="blog-page interview-wiki-page">
-      <SiteHeader brand={siteMeta.brand} navItems={navItems} />
-
       <main>
         <section className="interview-wiki-hero">
           <div className="content-shell interview-wiki-hero__inner">

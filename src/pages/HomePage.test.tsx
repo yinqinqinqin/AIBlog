@@ -15,6 +15,8 @@ import TechnicalArtInterviewWikiPage from "./TechnicalArtInterviewWikiPage";
 import gameTaHtmlArchive from "@/data/generated/gameTaHtmlArchive.json";
 import mihoyoInterviewBank from "@/data/generated/mihoyoInterviewBank.json";
 import type { InterviewResourceBank } from "@/data/interviewResourceTypes";
+import SiteHeader from "@/components/SiteHeader";
+import { navItems, siteMeta } from "@/data/blog";
 
 vi.mock("@/components/Particles", () => ({
   default: () => <div data-testid="particles-mock" />,
@@ -39,6 +41,7 @@ describe("blog pages", () => {
   it("renders home page sections", () => {
     render(
       <MemoryRouter>
+        <SiteHeader brand={siteMeta.brand} navItems={navItems} />
         <HomePage />
       </MemoryRouter>,
     );
@@ -72,6 +75,7 @@ describe("blog pages", () => {
   it("renders category page as independent route", () => {
     render(
       <MemoryRouter initialEntries={["/category/learning-notes"]}>
+        <SiteHeader brand={siteMeta.brand} navItems={navItems} />
         <Routes>
           <Route path="/category/:categoryKey" element={<CategoryPage />} />
         </Routes>

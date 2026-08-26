@@ -3,14 +3,11 @@ import ArticleCard from "@/components/ArticleCard";
 import FooterSection from "@/components/FooterSection";
 import InterviewResourceToolCard from "@/components/InterviewResourceToolCard";
 import SectionBadge from "@/components/SectionBadge";
-import SiteHeader from "@/components/SiteHeader";
 import StudyPlanSystem from "@/components/StudyPlanSystem";
 import {
   getArticlesByCategory,
   getCategoryByKey,
   isCategoryKey,
-  navItems,
-  siteMeta,
   studyPlanSystem,
 } from "@/data/blog";
 
@@ -40,8 +37,6 @@ export default function CategoryPage() {
 
   return (
     <div className="blog-page">
-      <SiteHeader brand={siteMeta.brand} navItems={navItems} />
-
       <main className="category-page">
         <div className="content-shell category-page__top">
           <section className="category-page__hero">

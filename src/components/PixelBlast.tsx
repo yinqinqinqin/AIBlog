@@ -24,12 +24,6 @@ interface TouchTexture {
   size: number;
 }
 
-interface ReinitConfig {
-  antialias: boolean;
-  liquid: boolean;
-  noiseAmount: number;
-}
-
 type PixelBlastProps = {
   variant?: PixelBlastVariant;
   pixelSize?: number;
@@ -52,6 +46,10 @@ type PixelBlastProps = {
   speed?: number;
   transparent?: boolean;
   edgeFade?: number;
+  focusCenterX?: number;
+  focusCenterY?: number;
+  focusRadius?: number;
+  focusInnerRadius?: number;
   noiseAmount?: number;
 };
 
@@ -234,6 +232,10 @@ uniform float uRippleSpeed;
 uniform float uRippleThickness;
 uniform float uRippleIntensity;
 uniform float uEdgeFade;
+uniform int   uFocusEnabled;
+uniform vec2  uFocusCenter;
+uniform float uFocusRadius;
+uniform float uFocusInnerRadius;
 
 uniform int   uShapeType;
 const int SHAPE_SQUARE   = 0;
@@ -366,6 +368,26 @@ void main(){
   else if (uShapeType == SHAPE_DIAMOND) M = maskDiamond(pixelUV, coverage);
   else M = coverage;
 
+  if (uFocusEnabled == 1) {
+    vec2 focusCenter = uFocusCenter * uResolution;
+    float focusDistance = distance(gl_FragCoord.xy, focusCenter);
+    float focusOuterRadius = uFocusRadius * min(uResolution.x, uResolution.y);
+    float normalizedDistance = focusDistance / max(focusOuterRadius, 0.0001);
+    float focusDensity = 1.0 - smoothstep(uFocusInnerRadius, 1.0, normalizedDistance);
+    float focusNoise = hash11(dot(pixelId, vec2(127.1, 311.7)) + 17.0);
+    float focusBalanceNoise = hash11(dot(pixelId, vec2(41.3, 289.1)) + 91.0);
+    float focusCoverage = step(focusBalanceNoise, focusDensity * 0.08);
+    float insideFocus = 1.0 - step(1.0, normalizedDistance);
+    float focusM;
+
+    if (uShapeType == SHAPE_CIRCLE) focusM = maskCircle(pixelUV, focusCoverage);
+    else if (uShapeType == SHAPE_TRIANGLE) focusM = maskTriangle(pixelUV, pixelId, focusCoverage);
+    else if (uShapeType == SHAPE_DIAMOND) focusM = maskDiamond(pixelUV, focusCoverage);
+    else focusM = focusCoverage;
+
+    M = max(M * insideFocus * step(focusNoise, focusDensity), focusM * insideFocus);
+  }
+
   if (uEdgeFade > 0.0) {
     vec2 norm = gl_FragCoord.xy / uResolution;
     float edge = min(min(norm.x, norm.y), min(1.0 - norm.x, 1.0 - norm.y));
@@ -408,17 +430,71 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
   speed = 0.5,
   transparent = true,
   edgeFade = 0.5,
+  focusCenterX = 0.5,
+  focusCenterY = 0.5,
+  focusRadius = 0,
+  focusInnerRadius = 0.46,
   noiseAmount = 0,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const visibilityRef = useRef({ visible: true });
+  const viewportVisibilityRef = useRef({ visible: true });
   const speedRef = useRef(speed);
+  const pixelSizeRef = useRef(pixelSize);
+  const autoPauseOffscreenRef = useRef(autoPauseOffscreen);
+  const optionsRef = useRef({
+    antialias,
+    color,
+    edgeFade,
+    enableRipples,
+    focusCenterX,
+    focusCenterY,
+    focusInnerRadius,
+    focusRadius,
+    liquid,
+    liquidRadius,
+    liquidStrength,
+    liquidWobbleSpeed,
+    noiseAmount,
+    patternDensity,
+    patternScale,
+    pixelSize,
+    pixelSizeJitter,
+    rippleIntensityScale,
+    rippleSpeed,
+    rippleThickness,
+    speed,
+    transparent,
+    variant,
+  });
+  optionsRef.current = {
+    antialias,
+    color,
+    edgeFade,
+    enableRipples,
+    focusCenterX,
+    focusCenterY,
+    focusInnerRadius,
+    focusRadius,
+    liquid,
+    liquidRadius,
+    liquidStrength,
+    liquidWobbleSpeed,
+    noiseAmount,
+    patternDensity,
+    patternScale,
+    pixelSize,
+    pixelSizeJitter,
+    rippleIntensityScale,
+    rippleSpeed,
+    rippleThickness,
+    speed,
+    transparent,
+    variant,
+  };
   const threeRef = useRef<{
     renderer: THREE.WebGLRenderer;
-    scene: THREE.Scene;
-    camera: THREE.OrthographicCamera;
     material: THREE.ShaderMaterial;
-    clock: THREE.Clock;
     clickIx: number;
     uniforms: {
       uResolution: { value: THREE.Vector2 };
@@ -436,56 +512,50 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       uRippleThickness: { value: number };
       uRippleIntensity: { value: number };
       uEdgeFade: { value: number };
+      uFocusEnabled: { value: number };
+      uFocusCenter: { value: THREE.Vector2 };
+      uFocusRadius: { value: number };
+      uFocusInnerRadius: { value: number };
     };
     resizeObserver?: ResizeObserver;
-    raf?: number;
     quad?: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
     composer?: EffectComposer;
     touch?: ReturnType<typeof createTouchTexture>;
     liquidEffect?: Effect;
   } | null>(null);
-  const prevConfigRef = useRef<ReinitConfig | null>(null);
-
   useEffect(() => {
     const container = containerRef.current;
     if (!container) {
       return undefined;
     }
 
+    const {
+      antialias,
+      color,
+      edgeFade,
+      enableRipples,
+      focusCenterX,
+      focusCenterY,
+      focusInnerRadius,
+      focusRadius,
+      liquid,
+      liquidRadius,
+      liquidStrength,
+      liquidWobbleSpeed,
+      noiseAmount,
+      patternDensity,
+      patternScale,
+      pixelSize,
+      pixelSizeJitter,
+      rippleIntensityScale,
+      rippleSpeed,
+      rippleThickness,
+      speed,
+      transparent,
+      variant,
+    } = optionsRef.current;
     speedRef.current = speed;
-    const needsReinitKeys: (keyof ReinitConfig)[] = ["antialias", "liquid", "noiseAmount"];
-    const cfg: ReinitConfig = { antialias, liquid, noiseAmount };
-    let mustReinit = false;
-
-    if (!threeRef.current) {
-      mustReinit = true;
-    } else if (prevConfigRef.current) {
-      for (const key of needsReinitKeys) {
-        if (prevConfigRef.current[key] !== cfg[key]) {
-          mustReinit = true;
-          break;
-        }
-      }
-    }
-
-    if (mustReinit) {
-      if (threeRef.current) {
-        const three = threeRef.current;
-        three.resizeObserver?.disconnect();
-        cancelAnimationFrame(three.raf || 0);
-        three.quad?.geometry.dispose();
-        three.material.dispose();
-        three.composer?.dispose();
-        three.renderer.dispose();
-        three.renderer.forceContextLoss();
-
-        if (three.renderer.domElement.parentElement === container) {
-          container.removeChild(three.renderer.domElement);
-        }
-
-        threeRef.current = null;
-      }
-
+    pixelSizeRef.current = pixelSize;
       const canvas = document.createElement("canvas");
       const renderer = new THREE.WebGLRenderer({
         canvas,
@@ -523,6 +593,10 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         uRippleThickness: { value: rippleThickness },
         uRippleIntensity: { value: rippleIntensityScale },
         uEdgeFade: { value: edgeFade },
+        uFocusEnabled: { value: focusRadius > 0 ? 1 : 0 },
+        uFocusCenter: { value: new THREE.Vector2(focusCenterX, focusCenterY) },
+        uFocusRadius: { value: focusRadius },
+        uFocusInnerRadius: { value: focusInnerRadius },
       };
 
       const scene = new THREE.Scene();
@@ -552,7 +626,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
           threeRef.current.composer.setSize(renderer.domElement.width, renderer.domElement.height);
         }
 
-        uniforms.uPixelSize.value = pixelSize * renderer.getPixelRatio();
+        uniforms.uPixelSize.value = pixelSizeRef.current * renderer.getPixelRatio();
       };
 
       setSize();
@@ -635,7 +709,21 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         return { fx, fy, w: renderer.domElement.width, h: renderer.domElement.height };
       };
 
+      const isInsideCanvas = (event: PointerEvent) => {
+        const rect = renderer.domElement.getBoundingClientRect();
+        return (
+          event.clientX >= rect.left &&
+          event.clientX <= rect.right &&
+          event.clientY >= rect.top &&
+          event.clientY <= rect.bottom
+        );
+      };
+
       const onPointerDown = (event: PointerEvent) => {
+        if (!isInsideCanvas(event)) {
+          return;
+        }
+
         const { fx, fy } = mapToPixels(event);
         const ix = threeRef.current?.clickIx ?? 0;
         uniforms.uClickPos.value[ix].set(fx, fy);
@@ -651,6 +739,11 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
           return;
         }
 
+        if (!isInsideCanvas(event)) {
+          touch.reset();
+          return;
+        }
+
         const { fx, fy, w, h } = mapToPixels(event);
         touch.addTouch({ x: fx / w, y: fy / h });
         touch.update();
@@ -660,14 +753,23 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         touch?.reset();
       };
 
-      renderer.domElement.addEventListener("pointerdown", onPointerDown, { passive: true });
-      renderer.domElement.addEventListener("pointermove", onPointerMove, { passive: true });
-      renderer.domElement.addEventListener("pointerleave", onPointerLeave, { passive: true });
-      renderer.domElement.addEventListener("pointercancel", onPointerLeave, { passive: true });
+      window.addEventListener("pointerdown", onPointerDown, { passive: true });
+      window.addEventListener("pointermove", onPointerMove, { passive: true });
+      window.addEventListener("pointercancel", onPointerLeave, { passive: true });
+      window.addEventListener("blur", onPointerLeave);
+      const removePointerListeners = () => {
+        window.removeEventListener("pointerdown", onPointerDown);
+        window.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("pointercancel", onPointerLeave);
+        window.removeEventListener("blur", onPointerLeave);
+      };
 
       let raf = 0;
       const animate = () => {
-        if (autoPauseOffscreen && !visibilityRef.current.visible) {
+        if (
+          autoPauseOffscreenRef.current &&
+          (!visibilityRef.current.visible || !viewportVisibilityRef.current.visible)
+        ) {
           raf = requestAnimationFrame(animate);
           return;
         }
@@ -716,80 +818,31 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       raf = requestAnimationFrame(animate);
       threeRef.current = {
         renderer,
-        scene,
-        camera,
         material,
-        clock,
         clickIx: 0,
         uniforms,
         resizeObserver,
-        raf,
         quad,
         composer,
         touch,
         liquidEffect,
       };
-    } else {
-      const three = threeRef.current;
-
-      if (!three) {
-        return undefined;
-      }
-
-      three.uniforms.uShapeType.value = SHAPE_MAP[variant] ?? 0;
-      three.uniforms.uPixelSize.value = pixelSize * three.renderer.getPixelRatio();
-      three.uniforms.uColor.value.set(color);
-      three.uniforms.uScale.value = patternScale;
-      three.uniforms.uDensity.value = patternDensity;
-      three.uniforms.uPixelJitter.value = pixelSizeJitter;
-      three.uniforms.uEnableRipples.value = enableRipples ? 1 : 0;
-      three.uniforms.uRippleIntensity.value = rippleIntensityScale;
-      three.uniforms.uRippleThickness.value = rippleThickness;
-      three.uniforms.uRippleSpeed.value = rippleSpeed;
-      three.uniforms.uEdgeFade.value = edgeFade;
-
-      if (transparent) {
-        three.renderer.setClearAlpha(0);
-      } else {
-        three.renderer.setClearColor(0x000000, 1);
-      }
-
-      if (three.liquidEffect) {
-        const currentLiquid = three.liquidEffect as Effect & {
-          uniforms: Map<string, THREE.Uniform>;
-        };
-        const strengthUniform = currentLiquid.uniforms.get("uStrength");
-        const freqUniform = currentLiquid.uniforms.get("uFreq");
-
-        if (strengthUniform) {
-          strengthUniform.value = liquidStrength;
-        }
-
-        if (freqUniform) {
-          freqUniform.value = liquidWobbleSpeed;
-        }
-      }
-
-      if (three.touch) {
-        three.touch.radiusScale = liquidRadius;
-      }
-    }
-
-    prevConfigRef.current = cfg;
 
     return () => {
+      removePointerListeners?.();
+      cancelAnimationFrame(raf);
+
       if (!threeRef.current) {
         return;
       }
 
       const three = threeRef.current;
       three.resizeObserver?.disconnect();
-      cancelAnimationFrame(three.raf || 0);
       three.quad?.geometry.dispose();
       three.material.dispose();
       three.composer?.dispose();
+      three.touch?.texture.dispose();
       three.renderer.dispose();
-      three.renderer.forceContextLoss();
 
       if (three.renderer.domElement.parentElement === container) {
         container.removeChild(three.renderer.domElement);
@@ -797,31 +850,109 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
 
       threeRef.current = null;
     };
+  }, [antialias, liquid, noiseAmount]);
+
+  useEffect(() => {
+    speedRef.current = speed;
+    pixelSizeRef.current = pixelSize;
+    autoPauseOffscreenRef.current = autoPauseOffscreen;
+
+    const three = threeRef.current;
+    if (!three) {
+      return;
+    }
+
+    three.uniforms.uShapeType.value = SHAPE_MAP[variant] ?? 0;
+    three.uniforms.uPixelSize.value = pixelSize * three.renderer.getPixelRatio();
+    three.uniforms.uColor.value.set(color);
+    three.uniforms.uScale.value = patternScale;
+    three.uniforms.uDensity.value = patternDensity;
+    three.uniforms.uPixelJitter.value = pixelSizeJitter;
+    three.uniforms.uEnableRipples.value = enableRipples ? 1 : 0;
+    three.uniforms.uRippleIntensity.value = rippleIntensityScale;
+    three.uniforms.uRippleThickness.value = rippleThickness;
+    three.uniforms.uRippleSpeed.value = rippleSpeed;
+    three.uniforms.uEdgeFade.value = edgeFade;
+    three.uniforms.uFocusEnabled.value = focusRadius > 0 ? 1 : 0;
+    three.uniforms.uFocusCenter.value.set(focusCenterX, focusCenterY);
+    three.uniforms.uFocusRadius.value = focusRadius;
+    three.uniforms.uFocusInnerRadius.value = focusInnerRadius;
+
+    if (transparent) {
+      three.renderer.setClearAlpha(0);
+    } else {
+      three.renderer.setClearColor(0x000000, 1);
+    }
+
+    if (three.liquidEffect) {
+      const currentLiquid = three.liquidEffect as Effect & {
+        uniforms: Map<string, THREE.Uniform>;
+      };
+      const strengthUniform = currentLiquid.uniforms.get("uStrength");
+      const freqUniform = currentLiquid.uniforms.get("uFreq");
+
+      if (strengthUniform) {
+        strengthUniform.value = liquidStrength;
+      }
+
+      if (freqUniform) {
+        freqUniform.value = liquidWobbleSpeed;
+      }
+    }
+
+    if (three.touch) {
+      three.touch.radiusScale = liquidRadius;
+    }
   }, [
-    antialias,
-    liquid,
-    noiseAmount,
-    pixelSize,
-    patternScale,
-    patternDensity,
-    enableRipples,
-    rippleIntensityScale,
-    rippleThickness,
-    rippleSpeed,
-    pixelSizeJitter,
-    edgeFade,
-    transparent,
-    liquidStrength,
-    liquidRadius,
-    liquidWobbleSpeed,
     autoPauseOffscreen,
-    variant,
     color,
+    edgeFade,
+    enableRipples,
+    focusCenterX,
+    focusCenterY,
+    focusInnerRadius,
+    focusRadius,
+    liquidRadius,
+    liquidStrength,
+    liquidWobbleSpeed,
+    patternDensity,
+    patternScale,
+    pixelSize,
+    pixelSizeJitter,
+    rippleIntensityScale,
+    rippleSpeed,
+    rippleThickness,
     speed,
+    transparent,
+    variant,
   ]);
 
   useEffect(() => {
     if (!autoPauseOffscreen) {
+      viewportVisibilityRef.current.visible = true;
+      return undefined;
+    }
+
+    const container = containerRef.current;
+    if (!container) {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        viewportVisibilityRef.current.visible = entry.isIntersecting;
+      },
+      { rootMargin: "120px 0px" },
+    );
+
+    observer.observe(container);
+
+    return () => observer.disconnect();
+  }, [autoPauseOffscreen]);
+
+  useEffect(() => {
+    if (!autoPauseOffscreen) {
+      visibilityRef.current.visible = true;
       return undefined;
     }
 

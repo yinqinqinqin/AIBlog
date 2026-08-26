@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Dock from "@/components/Dock";
 import type { NavItem } from "@/data/blog";
 
@@ -14,7 +14,6 @@ export default function SiteHeader({ brand, navItems }: SiteHeaderProps) {
   const [scrollVisibility, setScrollVisibility] = useState<"revealed" | "hidden">("revealed");
   const lastScrollYRef = useRef(0);
   const heroThresholdRef = useRef(0);
-  void brand;
 
   useEffect(() => {
     const updateThreshold = () => {
@@ -66,7 +65,9 @@ export default function SiteHeader({ brand, navItems }: SiteHeaderProps) {
   }, [location.pathname]);
 
   const dockItems = navItems.map((item) => ({
-    active: location.pathname === item.href,
+    active:
+      location.pathname === item.href ||
+      (item.href === "/category/tools" && location.pathname.startsWith("/tools/")),
     content: <span className="site-header__dock-text">{item.label}</span>,
     label: item.label,
     onClick: () => navigate(item.href),
@@ -75,6 +76,14 @@ export default function SiteHeader({ brand, navItems }: SiteHeaderProps) {
   return (
     <header className="site-header">
       <div className="content-shell site-header__inner">
+        <Link aria-label="返回首页" className="site-header__brand" to="/">
+          <span className="site-header__brand-mark" aria-hidden="true">TA</span>
+          <span className="site-header__brand-copy">
+            <strong>{brand}</strong>
+            <small>Visual Systems</small>
+          </span>
+        </Link>
+
         <nav aria-label="博客导航" className="site-header__nav">
           <Dock
             baseItemSize={42}
@@ -88,6 +97,11 @@ export default function SiteHeader({ brand, navItems }: SiteHeaderProps) {
             showLabels={false}
           />
         </nav>
+
+        <div aria-hidden="true" className="site-header__signal">
+          <span />
+          SHANGHAI · CN
+        </div>
       </div>
     </header>
   );

@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { Facebook, Instagram, Mail, Music2, Twitter, Youtube } from "lucide-react";
 import BorderGlow from "@/components/BorderGlow";
 import { Link } from "react-router-dom";
@@ -6,6 +8,31 @@ import { useThemeStore } from "@/store/themeStore";
 
 export default function FooterSection() {
   const theme = useThemeStore((state) => state.theme);
+  const footerRef = useRef<HTMLElement | null>(null);
+  const [isInView, setIsInView] = useState(() => typeof IntersectionObserver === "undefined");
+  const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    const footer = footerRef.current;
+
+    if (!footer || typeof IntersectionObserver === "undefined") {
+      setIsInView(true);
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "240px 0px" },
+    );
+
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
   const footerGroups = [
     {
       title: "浏览",
@@ -39,23 +66,32 @@ export default function FooterSection() {
       : ["#ffffff", "#ffffff", "#ebfeff", "#d5fbff"];
 
   return (
-    <footer className="footer-section" id="footer">
+    <motion.footer
+      animate={isInView ? { opacity: 1, y: 0 } : undefined}
+      className="footer-section"
+      id="footer"
+      initial={reduceMotion ? false : { opacity: 0, y: 28 }}
+      ref={footerRef}
+      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+    >
       <div aria-hidden="true" className="footer-section__media">
-        <Particles
-          alphaParticles
-          className="footer-section__particles"
-          cameraDistance={18}
-          disableRotation={false}
-          moveParticlesOnHover
-          particleBaseSize={62}
-          particleColors={particleColors}
-          particleCount={560}
-          particleHoverFactor={1.8}
-          particleSpread={11}
-          pixelRatio={1.2}
-          sizeRandomness={1}
-          speed={0.12}
-        />
+        {isInView && !reduceMotion ? (
+          <Particles
+            alphaParticles
+            className="footer-section__particles"
+            cameraDistance={18}
+            disableRotation={false}
+            moveParticlesOnHover
+            particleBaseSize={58}
+            particleColors={particleColors}
+            particleCount={220}
+            particleHoverFactor={1.35}
+            particleSpread={11}
+            pixelRatio={1}
+            sizeRandomness={1}
+            speed={0.08}
+          />
+        ) : null}
       </div>
 
       <div className="content-shell">
@@ -131,6 +167,6 @@ export default function FooterSection() {
           </div>
         </BorderGlow>
       </div>
-    </footer>
+    </motion.footer>
   );
 }

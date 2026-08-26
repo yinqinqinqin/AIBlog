@@ -2,8 +2,6 @@ import { useEffect, useMemo, useRef } from "react";
 import { ArrowLeft, BookOpenText } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import FooterSection from "@/components/FooterSection";
-import SiteHeader from "@/components/SiteHeader";
-import { navItems, siteMeta } from "@/data/blog";
 import archiveData from "@/data/generated/gameTaHtmlArchive.json";
 import { useThemeStore } from "@/store/themeStore";
 
@@ -301,8 +299,6 @@ export default function GameTaOriginalFormatPage() {
 
   return (
     <div className="blog-page game-ta-original-page">
-      <SiteHeader brand={siteMeta.brand} navItems={navItems} />
-
       <main className="game-ta-original-page__main">
         <div className="content-shell game-ta-original-page__toolbar">
           <Link to="/category/tools"><ArrowLeft size={14} /> 返回工具</Link>

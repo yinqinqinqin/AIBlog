@@ -84,7 +84,7 @@ export const siteMeta = {
   title: "Technical\nArtist",
   heroTitleHref: "/about",
   summary:
-    "Take a vacation on the wild side with Foundry Adventure Tours and never look at life the same.",
+    "记录实时渲染、材质、VFX 与工具链的学习和实践，把模糊的视觉目标拆成可验证、可复用、可交付的方法。",
   heroVideo: "/media/hero-grid.mp4",
   heroPoster:
     "https://copilot-cn.bytedance.net/api/ide/v1/text_to_image?prompt=cinematic%20futuristic%20editorial%20technology%20grid%2C%20dark%20luxury%20atmosphere%2C%20cyan%20glow%2C%20high-end%20minimal%20digital%20background&image_size=landscape_16_9",
