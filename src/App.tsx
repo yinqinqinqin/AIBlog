@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import SplashCursor from "@/components/SplashCursor";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -15,6 +15,9 @@ import { applyTheme, useThemeStore } from "@/store/themeStore";
 const CustomInterviewWikiPage = lazy(() => import("@/pages/CustomInterviewWikiPage"));
 const GameTaOriginalFormatPage = lazy(() => import("@/pages/GameTaOriginalFormatPage"));
 const TechnicalArtInterviewWikiPage = lazy(() => import("@/pages/TechnicalArtInterviewWikiPage"));
+const Ue5GpuRenderdocPage = lazy(() => import("@/pages/Ue5GpuRenderdocPage"));
+const Ue5MobileOptimizationPage = lazy(() => import("@/pages/Ue5MobileOptimizationPage"));
+const Ue5AssetPipelinePage = lazy(() => import("@/pages/Ue5AssetPipelinePage"));
 const MihoyoInterviewPage = lazy(async () => {
   const [{ default: ImportedInterviewWikiPage }, { default: bank }] = await Promise.all([
     import("@/pages/ImportedInterviewWikiPage"),
@@ -64,6 +67,24 @@ function AppRoutes() {
             <Route path="/tools/mihoyo-ta-interview" element={<MihoyoInterviewPage />} />
             <Route path="/tools/game-ta-interview-100" element={<GameTaOriginalFormatPage />} />
             <Route path="/tools/game-ta-interview-100/:pageId" element={<GameTaOriginalFormatPage />} />
+            <Route path="/tools/ue5-gpu-renderdoc" element={<Ue5GpuRenderdocPage />} />
+            <Route path="/tools/ue5-gpu-renderdoc/:pageId" element={<Ue5GpuRenderdocPage />} />
+            <Route path="/tools/ue5-mobile-optimization" element={<Ue5MobileOptimizationPage />} />
+            <Route path="/tools/ue5-mobile-optimization/:pageId" element={<Ue5MobileOptimizationPage />} />
+            <Route path="/tools/ue5-asset-pipeline" element={<Ue5AssetPipelinePage />} />
+            <Route path="/tools/ue5-asset-pipeline/:pageId" element={<Ue5AssetPipelinePage />} />
+            <Route path="/tools" element={<Navigate replace to="/category/knowledge-base" />} />
+            <Route path="/knowledge-base/ta-interview-wiki" element={<TechnicalArtInterviewWikiPage />} />
+            <Route path="/knowledge-base/custom-interview-wiki" element={<CustomInterviewWikiPage />} />
+            <Route path="/knowledge-base/mihoyo-ta-interview" element={<MihoyoInterviewPage />} />
+            <Route path="/knowledge-base/game-ta-interview-100" element={<GameTaOriginalFormatPage />} />
+            <Route path="/knowledge-base/game-ta-interview-100/:pageId" element={<GameTaOriginalFormatPage />} />
+            <Route path="/knowledge-base/ue5-gpu-renderdoc" element={<Ue5GpuRenderdocPage />} />
+            <Route path="/knowledge-base/ue5-gpu-renderdoc/:pageId" element={<Ue5GpuRenderdocPage />} />
+            <Route path="/knowledge-base/ue5-mobile-optimization" element={<Ue5MobileOptimizationPage />} />
+            <Route path="/knowledge-base/ue5-mobile-optimization/:pageId" element={<Ue5MobileOptimizationPage />} />
+            <Route path="/knowledge-base/ue5-asset-pipeline" element={<Ue5AssetPipelinePage />} />
+            <Route path="/knowledge-base/ue5-asset-pipeline/:pageId" element={<Ue5AssetPipelinePage />} />
           </Routes>
         </Suspense>
       </motion.div>

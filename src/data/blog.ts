@@ -1,4 +1,4 @@
-export type CategoryKey = "learning-notes" | "portfolio" | "study-plan" | "tools";
+export type CategoryKey = "learning-notes" | "portfolio" | "study-plan" | "knowledge-base" | "tools";
 
 export type NavItem = {
   label: string;
@@ -39,6 +39,8 @@ export type Article = {
   excerpt: string;
   tags: string[];
   cover: string;
+  pinned?: boolean;
+  pinnedOrder?: number;
   content?: string[];
   markdown?: string;
 };
@@ -95,7 +97,7 @@ export const navItems: NavItem[] = [
   { label: "学习记录", href: "/category/learning-notes" },
   { label: "作品集", href: "/category/portfolio" },
   { label: "学习计划", href: "/category/study-plan" },
-  { label: "工具", href: "/category/tools" },
+  { label: "知识库", href: "/category/knowledge-base" },
   { label: "关于", href: "/about" },
 ];
 
@@ -159,9 +161,16 @@ export const categories: Category[] = [
 export const categoryPages: Category[] = [
   ...categories,
   {
+    key: "knowledge-base",
+    label: "知识库",
+    description: "集中整理技术美术面试、UE5 性能优化、资源管线和项目排错资料。",
+    anchor: "knowledge-base",
+    href: "/category/knowledge-base",
+  },
+  {
     key: "tools",
     label: "工具",
-    description: "整理常用工具、插件、工作流脚本与效率向资产，作为独立分类页持续归档。",
+    description: "工具入口已迁移到知识库，保留该路径用于旧链接兼容。",
     anchor: "tools",
     href: "/category/tools",
   },
@@ -171,6 +180,7 @@ export const categoryLabelMap: Record<CategoryKey, string> = {
   "learning-notes": "学习记录",
   portfolio: "作品集",
   "study-plan": "学习计划",
+  "knowledge-base": "知识库",
   tools: "工具",
 };
 
@@ -287,6 +297,37 @@ function isMarkdownArticleCategory(value?: string): value is Extract<CategoryKey
   return value === "learning-notes" || value === "portfolio";
 }
 
+function parseTextField(value?: string) {
+  if (!value) return "";
+  const trimmed = value.trim();
+  if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+    return trimmed.slice(1, -1).trim();
+  }
+  return trimmed;
+}
+
+function parseTagsField(value?: string) {
+  const trimmed = parseTextField(value);
+  if (!trimmed) return [];
+  const normalized = trimmed.startsWith("[") && trimmed.endsWith("]") ? trimmed.slice(1, -1) : trimmed;
+  return normalized
+    .split(",")
+    .map((tag) => parseTextField(tag))
+    .filter(Boolean);
+}
+
+function parseBooleanField(value?: string) {
+  const normalized = parseTextField(value).toLowerCase();
+  return normalized === "true" || normalized === "yes" || normalized === "1";
+}
+
+function parseNumberField(value?: string) {
+  const normalized = parseTextField(value);
+  if (!normalized) return undefined;
+  const numberValue = Number(normalized);
+  return Number.isFinite(numberValue) ? numberValue : undefined;
+}
+
 function parseMarkdownArticles() {
   return Object.entries(markdownArticleModules)
     .map(([path, raw]) => {
@@ -301,11 +342,13 @@ function parseMarkdownArticles() {
         slug,
         title: metadata.title ?? slug,
         category: metadata.category,
-        date: metadata.date ?? "",
-        readTime: metadata.readTime ?? "",
-        excerpt: metadata.excerpt ?? "",
-        tags: metadata.tags ? metadata.tags.split(",").map((tag) => tag.trim()).filter(Boolean) : [],
-        cover: metadata.cover ?? "",
+        date: parseTextField(metadata.date),
+        readTime: parseTextField(metadata.readTime),
+        excerpt: parseTextField(metadata.excerpt),
+        tags: parseTagsField(metadata.tags),
+        cover: parseTextField(metadata.cover),
+        pinned: parseBooleanField(metadata.pinned),
+        pinnedOrder: parseNumberField(metadata.pinnedOrder),
         markdown: body,
       } satisfies Article;
     })
@@ -314,54 +357,30 @@ function parseMarkdownArticles() {
 
 const markdownArticles = parseMarkdownArticles();
 
-const inlineArticles: Article[] = [
-  {
-    slug: "quarter-study-roadmap",
-    title: "下一阶段技术美术学习计划：材质、工具链与实时内容表达",
-    category: "study-plan",
-    date: "2026.06.12",
-    readTime: "5 分钟",
-    excerpt:
-      "把接下来三个月要推进的能力拆成三条线：实时材质、内容工具化和视觉表达稳定性。",
-    tags: ["学习计划", "路线图", "TA"],
-    cover:
-      "https://copilot-cn.bytedance.net/api/ide/v1/text_to_image?prompt=real-time%20VFX%20portfolio%20presentation%2C%20dark%20luxury%20editorial%20design%2C%20technical%20artist%20showcase%2C%20sleek%20cyan%20lighting&image_size=landscape_16_9",
-    content: [
-      "学习计划如果只写方向，很容易失效。我现在会把计划拆成每周可验证的目标，比如一个材质实验、一个工具练习、一次展示页整理。",
-      "材质能力决定我对画面细节的掌控，工具链能力决定效率，视觉表达则决定成果是否真的能被理解。三条线必须同时推进。",
-      "基础版本里先把这类计划作为博客分类内容展示，后续可以扩展成更完整的归档系统。"
-    ],
-  },
-  {
-    slug: "yearly-learning-structure",
-    title: "年度学习结构草案：避免只学热点，不补基础",
-    category: "study-plan",
-    date: "2026.05.22",
-    readTime: "4 分钟",
-    excerpt:
-      "给自己制定一套技术美术年度学习结构，让短期热点工具和长期基础能力保持平衡。",
-    tags: ["年度规划", "基础能力", "学习系统"],
-    cover:
-      "https://copilot-cn.bytedance.net/api/ide/v1/text_to_image?prompt=futuristic%20hangar%20environment%20breakdown%2C%20dark%20luxury%20lighting%2C%20technical%20artist%20portfolio%20scene%2C%20cyan%20accents&image_size=landscape_16_9",
-    content: [
-      "学太多热点工具容易失去结构感，学太多基础又容易短期看不到成果，所以年度计划里必须同时安排输出和补课。",
-      "我会把目标拆成基础原理、工具实践和可展示成果三个层级，用月度回顾去判断偏科问题。",
-      "这类计划文会帮助我把博客从展示页慢慢变成真正持续积累的系统。"
-    ],
-  },
-];
+const inlineArticles: Article[] = [];
 
 export const articles: Article[] = [...markdownArticles, ...inlineArticles].sort((left, right) =>
   right.date.localeCompare(left.date),
 );
 
 export const featuredSlugs = [
-  "shader-observation-log",
-  "scene-breakdown-terminal-bay",
-  "quarter-study-roadmap",
+  "npr-render",
+  "sky-system",
+  "electric-dreams-optimization",
 ];
 
 export function getFeaturedArticles() {
+  const pinnedArticles = articles
+    .filter((article) => article.pinned)
+    .sort((left, right) => {
+      const orderDiff = (left.pinnedOrder ?? Number.MAX_SAFE_INTEGER) - (right.pinnedOrder ?? Number.MAX_SAFE_INTEGER);
+      return orderDiff || right.date.localeCompare(left.date);
+    });
+
+  if (pinnedArticles.length > 0) {
+    return pinnedArticles;
+  }
+
   return featuredSlugs
     .map((slug) => articles.find((article) => article.slug === slug))
     .filter(Boolean) as Article[];
@@ -380,5 +399,11 @@ export function getCategoryByKey(key: CategoryKey) {
 }
 
 export function isCategoryKey(value?: string): value is CategoryKey {
-  return value === "learning-notes" || value === "portfolio" || value === "study-plan" || value === "tools";
+  return (
+    value === "learning-notes" ||
+    value === "portfolio" ||
+    value === "study-plan" ||
+    value === "knowledge-base" ||
+    value === "tools"
+  );
 }

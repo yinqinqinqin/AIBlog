@@ -1,5 +1,6 @@
 import { ArrowLeft, Clock3 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
+import ArticleTextCover from "@/components/ArticleTextCover";
 import MarkdownContent from "@/components/MarkdownContent";
 import SectionBadge from "@/components/SectionBadge";
 import { getArticleBySlug, getCategoryByKey } from "@/data/blog";
@@ -50,7 +51,11 @@ export default function ArticlePage() {
           </div>
 
           <div className="article-layout__cover">
-            <img alt={article.title} src={article.cover} />
+            {article.cover ? (
+              <img alt={article.title} src={article.cover} />
+            ) : (
+              <ArticleTextCover article={article} className="article-layout__text-cover" />
+            )}
           </div>
 
           <div className="article-layout__content article-content">

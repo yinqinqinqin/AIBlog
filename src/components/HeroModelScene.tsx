@@ -1,20 +1,31 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 type HeroModelSceneProps = {
   reduceMotion: boolean;
   theme: "light" | "dark";
 };
 
+type ModelMaterialBinding = {
+  material: THREE.MeshPhysicalMaterial;
+  variant: number;
+};
+
 type SceneAppearance = {
-  planet: THREE.MeshPhysicalMaterial;
-  city: THREE.MeshStandardMaterial;
-  grid: THREE.LineBasicMaterial;
-  atmosphere: THREE.MeshBasicMaterial;
-  neon: THREE.MeshBasicMaterial[];
-  beams: THREE.ShaderMaterial[];
-  cityLights: THREE.PointsMaterial;
+  core: THREE.MeshPhysicalMaterial;
+  kernel: THREE.MeshBasicMaterial;
+  shell: THREE.MeshPhysicalMaterial;
+  atmosphere: THREE.ShaderMaterial;
+  lattice: THREE.LineBasicMaterial;
+  surface: THREE.PointsMaterial;
+  rings: THREE.MeshBasicMaterial[];
+  flows: THREE.MeshBasicMaterial[];
+  beacons: THREE.MeshBasicMaterial[];
+  modelEdges: THREE.LineBasicMaterial[];
+  haze: THREE.ShaderMaterial[];
   stars: THREE.PointsMaterial;
+  modelMaterials: ModelMaterialBinding[];
   ambient: THREE.AmbientLight;
   key: THREE.PointLight;
   rim: THREE.PointLight;
@@ -22,38 +33,79 @@ type SceneAppearance = {
   renderer: THREE.WebGLRenderer;
 };
 
+type ModelPlacement = {
+  latitude: number;
+  longitude: number;
+  modelIndex: number;
+  variant: number;
+  height: number;
+  footprint: number;
+  spin: number;
+};
+
+type NormalizedModel = {
+  template: THREE.Group;
+  height: number;
+  footprint: number;
+};
+
+const MODEL_PATHS = [
+  "/assets/hero-world/industrial/building-a.glb",
+  "/assets/hero-world/industrial/building-c.glb",
+  "/assets/hero-world/industrial/building-e.glb",
+  "/assets/hero-world/industrial/building-g.glb",
+  "/assets/hero-world/industrial/building-i.glb",
+  "/assets/hero-world/industrial/building-k.glb",
+  "/assets/hero-world/industrial/building-m.glb",
+  "/assets/hero-world/industrial/building-o.glb",
+  "/assets/hero-world/industrial/building-q.glb",
+  "/assets/hero-world/industrial/building-s.glb",
+] as const;
+
 const palettes = {
   dark: {
-    planet: "#07040f",
-    planetEmissive: "#24074f",
-    city: "#171025",
-    cityEmissive: "#3b0b63",
-    grid: "#8b5cf6",
-    atmosphere: "#7c3aed",
-    neon: ["#d946ef", "#22d3ee", "#a78bfa"],
-    beam: ["#e879f9", "#67e8f9", "#a78bfa"],
-    stars: "#c4b5fd",
-    ambient: "#7c3aed",
-    key: "#f0abfc",
-    rim: "#22d3ee",
-    fill: "#8b5cf6",
-    exposure: 1.18,
+    core: "#07070d",
+    coreEmissive: "#211238",
+    kernel: "#d8b4fe",
+    shell: "#171225",
+    shellEmissive: "#39245c",
+    atmosphere: "#9e8cff",
+    lattice: "#8f7ed8",
+    surface: "#b9a8ff",
+    architecture: ["#29253b", "#222a38", "#30243b"],
+    architectureEmissive: ["#b6a5ff", "#72c6d4", "#d8a7d6"],
+    rings: ["#a38cf2", "#68c1ce", "#c69ad9"],
+    flows: ["#d9c8ff", "#8edce6", "#deb9e6"],
+    beacons: ["#f0e8ff", "#9deaf2", "#f1cbed"],
+    haze: ["#b58cff", "#8d7ee8", "#6ecbd8"],
+    stars: "#b9a8ff",
+    ambient: "#7e64bd",
+    key: "#ddc9ff",
+    rim: "#7fd7df",
+    fill: "#9a83de",
+    exposure: 1.08,
   },
   light: {
-    planet: "#302554",
-    planetEmissive: "#6d4ed8",
-    city: "#3b2e62",
-    cityEmissive: "#7c3aed",
-    grid: "#7c3aed",
-    atmosphere: "#8b5cf6",
-    neon: ["#c026d3", "#0891b2", "#6d28d9"],
-    beam: ["#c026d3", "#0e7490", "#7c3aed"],
-    stars: "#7c3aed",
-    ambient: "#ddd6fe",
-    key: "#c084fc",
-    rim: "#06b6d4",
-    fill: "#7c3aed",
-    exposure: 1.02,
+    core: "#302942",
+    coreEmissive: "#67528e",
+    kernel: "#8758c5",
+    shell: "#62567a",
+    shellEmissive: "#7664a2",
+    atmosphere: "#7468c8",
+    lattice: "#7568b2",
+    surface: "#7568bd",
+    architecture: ["#6b6480", "#5e6a79", "#76667e"],
+    architectureEmissive: ["#7664ca", "#4d9aa6", "#a56e9e"],
+    rings: ["#7562c5", "#4c98a2", "#9d6aa5"],
+    flows: ["#7e69c7", "#4f9eaa", "#a875aa"],
+    beacons: ["#765fc0", "#3f929d", "#9d6199"],
+    haze: ["#8b6fca", "#7466bc", "#579aa4"],
+    stars: "#7568bd",
+    ambient: "#e4dcf2",
+    key: "#c8b9e8",
+    rim: "#8fcbd1",
+    fill: "#a493cf",
+    exposure: 0.98,
   },
 } as const;
 
@@ -65,46 +117,271 @@ function createSeededRandom(seed = 2606) {
   };
 }
 
+function sphericalPoint(radius: number, latitudeDeg: number, longitudeDeg: number) {
+  const latitude = THREE.MathUtils.degToRad(latitudeDeg);
+  const longitude = THREE.MathUtils.degToRad(longitudeDeg);
+  const cosLatitude = Math.cos(latitude);
+
+  return new THREE.Vector3(
+    radius * cosLatitude * Math.cos(longitude),
+    radius * Math.sin(latitude),
+    radius * cosLatitude * Math.sin(longitude),
+  );
+}
+
+function buildArcCurve(
+  radius: number,
+  startLat: number,
+  startLon: number,
+  endLat: number,
+  endLon: number,
+  lift: number,
+  twist: number,
+) {
+  const start = sphericalPoint(radius, startLat, startLon);
+  const end = sphericalPoint(radius, endLat, endLon);
+  const axis = start.clone().cross(end);
+
+  if (axis.lengthSq() < 0.00001) {
+    axis.set(0, 1, 0);
+  } else {
+    axis.normalize();
+  }
+
+  const midA = start.clone().lerp(end, 0.32).normalize();
+  midA.addScaledVector(axis, twist).normalize().multiplyScalar(radius + lift);
+
+  const midB = start.clone().lerp(end, 0.68).normalize();
+  midB.addScaledVector(axis, -twist * 0.72).normalize().multiplyScalar(radius + lift * 1.12);
+
+  return new THREE.CatmullRomCurve3([start, midA, midB, end], false, "catmullrom", 0.16);
+}
+
+function createHazeMaterial(color: string, opacity: number, phase: number) {
+  return new THREE.ShaderMaterial({
+    blending: THREE.AdditiveBlending,
+    depthTest: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    transparent: true,
+    toneMapped: false,
+    uniforms: {
+      uColor: { value: new THREE.Color(color) },
+      uOpacity: { value: opacity },
+      uPhase: { value: phase },
+      uTime: { value: 0 },
+    },
+    vertexShader: /* glsl */ `
+      varying vec2 vUv;
+
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: /* glsl */ `
+      uniform vec3 uColor;
+      uniform float uOpacity;
+      uniform float uPhase;
+      uniform float uTime;
+      varying vec2 vUv;
+
+      float hash21(vec2 value) {
+        return fract(sin(dot(value, vec2(27.619, 91.173))) * 43758.5453);
+      }
+
+      void main() {
+        vec2 centered = vUv - 0.5;
+        float shaft = pow(max(0.0, 1.0 - abs(centered.x) * 2.0), 2.8);
+        float vertical = smoothstep(0.0, 0.14, vUv.y) * (1.0 - smoothstep(0.58, 1.0, vUv.y));
+        float halo = smoothstep(1.02, 0.14, length(centered * vec2(1.7, 0.82)));
+        float ripple = 0.88 + 0.12 * sin(vUv.y * 15.0 - uTime * 0.85 + uPhase);
+        float grain = 0.95 + hash21(floor(gl_FragCoord.xy * 0.65) + uTime * 11.0) * 0.05;
+        float alpha = uOpacity * shaft * vertical * halo * ripple * grain;
+
+        gl_FragColor = vec4(uColor, alpha);
+      }
+    `,
+  });
+}
+
+function createAtmosphereMaterial(color: string, opacity: number) {
+  return new THREE.ShaderMaterial({
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    transparent: true,
+    toneMapped: false,
+    uniforms: {
+      uColor: { value: new THREE.Color(color) },
+      uOpacity: { value: opacity },
+    },
+    vertexShader: /* glsl */ `
+      varying vec3 vNormalView;
+      varying vec3 vViewDirection;
+
+      void main() {
+        vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
+        vNormalView = normalize(normalMatrix * normal);
+        vViewDirection = normalize(-viewPosition.xyz);
+        gl_Position = projectionMatrix * viewPosition;
+      }
+    `,
+    fragmentShader: /* glsl */ `
+      uniform vec3 uColor;
+      uniform float uOpacity;
+      varying vec3 vNormalView;
+      varying vec3 vViewDirection;
+
+      void main() {
+        float rim = pow(1.0 - max(dot(vNormalView, vViewDirection), 0.0), 2.7);
+        float alpha = smoothstep(0.06, 0.96, rim) * uOpacity;
+        gl_FragColor = vec4(uColor, alpha);
+      }
+    `,
+  });
+}
+
+function normalizeModelTemplate(source: THREE.Object3D) {
+  const clone = source.clone(true);
+  clone.updateMatrixWorld(true);
+  const bounds = new THREE.Box3().setFromObject(clone);
+  const size = bounds.getSize(new THREE.Vector3());
+  const center = bounds.getCenter(new THREE.Vector3());
+  const normalized = new THREE.Group();
+
+  clone.position.x -= center.x;
+  clone.position.z -= center.z;
+  clone.position.y -= bounds.min.y;
+  normalized.add(clone);
+
+  return {
+    template: normalized,
+    height: Math.max(size.y, 0.001),
+    footprint: Math.max(size.x, size.z, 0.001),
+  };
+}
+
+function buildModelPlacements(random: () => number) {
+  const placements: ModelPlacement[] = [];
+  const bands = [
+    { latitude: -52, count: 3 },
+    { latitude: -27, count: 4 },
+    { latitude: 0, count: 5 },
+    { latitude: 29, count: 4 },
+    { latitude: 55, count: 3 },
+  ];
+
+  bands.forEach(({ latitude, count }, bandIndex) => {
+    const bandCount = count;
+
+    for (let segment = 0; segment < bandCount; segment += 1) {
+      const longitudeOffset = bandIndex % 2 === 0 ? 0 : 180 / bandCount;
+      const longitude = (segment / bandCount) * 360 + longitudeOffset + (random() - 0.5) * 7;
+      const skylineBias = 1 - Math.min(1, Math.abs(latitude) / 72);
+
+      placements.push({
+        latitude: latitude + (random() - 0.5) * 3,
+        longitude,
+        modelIndex: (bandIndex * 2 + segment * 3) % MODEL_PATHS.length,
+        variant: (segment + bandIndex) % 3,
+        height: 0.18 + skylineBias * 0.11 + random() * 0.045,
+        footprint: 0.14 + random() * 0.04,
+        spin: random() * Math.PI * 2,
+      });
+    }
+  });
+
+  return placements;
+}
+
+function applyThemeToAppearance(appearance: SceneAppearance, theme: "light" | "dark") {
+  const palette = palettes[theme];
+
+  appearance.core.color.set(palette.core);
+  appearance.core.emissive.set(palette.coreEmissive);
+  appearance.core.emissiveIntensity = theme === "dark" ? 0.46 : 0.34;
+  appearance.kernel.color.set(palette.kernel);
+  appearance.kernel.opacity = theme === "dark" ? 0.62 : 0.44;
+  appearance.shell.color.set(palette.shell);
+  appearance.shell.emissive.set(palette.shellEmissive);
+  appearance.shell.emissiveIntensity = theme === "dark" ? 0.28 : 0.2;
+  appearance.shell.opacity = theme === "dark" ? 0.3 : 0.24;
+  (appearance.atmosphere.uniforms.uColor.value as THREE.Color).set(palette.atmosphere);
+  appearance.atmosphere.uniforms.uOpacity.value = theme === "dark" ? 0.52 : 0.34;
+  appearance.lattice.color.set(palette.lattice);
+  appearance.lattice.opacity = theme === "dark" ? 0.13 : 0.1;
+  appearance.surface.color.set(palette.surface);
+  appearance.surface.opacity = theme === "dark" ? 0.34 : 0.24;
+
+  appearance.rings.forEach((material, index) => {
+    material.color.set(palette.rings[index % palette.rings.length]);
+    material.opacity = theme === "dark" ? 0.2 : 0.14;
+  });
+
+  appearance.flows.forEach((material, index) => {
+    material.color.set(palette.flows[index % palette.flows.length]);
+    material.opacity = theme === "dark" ? 0.34 : 0.24;
+  });
+
+  appearance.beacons.forEach((material, index) => {
+    material.color.set(palette.beacons[index % palette.beacons.length]);
+    material.opacity = theme === "dark" ? 0.86 : 0.68;
+  });
+
+  appearance.modelEdges.forEach((material, index) => {
+    material.color.set(palette.architectureEmissive[index % palette.architectureEmissive.length]);
+    material.opacity = theme === "dark" ? 0.2 : 0.13;
+  });
+
+  appearance.haze.forEach((material, index) => {
+    (material.uniforms.uColor.value as THREE.Color).set(palette.haze[index % palette.haze.length]);
+    material.uniforms.uOpacity.value = theme === "dark" ? 0.12 : 0.075;
+  });
+
+  appearance.modelMaterials.forEach(({ material, variant }) => {
+    material.color.set(palette.architecture[variant % palette.architecture.length]);
+    material.emissive.set(palette.architectureEmissive[variant % palette.architectureEmissive.length]);
+    material.emissiveIntensity = theme === "dark" ? 0.2 : 0.1;
+    material.metalness = theme === "dark" ? 0.9 : 0.76;
+    material.roughness = theme === "dark" ? 0.31 : 0.4;
+    material.clearcoat = theme === "dark" ? 0.92 : 0.76;
+    material.clearcoatRoughness = theme === "dark" ? 0.16 : 0.24;
+    material.opacity = 1;
+    material.transparent = false;
+  });
+
+  appearance.stars.color.set(palette.stars);
+  appearance.stars.opacity = theme === "dark" ? 0.42 : 0.3;
+  appearance.ambient.color.set(palette.ambient);
+  appearance.ambient.intensity = theme === "dark" ? 1.08 : 1.52;
+  appearance.key.color.set(palette.key);
+  appearance.rim.color.set(palette.rim);
+  appearance.fill.color.set(palette.fill);
+  appearance.renderer.toneMappingExposure = palette.exposure;
+}
+
 export default function HeroModelScene({ reduceMotion, theme }: HeroModelSceneProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const appearanceRef = useRef<SceneAppearance | null>(null);
-  const initialThemeRef = useRef(theme);
   const reduceMotionRef = useRef(reduceMotion);
+  const themeRef = useRef(theme);
 
   useEffect(() => {
     reduceMotionRef.current = reduceMotion;
   }, [reduceMotion]);
 
   useEffect(() => {
+    themeRef.current = theme;
     const appearance = appearanceRef.current;
-    if (!appearance) return;
 
-    const palette = palettes[theme];
-    appearance.planet.color.set(palette.planet);
-    appearance.planet.emissive.set(palette.planetEmissive);
-    appearance.planet.emissiveIntensity = theme === "dark" ? 0.36 : 0.22;
-    appearance.city.color.set(palette.city);
-    appearance.city.emissive.set(palette.cityEmissive);
-    appearance.city.emissiveIntensity = theme === "dark" ? 0.52 : 0.32;
-    appearance.grid.color.set(palette.grid);
-    appearance.atmosphere.color.set(palette.atmosphere);
-    appearance.neon.forEach((material, index) => material.color.set(palette.neon[index]));
-    appearance.beams.forEach((material, index) => {
-      (material.uniforms.uColor.value as THREE.Color).set(palette.beam[index]);
-      material.uniforms.uOpacity.value = theme === "dark" ? 0.11 : 0.07;
-    });
-    appearance.cityLights.color.set(palette.neon[0]);
-    appearance.stars.color.set(palette.stars);
-    appearance.ambient.color.set(palette.ambient);
-    appearance.ambient.intensity = theme === "dark" ? 1.1 : 1.7;
-    appearance.key.color.set(palette.key);
-    appearance.rim.color.set(palette.rim);
-    appearance.fill.color.set(palette.fill);
-    appearance.renderer.toneMappingExposure = palette.exposure;
+    if (appearance) {
+      applyThemeToAppearance(appearance, theme);
+    }
   }, [theme]);
 
   useEffect(() => {
     const host = hostRef.current;
+
     if (
       !host ||
       typeof window === "undefined" ||
@@ -114,10 +391,11 @@ export default function HeroModelScene({ reduceMotion, theme }: HeroModelScenePr
       return undefined;
     }
 
-    const palette = palettes[initialThemeRef.current];
+    const palette = palettes[themeRef.current];
+    const random = createSeededRandom();
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
-    camera.position.set(0, 0.04, 5.25);
+    camera.position.set(0, 0.02, 5.45);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -133,239 +411,234 @@ export default function HeroModelScene({ reduceMotion, theme }: HeroModelScenePr
     host.appendChild(renderer.domElement);
 
     const world = new THREE.Group();
-    world.rotation.set(-0.16, 0.48, -0.08);
+    world.rotation.set(-0.18, 0.56, -0.08);
     scene.add(world);
 
-    const planetGeometry = new THREE.SphereGeometry(0.96, 64, 48);
-    const planetMaterial = new THREE.MeshPhysicalMaterial({
-      color: palette.planet,
-      emissive: palette.planetEmissive,
-      emissiveIntensity: initialThemeRef.current === "dark" ? 0.36 : 0.22,
-      metalness: 0.72,
-      roughness: 0.34,
-      clearcoat: 0.82,
-      clearcoatRoughness: 0.2,
-    });
-    world.add(new THREE.Mesh(planetGeometry, planetMaterial));
+    const orbitalField = new THREE.Group();
+    const structures = new THREE.Group();
+    const beaconField = new THREE.Group();
+    world.add(orbitalField, structures, beaconField);
 
-    const gridMaterial = new THREE.LineBasicMaterial({
-      color: palette.grid,
-      opacity: 0.18,
-      transparent: true,
-      toneMapped: false,
-    });
-    const grid = new THREE.LineSegments(
-      new THREE.WireframeGeometry(new THREE.SphereGeometry(0.978, 24, 16)),
-      gridMaterial,
+    const core = new THREE.Mesh(
+      new THREE.SphereGeometry(0.82, 72, 54),
+      new THREE.MeshPhysicalMaterial({
+        color: palette.core,
+        emissive: palette.coreEmissive,
+        emissiveIntensity: themeRef.current === "dark" ? 0.46 : 0.34,
+        metalness: 0.86,
+        roughness: 0.24,
+        clearcoat: 0.96,
+        clearcoatRoughness: 0.14,
+        side: THREE.DoubleSide,
+      }),
     );
-    world.add(grid);
+    world.add(core);
 
-    const atmosphereMaterial = new THREE.MeshBasicMaterial({
-      color: palette.atmosphere,
-      opacity: 0.09,
-      side: THREE.BackSide,
+    const kernel = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.3, 2),
+      new THREE.MeshBasicMaterial({
+        color: palette.kernel,
+        opacity: themeRef.current === "dark" ? 0.62 : 0.44,
+        transparent: true,
+        toneMapped: false,
+        side: THREE.DoubleSide,
+      }),
+    );
+    world.add(kernel);
+
+    const innerShell = new THREE.Mesh(
+      new THREE.SphereGeometry(1.01, 64, 48),
+      new THREE.MeshPhysicalMaterial({
+        color: palette.shell,
+        emissive: palette.shellEmissive,
+        emissiveIntensity: themeRef.current === "dark" ? 0.28 : 0.2,
+        metalness: 0.48,
+        roughness: 0.38,
+        transparent: true,
+        opacity: 0.2,
+        transmission: 0.08,
+        thickness: 0.6,
+        clearcoat: 0.84,
+        side: THREE.DoubleSide,
+      }),
+    );
+    world.add(innerShell);
+
+    const latticeMaterial = new THREE.LineBasicMaterial({
+      color: palette.lattice,
+      opacity: themeRef.current === "dark" ? 0.13 : 0.1,
       transparent: true,
       toneMapped: false,
     });
-    const atmosphere = new THREE.Mesh(new THREE.SphereGeometry(1.075, 40, 28), atmosphereMaterial);
-    world.add(atmosphere);
+    const lattice = new THREE.LineSegments(
+      new THREE.WireframeGeometry(new THREE.SphereGeometry(1.05, 26, 20)),
+      latticeMaterial,
+    );
+    world.add(lattice);
 
-    const buildingCount = 180;
-    const buildingGeometry = new THREE.BoxGeometry(1, 1, 1);
-    const cityMaterial = new THREE.MeshStandardMaterial({
-      color: palette.city,
-      emissive: palette.cityEmissive,
-      emissiveIntensity: initialThemeRef.current === "dark" ? 0.52 : 0.32,
-      metalness: 0.82,
-      roughness: 0.28,
-    });
-    const buildings = new THREE.InstancedMesh(buildingGeometry, cityMaterial, buildingCount);
-    buildings.instanceMatrix.setUsage(THREE.StaticDrawUsage);
-    world.add(buildings);
-
-    const neonMaterials = palette.neon.map((color) => new THREE.MeshBasicMaterial({
-      color,
-      toneMapped: false,
-    }));
-    const capGeometry = new THREE.BoxGeometry(1, 1, 1);
-    const caps = neonMaterials.map((material) => {
-      const mesh = new THREE.InstancedMesh(capGeometry, material, Math.ceil(buildingCount / 3));
-      mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
-      world.add(mesh);
-      return mesh;
-    });
-
-    const random = createSeededRandom();
-    const up = new THREE.Vector3(0, 1, 0);
-    const normal = new THREE.Vector3();
-    const position = new THREE.Vector3();
-    const quaternion = new THREE.Quaternion();
-    const scale = new THREE.Vector3();
-    const matrix = new THREE.Matrix4();
-    const cityLightPositions = new Float32Array(buildingCount * 3);
-    const capCounts = [0, 0, 0];
-
-    for (let index = 0; index < buildingCount; index += 1) {
-      const vertical = 1 - (2 * (index + 0.5)) / buildingCount;
+    const surfaceCount = 560;
+    const surfacePositions = new Float32Array(surfaceCount * 3);
+    const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+    for (let index = 0; index < surfaceCount; index += 1) {
+      const vertical = 1 - (index / (surfaceCount - 1)) * 2;
       const radial = Math.sqrt(Math.max(0, 1 - vertical * vertical));
-      const angle = index * Math.PI * (3 - Math.sqrt(5)) + (random() - 0.5) * 0.18;
-      normal.set(Math.cos(angle) * radial, vertical, Math.sin(angle) * radial).normalize();
-
-      const footprint = 0.045 + random() * 0.07;
-      const depth = footprint * (0.72 + random() * 0.52);
-      const towerBoost = random() > 0.86 ? 0.28 + random() * 0.28 : 0;
-      const height = 0.075 + Math.pow(random(), 1.7) * 0.32 + towerBoost;
-      quaternion.setFromUnitVectors(up, normal);
-
-      position.copy(normal).multiplyScalar(0.955 + height / 2);
-      scale.set(footprint, height, depth);
-      matrix.compose(position, quaternion, scale);
-      buildings.setMatrixAt(index, matrix);
-
-      const capIndex = index % 3;
-      const capSlot = capCounts[capIndex];
-      capCounts[capIndex] += 1;
-      position.copy(normal).multiplyScalar(0.96 + height + 0.009);
-      scale.set(footprint * 1.12, 0.018, depth * 1.12);
-      matrix.compose(position, quaternion, scale);
-      caps[capIndex].setMatrixAt(capSlot, matrix);
-
-      cityLightPositions[index * 3] = position.x;
-      cityLightPositions[index * 3 + 1] = position.y;
-      cityLightPositions[index * 3 + 2] = position.z;
+      const angle = index * goldenAngle;
+      const radius = 1.068 + (random() - 0.5) * 0.014;
+      surfacePositions[index * 3] = Math.cos(angle) * radial * radius;
+      surfacePositions[index * 3 + 1] = vertical * radius;
+      surfacePositions[index * 3 + 2] = Math.sin(angle) * radial * radius;
     }
-
-    buildings.instanceMatrix.needsUpdate = true;
-    caps.forEach((mesh, index) => {
-      mesh.count = capCounts[index];
-      mesh.instanceMatrix.needsUpdate = true;
-    });
-
-    const cityLightsGeometry = new THREE.BufferGeometry();
-    cityLightsGeometry.setAttribute("position", new THREE.BufferAttribute(cityLightPositions, 3));
-    const cityLightsMaterial = new THREE.PointsMaterial({
-      color: palette.neon[0],
-      opacity: 0.9,
-      size: 0.025,
+    const surfaceGeometry = new THREE.BufferGeometry();
+    surfaceGeometry.setAttribute("position", new THREE.BufferAttribute(surfacePositions, 3));
+    const surfaceMaterial = new THREE.PointsMaterial({
+      color: palette.surface,
+      opacity: themeRef.current === "dark" ? 0.34 : 0.24,
+      size: 0.012,
       sizeAttenuation: true,
       transparent: true,
       toneMapped: false,
     });
-    world.add(new THREE.Points(cityLightsGeometry, cityLightsMaterial));
+    const surface = new THREE.Points(surfaceGeometry, surfaceMaterial);
+    world.add(surface);
 
-    const antennaPositions: number[] = [];
-    for (let index = 0; index < buildingCount; index += 17) {
-      const offset = index * 3;
-      const tip = new THREE.Vector3(
-        cityLightPositions[offset],
-        cityLightPositions[offset + 1],
-        cityLightPositions[offset + 2],
+    const atmosphere = new THREE.Mesh(
+      new THREE.SphereGeometry(1.16, 48, 36),
+      createAtmosphereMaterial(
+        palette.atmosphere,
+        themeRef.current === "dark" ? 0.52 : 0.34,
+      ),
+    );
+    world.add(atmosphere);
+
+    const ringMaterials = palette.rings.map((color) => new THREE.MeshBasicMaterial({
+      color,
+      opacity: themeRef.current === "dark" ? 0.2 : 0.14,
+      transparent: true,
+      toneMapped: false,
+      side: THREE.DoubleSide,
+    }));
+    const ringDefinitions = [
+      { radius: 1.3, tube: 0.009, rotation: [1.08, 0.18, 0.4], materialIndex: 0 },
+      { radius: 1.46, tube: 0.007, rotation: [0.34, 1.1, -0.24], materialIndex: 1 },
+      { radius: 0.58, tube: 0.007, rotation: [1.34, 0.42, -0.48], materialIndex: 2 },
+    ] as const;
+    const rings = ringDefinitions.map((definition) => {
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(definition.radius, definition.tube, 10, 220),
+        ringMaterials[definition.materialIndex],
       );
-      const antennaTip = tip.clone().multiplyScalar(1.09);
-      antennaPositions.push(tip.x, tip.y, tip.z, antennaTip.x, antennaTip.y, antennaTip.z);
-    }
-    const antennaGeometry = new THREE.BufferGeometry();
-    antennaGeometry.setAttribute("position", new THREE.Float32BufferAttribute(antennaPositions, 3));
-    const antennaMaterial = new THREE.LineBasicMaterial({
-      color: palette.neon[1],
-      opacity: 0.72,
+      ring.rotation.set(definition.rotation[0], definition.rotation[1], definition.rotation[2]);
+      world.add(ring);
+      return ring;
+    });
+
+    const flowMaterials = palette.flows.map((color) => new THREE.MeshBasicMaterial({
+      color,
+      opacity: themeRef.current === "dark" ? 0.34 : 0.24,
       transparent: true,
       toneMapped: false,
+      side: THREE.DoubleSide,
+    }));
+    const flowDefinitions = [
+      { start: [48, -16], end: [-38, 82], lift: 0.26, twist: 0.18, materialIndex: 0, radius: 1.16, tube: 0.012 },
+      { start: [32, 136], end: [-18, -34], lift: 0.22, twist: -0.14, materialIndex: 1, radius: 1.12, tube: 0.01 },
+      { start: [10, -118], end: [56, 26], lift: 0.18, twist: 0.16, materialIndex: 2, radius: 1.08, tube: 0.009 },
+      { start: [-52, 34], end: [14, 164], lift: 0.24, twist: -0.12, materialIndex: 1, radius: 1.18, tube: 0.011 },
+    ] as const;
+    const flowGroup = new THREE.Group();
+    world.add(flowGroup);
+    flowDefinitions.forEach((definition) => {
+      const curve = buildArcCurve(
+        definition.radius,
+        definition.start[0],
+        definition.start[1],
+        definition.end[0],
+        definition.end[1],
+        definition.lift,
+        definition.twist,
+      );
+      const tube = new THREE.Mesh(
+        new THREE.TubeGeometry(curve, 96, definition.tube, 12, false),
+        flowMaterials[definition.materialIndex],
+      );
+      flowGroup.add(tube);
     });
-    world.add(new THREE.LineSegments(antennaGeometry, antennaMaterial));
 
-    const orbitMaterial = new THREE.MeshBasicMaterial({
-      color: palette.neon[1],
-      opacity: 0.22,
+    const beaconMaterials = palette.beacons.map((color) => new THREE.MeshBasicMaterial({
+      color,
+      opacity: themeRef.current === "dark" ? 0.86 : 0.68,
       transparent: true,
       toneMapped: false,
-    });
-    const orbit = new THREE.Mesh(new THREE.TorusGeometry(1.42, 0.008, 6, 160), orbitMaterial);
-    orbit.rotation.set(1.08, 0.22, 0.46);
-    world.add(orbit);
-
-    const beamVertexShader = /* glsl */ `
-      varying vec2 vUv;
-
-      void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `;
-    const beamFragmentShader = /* glsl */ `
-      uniform vec3 uColor;
-      uniform float uTime;
-      uniform float uPhase;
-      uniform float uOpacity;
-      varying vec2 vUv;
-
-      float noise21(vec2 value) {
-        return fract(sin(dot(value, vec2(12.9898, 78.233))) * 43758.5453);
-      }
-
-      void main() {
-        float lengthFade = pow(sin(clamp(vUv.y, 0.0, 1.0) * 3.14159265), 0.72);
-        float sideFade = 0.58 + 0.42 * pow(sin(vUv.x * 3.14159265), 2.0);
-        float flow = 0.82 + 0.18 * sin(vUv.y * 19.0 - uTime * 1.45 + uPhase);
-        float grain = 0.9 + noise21(gl_FragCoord.xy + uTime * 17.0) * 0.1;
-        float alpha = uOpacity * lengthFade * sideFade * flow * grain;
-        gl_FragColor = vec4(uColor, alpha);
-      }
-    `;
-
-    const beamGroup = new THREE.Group();
-    scene.add(beamGroup);
-    const beamDefinitions = [
-      { source: [0.58, 0.34, 0.12], direction: [0.92, 0.7, 0.62], length: 3.05, radius: 0.72 },
-      { source: [-0.62, 0.1, 0.08], direction: [-0.98, 0.42, 0.58], length: 2.8, radius: 0.62 },
-      { source: [0.02, -0.62, 0.1], direction: [0.22, -1.0, 0.64], length: 2.65, radius: 0.58 },
-    ];
-    const beamMaterials: THREE.ShaderMaterial[] = [];
-    const beams = beamDefinitions.map((definition, index) => {
-      const material = new THREE.ShaderMaterial({
-        blending: THREE.AdditiveBlending,
-        depthTest: true,
-        depthWrite: false,
-        side: THREE.DoubleSide,
-        transparent: true,
-        uniforms: {
-          uColor: { value: new THREE.Color(palette.beam[index]) },
-          uTime: { value: 0 },
-          uPhase: { value: index * 1.7 },
-          uOpacity: { value: initialThemeRef.current === "dark" ? 0.11 : 0.07 },
-        },
-        vertexShader: beamVertexShader,
-        fragmentShader: beamFragmentShader,
-      });
-      beamMaterials.push(material);
-
-      const beam = new THREE.Mesh(
-        new THREE.ConeGeometry(definition.radius, definition.length, 28, 1, true),
+      side: THREE.DoubleSide,
+    }));
+    const beaconPlacements = buildModelPlacements(createSeededRandom(514)).filter((_, index) => index % 2 === 0);
+    const beaconMeshes = beaconMaterials.map((material) => {
+      const mesh = new THREE.InstancedMesh(
+        new THREE.SphereGeometry(1, 12, 12),
         material,
+        Math.ceil(beaconPlacements.length / beaconMaterials.length),
       );
-      const source = new THREE.Vector3(...definition.source as [number, number, number]);
-      const direction = new THREE.Vector3(...definition.direction as [number, number, number]).normalize();
-      beam.position.copy(source).addScaledVector(direction, definition.length / 2);
-      beam.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), direction);
-      beamGroup.add(beam);
-      return beam;
+      mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+      beaconField.add(mesh);
+      return mesh;
     });
 
-    const starCount = 120;
+    const matrix = new THREE.Matrix4();
+    const beaconCounts = beaconMeshes.map(() => 0);
+    beaconPlacements.forEach((placement, index) => {
+      const normal = sphericalPoint(1, placement.latitude, placement.longitude).normalize();
+      const beaconIndex = index % beaconMeshes.length;
+      const slot = beaconCounts[beaconIndex];
+      beaconCounts[beaconIndex] += 1;
+      matrix.compose(
+        normal.multiplyScalar(1.18 + placement.height * 0.58),
+        new THREE.Quaternion(),
+        new THREE.Vector3().setScalar(0.013 + (index % 4) * 0.0025),
+      );
+      beaconMeshes[beaconIndex].setMatrixAt(slot, matrix);
+    });
+    beaconMeshes.forEach((mesh, index) => {
+      mesh.count = beaconCounts[index];
+      mesh.instanceMatrix.needsUpdate = true;
+    });
+
+    const hazeMaterials = palette.haze.map((color, index) =>
+      createHazeMaterial(color, themeRef.current === "dark" ? 0.12 : 0.075, index * 1.4),
+    );
+    const hazeGroup = new THREE.Group();
+    scene.add(hazeGroup);
+    const hazeDefinitions = [
+      { position: [-1.48, 0.16, -0.82], rotation: [0.08, 0.18, 0.31], size: [1.9, 3.8], materialIndex: 0 },
+      { position: [1.44, -0.04, -0.76], rotation: [-0.06, -0.18, -0.26], size: [1.8, 3.6], materialIndex: 1 },
+      { position: [0.08, 1.08, -1.08], rotation: [0.24, 0.02, 0.0], size: [2.1, 2.45], materialIndex: 2 },
+    ] as const;
+    const hazePlanes = hazeDefinitions.map((definition) => {
+      const plane = new THREE.Mesh(
+        new THREE.PlaneGeometry(definition.size[0], definition.size[1], 1, 1),
+        hazeMaterials[definition.materialIndex],
+      );
+      plane.position.set(definition.position[0], definition.position[1], definition.position[2]);
+      plane.rotation.set(definition.rotation[0], definition.rotation[1], definition.rotation[2]);
+      hazeGroup.add(plane);
+      return plane;
+    });
+
+    const starCount = 84;
     const starPositions = new Float32Array(starCount * 3);
     for (let index = 0; index < starCount; index += 1) {
-      const radius = 1.8 + random() * 1.45;
-      const theta = random() * Math.PI * 2;
-      const phi = Math.acos(2 * random() - 1);
-      starPositions[index * 3] = radius * Math.sin(phi) * Math.cos(theta);
-      starPositions[index * 3 + 1] = radius * Math.cos(phi) * 0.7;
-      starPositions[index * 3 + 2] = radius * Math.sin(phi) * Math.sin(theta);
+      const radius = 1.95 + random() * 1.4;
+      const latitude = THREE.MathUtils.radToDeg(Math.asin(2 * random() - 1));
+      const longitude = random() * 360;
+      const point = sphericalPoint(radius, latitude, longitude);
+      starPositions[index * 3] = point.x;
+      starPositions[index * 3 + 1] = point.y * 0.8;
+      starPositions[index * 3 + 2] = point.z;
     }
     const starGeometry = new THREE.BufferGeometry();
     starGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
     const starMaterial = new THREE.PointsMaterial({
       color: palette.stars,
-      opacity: 0.42,
+      opacity: themeRef.current === "dark" ? 0.42 : 0.3,
       size: 0.022,
       sizeAttenuation: true,
       transparent: true,
@@ -374,24 +647,37 @@ export default function HeroModelScene({ reduceMotion, theme }: HeroModelScenePr
     const stars = new THREE.Points(starGeometry, starMaterial);
     scene.add(stars);
 
-    const ambient = new THREE.AmbientLight(palette.ambient, initialThemeRef.current === "dark" ? 1.1 : 1.7);
+    const ambient = new THREE.AmbientLight(palette.ambient, themeRef.current === "dark" ? 1.08 : 1.52);
     const key = new THREE.PointLight(palette.key, 28, 12, 2);
-    key.position.set(2.7, 2.8, 3.8);
+    key.position.set(2.8, 2.6, 4.0);
     const rim = new THREE.PointLight(palette.rim, 24, 12, 2);
-    rim.position.set(-3.1, 0.1, 2.7);
+    rim.position.set(-3.0, 0.4, 2.6);
     const fill = new THREE.PointLight(palette.fill, 18, 10, 2);
-    fill.position.set(0.2, -3.2, 2.2);
+    fill.position.set(0.4, -2.8, 2.2);
     scene.add(ambient, key, rim, fill);
 
+    const modelMaterials: ModelMaterialBinding[] = [];
+    const modelEdgeMaterials = palette.architectureEmissive.map((color) => new THREE.LineBasicMaterial({
+      color,
+      opacity: themeRef.current === "dark" ? 0.2 : 0.13,
+      transparent: true,
+      depthWrite: false,
+      toneMapped: false,
+    }));
     appearanceRef.current = {
-      planet: planetMaterial,
-      city: cityMaterial,
-      grid: gridMaterial,
-      atmosphere: atmosphereMaterial,
-      neon: neonMaterials,
-      beams: beamMaterials,
-      cityLights: cityLightsMaterial,
+      core: core.material as THREE.MeshPhysicalMaterial,
+      kernel: kernel.material as THREE.MeshBasicMaterial,
+      shell: innerShell.material as THREE.MeshPhysicalMaterial,
+      atmosphere: atmosphere.material as THREE.ShaderMaterial,
+      lattice: latticeMaterial,
+      surface: surfaceMaterial,
+      rings: ringMaterials,
+      flows: flowMaterials,
+      beacons: beaconMaterials,
+      modelEdges: modelEdgeMaterials,
+      haze: hazeMaterials,
       stars: starMaterial,
+      modelMaterials,
       ambient,
       key,
       rim,
@@ -399,21 +685,113 @@ export default function HeroModelScene({ reduceMotion, theme }: HeroModelScenePr
       renderer,
     };
 
+    const loader = new GLTFLoader();
+    const up = new THREE.Vector3(0, 1, 0);
+    const edgeGeometryCache = new Map<THREE.BufferGeometry, THREE.EdgesGeometry>();
+    let cancelled = false;
+
+    void Promise.allSettled(MODEL_PATHS.map((path) => loader.loadAsync(path))).then((results) => {
+      if (cancelled) {
+        return;
+      }
+
+      const models: NormalizedModel[] = results.flatMap((result) => {
+        if (result.status !== "fulfilled") {
+          return [];
+        }
+
+        return [normalizeModelTemplate(result.value.scene)];
+      });
+
+      if (!models.length) {
+        return;
+      }
+
+      const placements = buildModelPlacements(createSeededRandom(514));
+      placements.forEach((placement, placementIndex) => {
+        const model = models[placement.modelIndex % models.length];
+        const instance = model.template.clone(true);
+        const heightScale = placement.height / model.height;
+        const footprintScale = Math.min(heightScale, placement.footprint / model.footprint);
+
+        instance.scale.set(footprintScale, heightScale, footprintScale);
+        instance.position.y = 0.015;
+
+        instance.traverse((object) => {
+          if (!(object instanceof THREE.Mesh)) {
+            return;
+          }
+
+          const material = new THREE.MeshPhysicalMaterial({
+            color: palette.architecture[placement.variant % palette.architecture.length],
+            emissive: palette.architectureEmissive[placement.variant % palette.architectureEmissive.length],
+            emissiveIntensity: themeRef.current === "dark" ? 0.2 : 0.1,
+            metalness: themeRef.current === "dark" ? 0.9 : 0.76,
+            roughness: themeRef.current === "dark" ? 0.31 : 0.4,
+            clearcoat: themeRef.current === "dark" ? 0.92 : 0.76,
+            clearcoatRoughness: themeRef.current === "dark" ? 0.16 : 0.24,
+            side: THREE.DoubleSide,
+          });
+
+          object.material = material;
+          let edgeGeometry = edgeGeometryCache.get(object.geometry);
+          if (!edgeGeometry) {
+            edgeGeometry = new THREE.EdgesGeometry(object.geometry, 38);
+            edgeGeometryCache.set(object.geometry, edgeGeometry);
+          }
+          const outline = new THREE.LineSegments(
+            edgeGeometry,
+            modelEdgeMaterials[placement.variant % modelEdgeMaterials.length],
+          );
+          outline.renderOrder = 2;
+          object.add(outline);
+          modelMaterials.push({
+            material,
+            variant: placement.variant,
+          });
+        });
+
+        const normal = sphericalPoint(1, placement.latitude, placement.longitude).normalize();
+        const anchor = new THREE.Group();
+        anchor.position.copy(normal.clone().multiplyScalar(1.035));
+        anchor.quaternion.setFromUnitVectors(up, normal);
+        anchor.rotateY(placement.spin);
+
+        if (placementIndex % 5 === 0) {
+          anchor.rotateX(0.06);
+        }
+
+        anchor.add(instance);
+        structures.add(anchor);
+      });
+
+      const appearance = appearanceRef.current;
+      if (appearance) {
+        applyThemeToAppearance(appearance, themeRef.current);
+      }
+    });
+
     let dragging = false;
     let visible = true;
     let pointerId: number | null = null;
     let previousX = 0;
     let previousY = 0;
-    let currentX = world.rotation.x;
-    let currentY = world.rotation.y;
-    let targetX = currentX;
-    let targetY = currentY;
+    const currentRotation = world.quaternion.clone();
+    const targetRotation = world.quaternion.clone();
+    const yawAxis = new THREE.Vector3(0, 1, 0);
+    const pitchAxis = new THREE.Vector3(1, 0, 0);
+    const yawDelta = new THREE.Quaternion();
+    const pitchDelta = new THREE.Quaternion();
     let raf = 0;
     let lastTime = performance.now();
 
     const resize = () => {
       const { width, height } = host.getBoundingClientRect();
-      if (width <= 0 || height <= 0) return;
+
+      if (width <= 0 || height <= 0) {
+        return;
+      }
+
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
@@ -430,18 +808,25 @@ export default function HeroModelScene({ reduceMotion, theme }: HeroModelScenePr
     };
 
     const handlePointerMove = (event: PointerEvent) => {
-      if (!dragging || event.pointerId !== pointerId) return;
+      if (!dragging || event.pointerId !== pointerId) {
+        return;
+      }
+
       event.preventDefault();
       const deltaX = event.clientX - previousX;
       const deltaY = event.clientY - previousY;
       previousX = event.clientX;
       previousY = event.clientY;
-      targetY += deltaX * 0.008;
-      targetX = THREE.MathUtils.clamp(targetX + deltaY * 0.007, -1.08, 1.08);
+      yawDelta.setFromAxisAngle(yawAxis, deltaX * 0.0078);
+      pitchDelta.setFromAxisAngle(pitchAxis, deltaY * 0.0066);
+      targetRotation.premultiply(yawDelta).premultiply(pitchDelta).normalize();
     };
 
     const handlePointerUp = (event: PointerEvent) => {
-      if (event.pointerId !== pointerId) return;
+      if (event.pointerId !== pointerId) {
+        return;
+      }
+
       event.preventDefault();
       dragging = false;
       pointerId = null;
@@ -450,17 +835,30 @@ export default function HeroModelScene({ reduceMotion, theme }: HeroModelScenePr
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      const step = event.shiftKey ? 0.24 : 0.12;
-      if (event.key === "ArrowLeft") targetY -= step;
-      else if (event.key === "ArrowRight") targetY += step;
-      else if (event.key === "ArrowUp") targetX = Math.max(-1.08, targetX - step);
-      else if (event.key === "ArrowDown") targetX = Math.min(1.08, targetX + step);
-      else return;
+      const step = event.shiftKey ? 0.22 : 0.12;
+
+      if (event.key === "ArrowLeft") {
+        yawDelta.setFromAxisAngle(yawAxis, -step);
+        targetRotation.premultiply(yawDelta).normalize();
+      } else if (event.key === "ArrowRight") {
+        yawDelta.setFromAxisAngle(yawAxis, step);
+        targetRotation.premultiply(yawDelta).normalize();
+      } else if (event.key === "ArrowUp") {
+        pitchDelta.setFromAxisAngle(pitchAxis, -step);
+        targetRotation.premultiply(pitchDelta).normalize();
+      } else if (event.key === "ArrowDown") {
+        pitchDelta.setFromAxisAngle(pitchAxis, step);
+        targetRotation.premultiply(pitchDelta).normalize();
+      } else {
+        return;
+      }
+
       event.preventDefault();
     };
 
     const render = (time: number) => {
       raf = window.requestAnimationFrame(render);
+
       if (!visible || document.hidden) {
         lastTime = time;
         return;
@@ -468,46 +866,72 @@ export default function HeroModelScene({ reduceMotion, theme }: HeroModelScenePr
 
       const delta = Math.min(0.05, Math.max(0, (time - lastTime) / 1000));
       lastTime = time;
-      if (!dragging && !reduceMotionRef.current) targetY += delta * 0.12;
-      currentX += (targetX - currentX) * Math.min(1, delta * 9);
-      currentY += (targetY - currentY) * Math.min(1, delta * 9);
-      world.rotation.x = currentX;
-      world.rotation.y = currentY;
-      orbit.rotation.z += delta * 0.04;
-      stars.rotation.y -= delta * 0.018;
-      beamGroup.rotation.z = Math.sin(time * 0.00022) * 0.075;
-      beamGroup.rotation.x = Math.cos(time * 0.00017) * 0.045;
-      beams.forEach((beam, index) => {
-        const pulse = 1 + Math.sin(time * 0.0011 + index * 2.1) * 0.055;
-        beam.scale.x = pulse;
-        beam.scale.z = pulse;
-        beamMaterials[index].uniforms.uTime.value = time * 0.001;
-      });
-      key.position.x = 2.7 + Math.sin(time * 0.00042) * 0.75;
-      key.position.y = 2.4 + Math.cos(time * 0.00035) * 0.55;
-      key.intensity = 25 + Math.sin(time * 0.0012) * 4;
-      rim.position.y = Math.sin(time * 0.00038) * 1.2;
-      rim.intensity = 21 + Math.cos(time * 0.00105) * 3.5;
-      fill.position.x = Math.cos(time * 0.00031) * 1.2;
-      fill.intensity = 16 + Math.sin(time * 0.00088 + 1.4) * 3;
+
+      if (!dragging && !reduceMotionRef.current) {
+        yawDelta.setFromAxisAngle(yawAxis, delta * 0.1);
+        targetRotation.premultiply(yawDelta).normalize();
+      }
+
+      currentRotation.slerp(targetRotation, Math.min(1, delta * 8));
+      world.quaternion.copy(currentRotation);
+
+      if (!reduceMotionRef.current) {
+        kernel.rotation.x += delta * 0.4;
+        kernel.rotation.y -= delta * 0.3;
+        const kernelScale = 1 + Math.sin(time * 0.0012) * 0.06;
+        kernel.scale.setScalar(kernelScale);
+
+        innerShell.rotation.y -= delta * 0.05;
+        lattice.rotation.y += delta * 0.08;
+        lattice.rotation.z += delta * 0.03;
+        surface.rotation.y -= delta * 0.025;
+        orbitalField.rotation.y -= delta * 0.06;
+        flowGroup.rotation.y += delta * 0.08;
+        flowGroup.rotation.x = Math.sin(time * 0.00022) * 0.05;
+
+        rings[0].rotation.z += delta * 0.05;
+        rings[1].rotation.x -= delta * 0.04;
+        rings[2].rotation.y += delta * 0.06;
+
+        hazeGroup.rotation.z = Math.sin(time * 0.00018) * 0.08;
+        hazePlanes.forEach((plane, index) => {
+          plane.position.y += Math.sin(time * 0.00055 + index * 1.6) * 0.0009;
+          plane.rotation.z += Math.sin(time * 0.0002 + index) * 0.00028;
+          hazeMaterials[index].uniforms.uTime.value = time * 0.001;
+        });
+
+        key.position.x = 2.6 + Math.sin(time * 0.00042) * 0.7;
+        key.position.y = 2.4 + Math.cos(time * 0.00034) * 0.5;
+        key.intensity = 26 + Math.sin(time * 0.00105) * 3.5;
+        rim.position.y = 0.4 + Math.sin(time * 0.0004) * 0.8;
+        rim.intensity = 23 + Math.cos(time * 0.00095) * 3;
+        fill.position.x = 0.4 + Math.cos(time * 0.00033) * 0.9;
+        fill.intensity = 17 + Math.sin(time * 0.00082 + 1.4) * 2.4;
+        stars.rotation.y -= delta * 0.016;
+      }
+
       renderer.render(scene, camera);
     };
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(host);
+
     const intersectionObserver = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
     }, { rootMargin: "120px 0px" });
     intersectionObserver.observe(host);
+
     host.addEventListener("pointerdown", handlePointerDown);
     host.addEventListener("pointermove", handlePointerMove);
     host.addEventListener("pointerup", handlePointerUp);
     host.addEventListener("pointercancel", handlePointerUp);
     host.addEventListener("keydown", handleKeyDown);
+
     resize();
     raf = window.requestAnimationFrame(render);
 
     return () => {
+      cancelled = true;
       window.cancelAnimationFrame(raf);
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
@@ -518,10 +942,18 @@ export default function HeroModelScene({ reduceMotion, theme }: HeroModelScenePr
       host.removeEventListener("keydown", handleKeyDown);
       appearanceRef.current = null;
 
+      const disposedGeometries = new Set<THREE.BufferGeometry>();
       const disposedMaterials = new Set<THREE.Material>();
       scene.traverse((object) => {
-        if (!(object instanceof THREE.Mesh || object instanceof THREE.Line || object instanceof THREE.Points)) return;
-        object.geometry?.dispose();
+        if (!(object instanceof THREE.Mesh || object instanceof THREE.Line || object instanceof THREE.Points)) {
+          return;
+        }
+
+        if (object.geometry && !disposedGeometries.has(object.geometry)) {
+          object.geometry.dispose();
+          disposedGeometries.add(object.geometry);
+        }
+
         const materials = Array.isArray(object.material) ? object.material : [object.material];
         materials.forEach((material) => {
           if (!disposedMaterials.has(material)) {
@@ -530,6 +962,7 @@ export default function HeroModelScene({ reduceMotion, theme }: HeroModelScenePr
           }
         });
       });
+
       renderer.dispose();
       renderer.domElement.remove();
     };
@@ -537,7 +970,7 @@ export default function HeroModelScene({ reduceMotion, theme }: HeroModelScenePr
 
   return (
     <div
-      aria-label="赛博朋克球形城市，可拖动鼠标或使用方向键旋转"
+      aria-label="球形数字世界模型，可拖动鼠标或使用方向键旋转"
       className="hero-model"
       ref={hostRef}
       tabIndex={0}

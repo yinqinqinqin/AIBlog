@@ -67,7 +67,8 @@ export default function SiteHeader({ brand, navItems }: SiteHeaderProps) {
   const dockItems = navItems.map((item) => ({
     active:
       location.pathname === item.href ||
-      (item.href === "/category/tools" && location.pathname.startsWith("/tools/")),
+      (item.href === "/category/knowledge-base" &&
+        (location.pathname.startsWith("/knowledge-base/") || location.pathname.startsWith("/tools/"))),
     content: <span className="site-header__dock-text">{item.label}</span>,
     label: item.label,
     onClick: () => navigate(item.href),

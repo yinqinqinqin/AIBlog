@@ -98,8 +98,8 @@ export default function ImportedInterviewWikiPage({ bank }: ImportedInterviewWik
       <main>
         <section className="interview-wiki-hero resource-wiki-hero">
           <div className="content-shell interview-wiki-hero__inner">
-            <Link className="interview-wiki-hero__back" to="/category/tools">
-              TOOLS / 导入题库
+            <Link className="interview-wiki-hero__back" to="/category/knowledge-base">
+              KNOWLEDGE BASE / 导入题库
             </Link>
             <div className="interview-wiki-hero__copy">
               <p className="interview-wiki-hero__eyebrow">

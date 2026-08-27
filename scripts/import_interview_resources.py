@@ -6,7 +6,6 @@ import re
 from pathlib import Path
 from typing import Iterable
 
-from docx import Document
 from lxml import html
 
 
@@ -14,6 +13,12 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_ROOT = PROJECT_ROOT / "src" / "data" / "generated"
 CSS_UNICODE_ESCAPE = re.compile(r"\\([0-9A-Fa-f]{1,6})")
 HTML_TEXT_EXCLUDED_TAGS = {"code", "pre", "script", "style"}
+ARCHIVE_PROMOTIONAL_MARKERS = (
+    "公众号",
+    "蓝海资料掘金营",
+    "deep3321",
+    "课程配套资料与社群支持",
+)
 
 
 def compact(value: str) -> str:
@@ -247,6 +252,8 @@ def parse_fill_questions(text: str) -> list[dict]:
 
 
 def parse_mihoyo_docx(document_path: Path) -> dict:
+    from docx import Document
+
     document = Document(document_path)
     paragraphs = [paragraph.text for paragraph in document.paragraphs]
 
@@ -383,6 +390,16 @@ def text_of(node) -> str:
     return compact(node.text_content()) if node is not None else ""
 
 
+def remove_archive_promotional_blocks(root) -> None:
+    footer_nodes = root.xpath(f"//footer | //*[{has_class('footer')}]")
+    for node in footer_nodes:
+        if not any(marker in text_of(node) for marker in ARCHIVE_PROMOTIONAL_MARKERS):
+            continue
+        parent = node.getparent()
+        if parent is not None:
+            parent.remove(node)
+
+
 def section_text(section) -> str:
     blocks: list[str] = []
     for child in section:
@@ -496,12 +513,23 @@ def parse_html_bank(html_root: Path) -> dict:
     }
 
 
-def parse_html_archive(html_root: Path) -> dict:
+def parse_html_archive(
+    html_root: Path,
+    *,
+    key: str = "game-ta-original-format",
+    title: str = "游戏TA技术美术面试100问",
+    expected_pages: int | None = 21,
+) -> dict:
     pages: list[dict] = []
     source_pages = [html_root / "index.html", *sorted(html_root.glob("[0-9][0-9].html"))]
 
     for page_path in source_pages:
         root = html.fromstring(page_path.read_text(encoding="utf-8"))
+        for unsafe_node in root.xpath("//script|//iframe|//object|//embed"):
+            parent = unsafe_node.getparent()
+            if parent is not None:
+                parent.remove(unsafe_node)
+        remove_archive_promotional_blocks(root)
         title_nodes = root.xpath("//title")
         style_nodes = root.xpath("//style")
         body_children = root.xpath("//body/*")
@@ -525,12 +553,12 @@ def parse_html_archive(html_root: Path) -> dict:
             }
         )
 
-    if len(pages) != 21:
-        raise ValueError(f"HTML archive: expected 21 pages, got {len(pages)}")
+    if expected_pages is not None and len(pages) != expected_pages:
+        raise ValueError(f"HTML archive: expected {expected_pages} pages, got {len(pages)}")
 
     return {
-        "key": "game-ta-original-format",
-        "title": "游戏TA技术美术面试100问",
+        "key": key,
+        "title": title,
         "pages": pages,
     }
 
@@ -558,12 +586,37 @@ def write_archive_json(filename: str, payload: dict) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Import interview resources into blog JSON data.")
-    parser.add_argument("--mihoyo-docx", required=True, type=Path)
-    parser.add_argument("--ta-html-root", required=True, type=Path)
+    parser.add_argument("--mihoyo-docx", type=Path)
+    parser.add_argument("--ta-html-root", type=Path)
+    parser.add_argument(
+        "--html-archive",
+        action="append",
+        nargs=5,
+        metavar=("KEY", "TITLE", "HTML_ROOT", "OUTPUT_JSON", "EXPECTED_PAGES"),
+        help="Import a standalone original-format HTML archive.",
+    )
     args = parser.parse_args()
 
-    write_json("mihoyoInterviewBank.json", parse_mihoyo_docx(args.mihoyo_docx))
-    write_archive_json("gameTaHtmlArchive.json", parse_html_archive(args.ta_html_root))
+    if bool(args.mihoyo_docx) != bool(args.ta_html_root):
+        parser.error("--mihoyo-docx and --ta-html-root must be provided together")
+
+    if args.mihoyo_docx and args.ta_html_root:
+        write_json("mihoyoInterviewBank.json", parse_mihoyo_docx(args.mihoyo_docx))
+        write_archive_json("gameTaHtmlArchive.json", parse_html_archive(args.ta_html_root))
+
+    for key, title, html_root, output_json, expected_pages in args.html_archive or []:
+        write_archive_json(
+            output_json,
+            parse_html_archive(
+                Path(html_root),
+                key=key,
+                title=title,
+                expected_pages=int(expected_pages),
+            ),
+        )
+
+    if not (args.mihoyo_docx or args.html_archive):
+        parser.error("provide the interview sources or at least one --html-archive")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,8 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
-import { BookOpen, Calendar, ChevronLeft, ChevronRight, Clock, Pin, Tag } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Clock, Pin, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
+import ArticleTextCover from "@/components/ArticleTextCover";
 import BorderGlow from "@/components/BorderGlow";
 import { categoryLabelMap, type Article } from "@/data/blog";
 import { useFeaturedStore } from "@/store/featuredStore";
@@ -75,9 +76,7 @@ export default function FeaturedCarousel({ articles }: FeaturedCarouselProps) {
                       <div className="featured-carousel__image-overlay" />
                     </>
                   ) : (
-                    <div className="featured-carousel__image-placeholder" aria-hidden="true">
-                      <BookOpen size={40} />
-                    </div>
+                    <ArticleTextCover article={activeArticle} className="featured-carousel__image-placeholder" />
                   )}
 
                   <div className="featured-carousel__pin">

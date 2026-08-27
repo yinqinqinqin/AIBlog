@@ -350,8 +350,8 @@ export default function TechnicalArtInterviewWikiPage() {
       <main>
         <section className="interview-wiki-hero">
           <div className="content-shell interview-wiki-hero__inner">
-            <Link className="interview-wiki-hero__back" to="/category/tools">
-              TOOLS / 面试知识库
+            <Link className="interview-wiki-hero__back" to="/category/knowledge-base">
+              KNOWLEDGE BASE / 面试知识库
             </Link>
             <div className="interview-wiki-hero__copy">
               <p className="interview-wiki-hero__eyebrow">

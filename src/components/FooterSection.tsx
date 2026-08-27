@@ -62,7 +62,7 @@ export default function FooterSection() {
 
   const particleColors =
     theme === "light"
-      ? ["#ffffff", "#f4eefe", "#ebe3fb", "#d9e7ff"]
+      ? ["#8f76da", "#c26be7", "#65a8ff", "#d96ed6"]
       : ["#ffffff", "#ffffff", "#ebfeff", "#d5fbff"];
 
   return (

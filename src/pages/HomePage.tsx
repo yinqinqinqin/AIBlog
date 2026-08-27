@@ -16,6 +16,15 @@ export default function HomePage() {
   const tasks = useStudyPlanStore((state) => state.tasks);
   const inProgressTasks = tasks.filter((task) => task.status === "doing").slice(0, 3);
   const todoTasks = tasks.filter((task) => task.status === "todo").slice(0, 3);
+  const getHomeCategoryArticles = (categoryKey: (typeof categories)[number]["key"]) => {
+    const categoryArticles = getArticlesByCategory(categoryKey);
+
+    if (categoryKey === "learning-notes" || categoryKey === "portfolio") {
+      return categoryArticles.slice(0, 6);
+    }
+
+    return categoryArticles;
+  };
 
   return (
     <div className="blog-page" id="top">
@@ -30,7 +39,7 @@ export default function HomePage() {
         {categories.map((category) => (
           <CategorySection
             key={category.key}
-            articles={getArticlesByCategory(category.key)}
+            articles={getHomeCategoryArticles(category.key)}
             category={category}
             customContent={
               category.key === "study-plan" ? (

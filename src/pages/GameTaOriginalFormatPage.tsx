@@ -20,7 +20,7 @@ type HtmlArchive = {
 };
 
 const archive = archiveData as HtmlArchive;
-const baseRoute = "/tools/game-ta-interview-100";
+const baseRoute = "/knowledge-base/game-ta-interview-100";
 
 const blogThemeOverrides = `
   :host {
@@ -41,10 +41,10 @@ const blogThemeOverrides = `
     --gradient-header-dark: linear-gradient(135deg, #59407a, #75559a, #9874b4);
     --bg-page: #f6f1fb;
     --bg-white: #ffffff;
-    --bg-gray-50: #faf7fd;
-    --bg-gray-100: #f1ebf7;
-    --bg-green-50: #f2ecfa;
-    --bg-teal-50: #f8f3fb;
+    --bg-gray-50: #ffffff;
+    --bg-gray-100: #ffffff;
+    --bg-green-50: #ffffff;
+    --bg-teal-50: #ffffff;
     --text-primary: #2a2038;
     --text-secondary: #655a74;
     --text-muted: #8d819a;
@@ -107,12 +107,12 @@ const blogThemeOverrides = `
   }
 
   :host([data-blog-theme="light"]) .card-number {
-    background: #f0e9fa;
+    background: #ffffff;
     color: #7255b5;
   }
 
   :host([data-blog-theme="light"]) .question-section.quick-answer {
-    background: linear-gradient(135deg, #f2ecfa, #f8f3fb);
+    background: #ffffff;
     border-bottom-color: rgba(143, 118, 218, 0.2);
   }
 
@@ -122,15 +122,48 @@ const blogThemeOverrides = `
   }
 
   :host([data-blog-theme="light"]) .editor-note {
-    background: linear-gradient(135deg, #f3edfb, #f9f5fc);
+    background: #ffffff;
     border-color: rgba(143, 118, 218, 0.2);
     border-left-color: #8f76da;
     color: #60469a;
   }
 
   :host([data-blog-theme="light"]) .editor-note::before {
-    background: rgba(143, 118, 218, 0.1);
+    background: #ffffff;
     color: #7255b5;
+  }
+
+  :host([data-blog-theme="light"]) .catalog-card,
+  :host([data-blog-theme="light"]) .stats-bar,
+  :host([data-blog-theme="light"]) .course-info,
+  :host([data-blog-theme="light"]) .chapter-container,
+  :host([data-blog-theme="light"]) .chapter-guide,
+  :host([data-blog-theme="light"]) .question-card,
+  :host([data-blog-theme="light"]) .question-section,
+  :host([data-blog-theme="light"]) .summary-box,
+  :host([data-blog-theme="light"]) .tip-box,
+  :host([data-blog-theme="light"]) .practice-box,
+  :host([data-blog-theme="light"]) .self-check,
+  :host([data-blog-theme="light"]) .scenario-card,
+  :host([data-blog-theme="light"]) .score-level,
+  :host([data-blog-theme="light"]) .flowchart,
+  :host([data-blog-theme="light"]) .timeline-item,
+  :host([data-blog-theme="light"]) .compare-item,
+  :host([data-blog-theme="light"]) .arch-diagram,
+  :host([data-blog-theme="light"]) table,
+  :host([data-blog-theme="light"]) tbody tr {
+    background: #ffffff;
+    background-image: none;
+  }
+
+  .catalog-card,
+  .catalog-card-link {
+    cursor: pointer;
+  }
+
+  .catalog-card:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 4px;
   }
 
   :host([data-blog-theme="dark"]) .catalog-card:hover {
@@ -254,6 +287,19 @@ function routeFromOriginalHref(href: string) {
   return chapterMatch ? `${baseRoute}/${chapterMatch[1]}` : null;
 }
 
+function findArchiveAnchorFromEvent(event: Event) {
+  return event.composedPath().find(
+    (node): node is HTMLAnchorElement => node instanceof HTMLAnchorElement,
+  );
+}
+
+function findArchiveCardFromEvent(event: Event) {
+  return event.composedPath().find(
+    (node): node is HTMLElement =>
+      node instanceof HTMLElement && node.matches(".chapter-card, .catalog-card, .catalog-card-link"),
+  );
+}
+
 export default function GameTaOriginalFormatPage() {
   const { pageId } = useParams();
   const navigate = useNavigate();
@@ -282,26 +328,47 @@ export default function GameTaOriginalFormatPage() {
       <div class="html-archive-page">${page.bodyHtml}</div>
     `;
 
+    shadowRoot.querySelectorAll<HTMLElement>(".chapter-card, .catalog-card").forEach((card) => {
+      const anchor = card.querySelector<HTMLAnchorElement>("a[href]");
+      if (!anchor || !routeFromOriginalHref(anchor.getAttribute("href") ?? "")) return;
+      card.setAttribute("role", "link");
+      card.setAttribute("tabindex", "0");
+      card.setAttribute("aria-label", anchor.textContent?.trim() || "进入章节");
+    });
+
     const handleArchiveClick = (event: Event) => {
-      const anchor = event.composedPath().find(
-        (node): node is HTMLAnchorElement => node instanceof HTMLAnchorElement,
-      );
-      if (!anchor) return;
-      const targetRoute = routeFromOriginalHref(anchor.getAttribute("href") ?? "");
+      const anchor = findArchiveAnchorFromEvent(event);
+      const card = anchor ? null : findArchiveCardFromEvent(event);
+      const href = anchor?.getAttribute("href") ?? card?.querySelector<HTMLAnchorElement>("a[href]")?.getAttribute("href") ?? "";
+      const targetRoute = routeFromOriginalHref(href);
+      if (!targetRoute) return;
+      event.preventDefault();
+      navigate(targetRoute);
+    };
+
+    const handleArchiveKeyDown = (event: Event) => {
+      if (!(event instanceof KeyboardEvent) || (event.key !== "Enter" && event.key !== " ")) return;
+      const card = findArchiveCardFromEvent(event);
+      const href = card?.querySelector<HTMLAnchorElement>("a[href]")?.getAttribute("href") ?? "";
+      const targetRoute = routeFromOriginalHref(href);
       if (!targetRoute) return;
       event.preventDefault();
       navigate(targetRoute);
     };
 
     shadowRoot.addEventListener("click", handleArchiveClick);
-    return () => shadowRoot.removeEventListener("click", handleArchiveClick);
+    shadowRoot.addEventListener("keydown", handleArchiveKeyDown);
+    return () => {
+      shadowRoot.removeEventListener("click", handleArchiveClick);
+      shadowRoot.removeEventListener("keydown", handleArchiveKeyDown);
+    };
   }, [navigate, page]);
 
   return (
     <div className="blog-page game-ta-original-page">
       <main className="game-ta-original-page__main">
         <div className="content-shell game-ta-original-page__toolbar">
-          <Link to="/category/tools"><ArrowLeft size={14} /> 返回工具</Link>
+          <Link to="/category/knowledge-base"><ArrowLeft size={14} /> 返回知识库</Link>
           <span><BookOpenText size={15} /> 原版结构 · React 页面</span>
           <strong>{page.id === "index" ? "总目录" : `第 ${page.id} 章`}</strong>
         </div>

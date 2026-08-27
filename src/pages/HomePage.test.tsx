@@ -9,11 +9,16 @@ import AboutPage from "./AboutPage";
 import CategoryPage from "./CategoryPage";
 import CustomInterviewWikiPage from "./CustomInterviewWikiPage";
 import GameTaOriginalFormatPage from "./GameTaOriginalFormatPage";
+import Ue5GpuRenderdocPage from "./Ue5GpuRenderdocPage";
+import Ue5MobileOptimizationPage from "./Ue5MobileOptimizationPage";
 import HomePage from "./HomePage";
 import ArticlePage from "./ArticlePage";
 import TechnicalArtInterviewWikiPage from "./TechnicalArtInterviewWikiPage";
 import gameTaHtmlArchive from "@/data/generated/gameTaHtmlArchive.json";
 import mihoyoInterviewBank from "@/data/generated/mihoyoInterviewBank.json";
+import ue5AssetPipelineArchive from "@/data/generated/ue5AssetPipelineArchive.json";
+import ue5GpuRenderdocArchive from "@/data/generated/ue5GpuRenderdocArchive.json";
+import ue5MobileOptimizationArchive from "@/data/generated/ue5MobileOptimizationArchive.json";
 import type { InterviewResourceBank } from "@/data/interviewResourceTypes";
 import SiteHeader from "@/components/SiteHeader";
 import { navItems, siteMeta } from "@/data/blog";
@@ -56,25 +61,30 @@ describe("blog pages", () => {
 
     const nav = screen.getByRole("navigation", { name: "博客导航" });
     const navButtons = Array.from(nav.querySelectorAll("button")).map((button) => button.textContent?.trim());
-    expect(navButtons).toEqual(["首页", "学习记录", "作品集", "学习计划", "工具", "关于"]);
+    expect(navButtons).toEqual(["首页", "学习记录", "作品集", "学习计划", "知识库", "关于"]);
   });
 
   it("renders article detail page", () => {
     render(
-      <MemoryRouter initialEntries={["/article/shader-observation-log"]}>
+      <MemoryRouter initialEntries={["/article/pbr"]}>
         <Routes>
           <Route path="/article/:slug" element={<ArticlePage />} />
         </Routes>
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("heading", { level: 1, name: /从材质观察到 Shader 拆解/i })).toBeInTheDocument();
-    expect(screen.getByText(/很多 Shader 学习停留在抄案例或记节点/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "PBR" })).toBeInTheDocument();
+    expect(screen.getByText(/眼睛看到的物体颜色是光线照射到物体上/i)).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "image-20260708111805170" })).toHaveAttribute(
+      "src",
+      "https://yin-qin.oss-accelerate.aliyuncs.com/img/20260820160909586.png",
+    );
+    expect(screen.getByText(/float alpha\s+= Roughness \* Roughness;/)).toBeInTheDocument();
   });
 
   it("renders category page as independent route", () => {
     render(
-      <MemoryRouter initialEntries={["/category/learning-notes"]}>
+      <MemoryRouter initialEntries={["/category/portfolio"]}>
         <SiteHeader brand={siteMeta.brand} navItems={navItems} />
         <Routes>
           <Route path="/category/:categoryKey" element={<CategoryPage />} />
@@ -82,7 +92,7 @@ describe("blog pages", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("button", { name: "学习记录", current: "page" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "作品集", current: "page" })).toBeInTheDocument();
     expect(screen.getAllByRole("link").length).toBeGreaterThan(1);
   });
 
@@ -101,9 +111,9 @@ describe("blog pages", () => {
     expect(screen.getAllByText("未完成").length).toBeGreaterThan(0);
   });
 
-  it("renders only the two imported interview resource cards", () => {
+  it("renders the imported interview and UE5 resource cards", () => {
     render(
-      <MemoryRouter initialEntries={["/category/tools"]}>
+      <MemoryRouter initialEntries={["/category/knowledge-base"]}>
         <Routes>
           <Route path="/category/:categoryKey" element={<CategoryPage />} />
         </Routes>
@@ -112,15 +122,91 @@ describe("blog pages", () => {
 
     expect(screen.getByRole("link", { name: /米哈游技术美术真题集/i })).toHaveAttribute(
       "href",
-      "/tools/mihoyo-ta-interview",
+      "/knowledge-base/mihoyo-ta-interview",
     );
     expect(screen.getByText("410 道题 · 答案配对")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /游戏 TA 面试 100 问/i })).toHaveAttribute(
       "href",
-      "/tools/game-ta-interview-100",
+      "/knowledge-base/game-ta-interview-100",
     );
+    expect(screen.getByRole("link", { name: /UE5 GPU 性能分析与抓帧/i })).toHaveAttribute(
+      "href",
+      "/knowledge-base/ue5-gpu-renderdoc",
+    );
+    expect(screen.getByRole("link", { name: /UE5 移动端性能优化指南/i })).toHaveAttribute(
+      "href",
+      "/knowledge-base/ue5-mobile-optimization",
+    );
+    expect(screen.getByRole("link", { name: /UE5 资源管线与美术自动化/i })).toHaveAttribute(
+      "href",
+      "/knowledge-base/ue5-asset-pipeline",
+    );
+    expect(screen.getByRole("region", { name: "面试" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "性能优化" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "资源管线" })).toBeInTheDocument();
+    expect(document.querySelectorAll(".tool-card")).toHaveLength(5);
     expect(screen.queryByRole("link", { name: /技术美术面试 Wiki/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /我的面试题库/i })).not.toBeInTheDocument();
+  });
+
+  it("imports all three UE5 HTML archives without executable scripts", () => {
+    expect(ue5GpuRenderdocArchive.pages).toHaveLength(31);
+    expect(ue5MobileOptimizationArchive.pages).toHaveLength(31);
+    expect(ue5AssetPipelineArchive.pages).toHaveLength(25);
+
+    for (const archive of [
+      ue5GpuRenderdocArchive,
+      ue5MobileOptimizationArchive,
+      ue5AssetPipelineArchive,
+    ]) {
+      expect(archive.pages.every((page) => !/<script\b/i.test(page.bodyHtml))).toBe(true);
+      expect(
+        archive.pages.every(
+          (page) => !/(?:公众号|蓝海资料掘金营|deep3321|课程配套资料与社群支持)/i.test(page.bodyHtml),
+        ),
+      ).toBe(true);
+    }
+  });
+
+  it("navigates between the UE5 GPU catalog and chapters", async () => {
+    render(
+      <MemoryRouter initialEntries={["/knowledge-base/ue5-gpu-renderdoc"]}>
+        <Routes>
+          <Route path="/knowledge-base/ue5-gpu-renderdoc" element={<Ue5GpuRenderdocPage />} />
+          <Route path="/knowledge-base/ue5-gpu-renderdoc/:pageId" element={<Ue5GpuRenderdocPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const archiveHost = screen.getByTestId("ue5-gpu-renderdoc-archive");
+    expect(archiveHost).toHaveAttribute("data-archive-layout", "legacy-course");
+    await waitFor(() => expect(archiveHost.shadowRoot?.querySelectorAll(".chapter-card")).toHaveLength(30));
+
+    const firstChapterCard = archiveHost.shadowRoot?.querySelector<HTMLElement>(".chapter-card");
+    expect(firstChapterCard).not.toBeNull();
+    fireEvent.click(firstChapterCard!);
+    await waitFor(() => {
+      expect(archiveHost.shadowRoot?.textContent).toContain("GPU性能分析的意义");
+    });
+  });
+
+  it("shows bottom chapter navigation for the UE5 mobile optimization guide", async () => {
+    render(
+      <MemoryRouter initialEntries={["/knowledge-base/ue5-mobile-optimization/02"]}>
+        <Routes>
+          <Route path="/knowledge-base/ue5-mobile-optimization" element={<Ue5MobileOptimizationPage />} />
+          <Route path="/knowledge-base/ue5-mobile-optimization/:pageId" element={<Ue5MobileOptimizationPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const archiveHost = screen.getByTestId("ue5-mobile-optimization-archive");
+    await waitFor(() => expect(archiveHost.shadowRoot?.querySelector(".chapter-nav")).not.toBeNull());
+    expect(archiveHost.shadowRoot?.querySelector(".nav-prev")?.textContent).toContain("上一章");
+    expect(archiveHost.shadowRoot?.querySelector(".nav-prev")).toHaveAttribute("href", "01.html");
+    expect(archiveHost.shadowRoot?.querySelector(".nav-catalog")).toHaveAttribute("href", "index.html");
+    expect(archiveHost.shadowRoot?.querySelector(".nav-next")?.textContent).toContain("下一章");
+    expect(archiveHost.shadowRoot?.querySelector(".nav-next")).toHaveAttribute("href", "03.html");
   });
 
   it("keeps the Word questions paired with their answers", () => {
@@ -135,10 +221,10 @@ describe("blog pages", () => {
     ).toBe(true);
 
     render(
-      <MemoryRouter initialEntries={["/tools/game-ta-interview-100"]}>
+      <MemoryRouter initialEntries={["/knowledge-base/game-ta-interview-100"]}>
         <Routes>
-          <Route path="/tools/game-ta-interview-100" element={<GameTaOriginalFormatPage />} />
-          <Route path="/tools/game-ta-interview-100/:pageId" element={<GameTaOriginalFormatPage />} />
+          <Route path="/knowledge-base/game-ta-interview-100" element={<GameTaOriginalFormatPage />} />
+          <Route path="/knowledge-base/game-ta-interview-100/:pageId" element={<GameTaOriginalFormatPage />} />
         </Routes>
       </MemoryRouter>,
     );
@@ -150,9 +236,9 @@ describe("blog pages", () => {
     useThemeStore.getState().setTheme("light");
     await waitFor(() => expect(archiveHost).toHaveAttribute("data-blog-theme", "light"));
 
-    const firstChapterLink = archiveHost.shadowRoot?.querySelector<HTMLAnchorElement>('a[href="01.html"]');
-    expect(firstChapterLink).not.toBeNull();
-    fireEvent.click(firstChapterLink!);
+    const firstChapterCard = archiveHost.shadowRoot?.querySelector<HTMLElement>(".catalog-card");
+    expect(firstChapterCard).not.toBeNull();
+    fireEvent.click(firstChapterCard!);
     await waitFor(() => {
       expect(archiveHost.shadowRoot?.querySelector(".chapter-header h2")?.textContent).toContain("第1章");
       expect(archiveHost.shadowRoot?.querySelectorAll(".question-card")).toHaveLength(2);
@@ -166,7 +252,7 @@ describe("blog pages", () => {
 
   it("creates and reviews a personal interview question", () => {
     render(
-      <MemoryRouter initialEntries={["/tools/custom-interview-wiki"]}>
+      <MemoryRouter initialEntries={["/knowledge-base/custom-interview-wiki"]}>
         <CustomInterviewWikiPage />
       </MemoryRouter>,
     );
@@ -198,7 +284,7 @@ describe("blog pages", () => {
 
   it("fuzzy searches the technical art interview questions", () => {
     render(
-      <MemoryRouter initialEntries={["/tools/ta-interview-wiki"]}>
+      <MemoryRouter initialEntries={["/knowledge-base/ta-interview-wiki"]}>
         <TechnicalArtInterviewWikiPage />
       </MemoryRouter>,
     );
@@ -218,7 +304,7 @@ describe("blog pages", () => {
 
   it("keeps interview methods hidden until requested", () => {
     render(
-      <MemoryRouter initialEntries={["/tools/ta-interview-wiki"]}>
+      <MemoryRouter initialEntries={["/knowledge-base/ta-interview-wiki"]}>
         <TechnicalArtInterviewWikiPage />
       </MemoryRouter>,
     );

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default function CustomInterviewToolCard() {
   return (
-    <Link className="tool-card tool-card--custom" to="/tools/custom-interview-wiki">
+    <Link className="tool-card tool-card--custom" to="/knowledge-base/custom-interview-wiki">
       <div className="tool-card__visual" aria-hidden="true">
         <span className="tool-card__visual-label">PERSONAL / WIKI</span>
         <div className="tool-card__visual-grid">

@@ -2,18 +2,23 @@ import {
   ArrowUpRight,
   BookMarked,
   FileQuestion,
+  Gauge,
   LibraryBig,
   ListChecks,
+  Smartphone,
+  Workflow,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
+export type InterviewResourceToolKind = "mihoyo" | "ta100" | "gpu" | "mobile" | "pipeline";
+
 type InterviewResourceToolCardProps = {
-  kind: "mihoyo" | "ta100";
+  kind: InterviewResourceToolKind;
 };
 
 const cardContent = {
   mihoyo: {
-    to: "/tools/mihoyo-ta-interview",
+    to: "/knowledge-base/mihoyo-ta-interview",
     className: "tool-card--mihoyo",
     label: "MIHOYO / INTERVIEW",
     visualItems: ["CASE", "QUIZ", "WRITE"],
@@ -26,7 +31,7 @@ const cardContent = {
     action: "开始刷题",
   },
   ta100: {
-    to: "/tools/game-ta-interview-100",
+    to: "/knowledge-base/game-ta-interview-100",
     className: "tool-card--ta100",
     label: "GAME TA / 20 CHAPTERS",
     visualItems: ["LEARN", "ANSWER", "REVIEW"],
@@ -37,6 +42,45 @@ const cardContent = {
     title: "游戏 TA 面试 100 问",
     description: "完整保留原资料的目录、章节讲解、知识块、表格、问答、练习与自测结构，并迁移到当前博客技术栈。",
     action: "打开知识库",
+  },
+  gpu: {
+    to: "/knowledge-base/ue5-gpu-renderdoc",
+    className: "tool-card--gpu",
+    label: "UE5 / GPU PROFILING",
+    visualItems: ["CAPTURE", "TRACE", "OPTIMIZE"],
+    icon: Gauge,
+    metaIcon: BookMarked,
+    meta: "30 个章节",
+    count: "GPU Profiler · RenderDoc · 实战",
+    title: "UE5 GPU 性能分析与抓帧",
+    description: "保持原课程目录与章节排版，系统覆盖 UE5 GPU 指标、瓶颈定位、RenderDoc 抓帧和数据驱动优化。",
+    action: "进入性能实验室",
+  },
+  mobile: {
+    to: "/knowledge-base/ue5-mobile-optimization",
+    className: "tool-card--mobile",
+    label: "UE5 / MOBILE PERFORMANCE",
+    visualItems: ["DEVICE", "PROFILE", "SHIP"],
+    icon: Smartphone,
+    metaIcon: BookMarked,
+    meta: "30 个章节",
+    count: "150+ 优化技巧 · 全流程",
+    title: "UE5 移动端性能优化指南",
+    description: "从项目设置、资源与渲染优化延伸到线程、内存、发热和平台适配，完整保留原资料的图表与章节结构。",
+    action: "打开优化指南",
+  },
+  pipeline: {
+    to: "/knowledge-base/ue5-asset-pipeline",
+    className: "tool-card--pipeline",
+    label: "UE5 / ASSET PIPELINE",
+    visualItems: ["IMPORT", "VALIDATE", "AUTOMATE"],
+    icon: Workflow,
+    metaIcon: BookMarked,
+    meta: "24 个章节",
+    count: "资源规范 · 工具链 · 自动化",
+    title: "UE5 资源管线与美术自动化",
+    description: "围绕资源命名、导入验证、Editor 工具、Python 脚本和团队管线搭建，按原版课程结构迁移到博客阅读器。",
+    action: "进入管线手册",
   },
 } as const;
 
