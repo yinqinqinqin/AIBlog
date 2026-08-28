@@ -6674,6 +6674,12 @@ body {
   box-shadow: none;
 }
 
+.hero-lab__fallback {
+  position: relative;
+  z-index: 1;
+  min-height: inherit;
+}
+
 :root[data-theme="light"] .hero-lab.hero-lab--model {
   box-shadow: none;
 }

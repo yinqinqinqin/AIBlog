@@ -2,12 +2,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
-import SplashCursor from "@/components/SplashCursor";
 import ThemeToggle from "@/components/ThemeToggle";
-import AboutPage from "@/pages/AboutPage";
-import ArticlePage from "@/pages/ArticlePage";
-import CategoryPage from "@/pages/CategoryPage";
-import HomePage from "@/pages/HomePage";
 import { navItems, siteMeta } from "@/data/blog";
 import type { InterviewResourceBank } from "@/data/interviewResourceTypes";
 import { applyTheme, useThemeStore } from "@/store/themeStore";
@@ -18,6 +13,11 @@ declare global {
   }
 }
 
+const SplashCursor = lazy(() => import("@/components/SplashCursor"));
+const AboutPage = lazy(() => import("@/pages/AboutPage"));
+const ArticlePage = lazy(() => import("@/pages/ArticlePage"));
+const CategoryPage = lazy(() => import("@/pages/CategoryPage"));
+const HomePage = lazy(() => import("@/pages/HomePage"));
 const CustomInterviewWikiPage = lazy(() => import("@/pages/CustomInterviewWikiPage"));
 const GameTaOriginalFormatPage = lazy(() => import("@/pages/GameTaOriginalFormatPage"));
 const TechnicalArtInterviewWikiPage = lazy(() => import("@/pages/TechnicalArtInterviewWikiPage"));
@@ -138,16 +138,18 @@ export default function App() {
   return (
     <BrowserRouter>
       <EntryLoaderController />
-      <SplashCursor
-        CURL={36}
-        DYE_RESOLUTION={768}
-        DENSITY_DISSIPATION={1.5}
-        PRESSURE={0.35}
-        PRESSURE_ITERATIONS={12}
-        RAINBOW_MODE
-        SIM_RESOLUTION={96}
-        VELOCITY_DISSIPATION={1.5}
-      />
+      <Suspense fallback={null}>
+        <SplashCursor
+          CURL={36}
+          DYE_RESOLUTION={768}
+          DENSITY_DISSIPATION={1.5}
+          PRESSURE={0.35}
+          PRESSURE_ITERATIONS={12}
+          RAINBOW_MODE
+          SIM_RESOLUTION={96}
+          VELOCITY_DISSIPATION={1.5}
+        />
+      </Suspense>
       <SiteHeader brand={siteMeta.brand} navItems={navItems} />
       <ThemeToggle />
       <AppRoutes />

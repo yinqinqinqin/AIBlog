@@ -1,8 +1,8 @@
 import CategorySection from "@/components/CategorySection";
 import FeaturedCarousel from "@/components/FeaturedCarousel";
-import FooterSection from "@/components/FooterSection";
 import HeroSection from "@/components/HeroSection";
 import RevealOnView from "@/components/RevealOnView";
+import { lazy, Suspense } from "react";
 import {
   categories,
   getArticlesByCategory,
@@ -12,6 +12,8 @@ import {
 import useEntryReady from "@/hooks/useEntryReady";
 import { useStudyPlanStore } from "@/store/studyPlanStore";
 import { Link } from "react-router-dom";
+
+const FooterSection = lazy(() => import("@/components/FooterSection"));
 
 export default function HomePage() {
   const featuredArticles = getFeaturedArticles();
@@ -111,7 +113,9 @@ export default function HomePage() {
         ))}
       </main>
 
-      <FooterSection />
+      <Suspense fallback={null}>
+        <FooterSection />
+      </Suspense>
     </div>
   );
 }

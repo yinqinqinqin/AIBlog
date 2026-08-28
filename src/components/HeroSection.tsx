@@ -1,9 +1,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowUpRight, ChevronRight } from "lucide-react";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import HeroModelScene from "@/components/HeroModelScene";
-import PixelBlast from "@/components/PixelBlast";
 import { useThemeStore } from "@/store/themeStore";
 
 type HeroSectionProps = {
@@ -22,6 +20,9 @@ const defaultParticleFocus: ParticleFocus = {
   centerY: 0.45,
   radius: 0.5,
 };
+
+const HeroModelScene = lazy(() => import("@/components/HeroModelScene"));
+const PixelBlast = lazy(() => import("@/components/PixelBlast"));
 
 export default function HeroSection({ title, summary }: HeroSectionProps) {
   const theme = useThemeStore((state) => state.theme);
@@ -115,28 +116,30 @@ export default function HeroSection({ title, summary }: HeroSectionProps) {
       ref={heroSectionRef}
     >
       {canUsePixelBlast ? (
-        <PixelBlast
-          className="hero-section__pixelblast"
-          color={theme === "light" ? "#8b5cf6" : "#a855f7"}
-          edgeFade={0}
-          enableRipples
-          focusCenterX={particleFocus.centerX}
-          focusCenterY={particleFocus.centerY}
-          focusInnerRadius={0.44}
-          focusRadius={particleFocus.radius}
-          liquid
-          liquidRadius={0.7}
-          liquidStrength={0.045}
-          noiseAmount={0}
-          patternDensity={0.78}
-          patternScale={3}
-          pixelSize={6}
-          rippleIntensityScale={0.56}
-          rippleSpeed={0.22}
-          rippleThickness={0.065}
-          speed={0.24}
-          variant="square"
-        />
+        <Suspense fallback={<div aria-hidden="true" className="hero-section__fallback" />}>
+          <PixelBlast
+            className="hero-section__pixelblast"
+            color={theme === "light" ? "#8b5cf6" : "#a855f7"}
+            edgeFade={0}
+            enableRipples
+            focusCenterX={particleFocus.centerX}
+            focusCenterY={particleFocus.centerY}
+            focusInnerRadius={0.44}
+            focusRadius={particleFocus.radius}
+            liquid
+            liquidRadius={0.7}
+            liquidStrength={0.045}
+            noiseAmount={0}
+            patternDensity={0.78}
+            patternScale={3}
+            pixelSize={6}
+            rippleIntensityScale={0.56}
+            rippleSpeed={0.22}
+            rippleThickness={0.065}
+            speed={0.24}
+            variant="square"
+          />
+        </Suspense>
       ) : (
         <div aria-hidden="true" className="hero-section__fallback" />
       )}
@@ -194,7 +197,9 @@ export default function HeroSection({ title, summary }: HeroSectionProps) {
           ref={heroLabRef}
           transition={{ delay: reduceMotion ? 0 : 0.16, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
         >
-          <HeroModelScene reduceMotion={Boolean(reduceMotion)} theme={theme} />
+          <Suspense fallback={<div aria-hidden="true" className="hero-lab__fallback" />}>
+            <HeroModelScene reduceMotion={Boolean(reduceMotion)} theme={theme} />
+          </Suspense>
         </motion.aside>
       </div>
     </section>
