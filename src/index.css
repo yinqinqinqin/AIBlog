@@ -6839,7 +6839,7 @@ body {
   }
 }
 
-@media (max-width: 1120px) {
+@media (max-width: 960px) {
   .site-header__brand-copy,
   .site-header__signal {
     display: none;
