@@ -1,9 +1,13 @@
 import { lazy, Suspense, useEffect } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import HomePage from "@/pages/HomePage";
 import SiteHeader from "@/components/SiteHeader";
+import SplashCursor from "@/components/SplashCursor";
 import ThemeToggle from "@/components/ThemeToggle";
+import AboutPage from "@/pages/AboutPage";
+import ArticlePage from "@/pages/ArticlePage";
+import CategoryPage from "@/pages/CategoryPage";
+import HomePage from "@/pages/HomePage";
 import { navItems, siteMeta } from "@/data/blog";
 import type { InterviewResourceBank } from "@/data/interviewResourceTypes";
 import { applyTheme, useThemeStore } from "@/store/themeStore";
@@ -14,10 +18,6 @@ declare global {
   }
 }
 
-const SplashCursor = lazy(() => import("@/components/SplashCursor"));
-const AboutPage = lazy(() => import("@/pages/AboutPage"));
-const ArticlePage = lazy(() => import("@/pages/ArticlePage"));
-const CategoryPage = lazy(() => import("@/pages/CategoryPage"));
 const CustomInterviewWikiPage = lazy(() => import("@/pages/CustomInterviewWikiPage"));
 const GameTaOriginalFormatPage = lazy(() => import("@/pages/GameTaOriginalFormatPage"));
 const TechnicalArtInterviewWikiPage = lazy(() => import("@/pages/TechnicalArtInterviewWikiPage"));
@@ -55,59 +55,21 @@ function EntryLoaderController() {
     const minimumVisibleMs = reduceMotion ? 120 : 1200;
     const elapsed = performance.now() - startedAt;
     const delay = Math.max(160, minimumVisibleMs - elapsed);
-    const exitDuration = reduceMotion ? 40 : 620;
-    let isContentReady = false;
-    let isMinimumTimeReady = false;
-    let removeTimer = 0;
-
-    const dismissLoader = () => {
-      if (!isContentReady || !isMinimumTimeReady) return;
-      loader.classList.add("entry-loader--dismissed");
-      removeTimer = window.setTimeout(() => {
-        loader.remove();
-        window.dispatchEvent(new CustomEvent("entry-loader:ready"));
-      }, exitDuration);
-    };
-
-    const handleContentReady = () => {
-      isContentReady = true;
-      dismissLoader();
-    };
 
     const dismissTimer = window.setTimeout(() => {
-      isMinimumTimeReady = true;
-      dismissLoader();
+      loader.classList.add("entry-loader--dismissed");
     }, delay);
 
-    const fallbackTimer = window.setTimeout(() => {
-      isContentReady = true;
-      isMinimumTimeReady = true;
-      dismissLoader();
-    }, 5000);
-
-    window.addEventListener("entry-loader:content-ready", handleContentReady, { once: true });
+    const removeTimer = window.setTimeout(() => {
+      loader.remove();
+      window.dispatchEvent(new CustomEvent("entry-loader:ready"));
+    }, delay + (reduceMotion ? 40 : 620));
 
     return () => {
       window.clearTimeout(dismissTimer);
       window.clearTimeout(removeTimer);
-      window.clearTimeout(fallbackTimer);
-      window.removeEventListener("entry-loader:content-ready", handleContentReady);
     };
   }, [reduceMotion]);
-
-  return null;
-}
-
-function EntryContentReadySignal() {
-  const location = useLocation();
-
-  useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      window.dispatchEvent(new CustomEvent("entry-loader:content-ready"));
-    });
-
-    return () => window.cancelAnimationFrame(frame);
-  }, [location.pathname]);
 
   return null;
 }
@@ -131,7 +93,6 @@ function AppRoutes() {
         transition={{ duration: reduceMotion ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
       >
         <Suspense fallback={<RouteLoader />}>
-          <EntryContentReadySignal />
           <Routes location={location}>
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
@@ -177,18 +138,16 @@ export default function App() {
   return (
     <BrowserRouter>
       <EntryLoaderController />
-      <Suspense fallback={null}>
-        <SplashCursor
-          CURL={36}
-          DYE_RESOLUTION={768}
-          DENSITY_DISSIPATION={1.5}
-          PRESSURE={0.35}
-          PRESSURE_ITERATIONS={12}
-          RAINBOW_MODE
-          SIM_RESOLUTION={96}
-          VELOCITY_DISSIPATION={1.5}
-        />
-      </Suspense>
+      <SplashCursor
+        CURL={36}
+        DYE_RESOLUTION={768}
+        DENSITY_DISSIPATION={1.5}
+        PRESSURE={0.35}
+        PRESSURE_ITERATIONS={12}
+        RAINBOW_MODE
+        SIM_RESOLUTION={96}
+        VELOCITY_DISSIPATION={1.5}
+      />
       <SiteHeader brand={siteMeta.brand} navItems={navItems} />
       <ThemeToggle />
       <AppRoutes />
