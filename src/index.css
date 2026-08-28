@@ -2274,6 +2274,12 @@ button {
   margin: 0 auto;
 }
 
+.article-card-motion {
+  min-width: 0;
+  content-visibility: auto;
+  contain-intrinsic-size: 360px;
+}
+
 .article-card {
   display: block;
   width: 100%;

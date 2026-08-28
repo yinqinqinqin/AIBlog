@@ -33,7 +33,13 @@ export default function ArticleCard({ article }: ArticleCardProps) {
         <div className={`article-card__face${hasCover ? "" : " article-card__face--text-cover"}`}>
           <div aria-hidden="true" className="article-card__face-frame" />
           {hasCover ? (
-            <img aria-hidden="true" className="article-card__face-image" src={article.cover} />
+            <img
+              aria-hidden="true"
+              className="article-card__face-image"
+              decoding="async"
+              loading="lazy"
+              src={article.cover}
+            />
           ) : (
             <ArticleTextCover article={article} className="article-card__text-cover" />
           )}

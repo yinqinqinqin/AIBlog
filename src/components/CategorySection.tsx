@@ -13,10 +13,6 @@ type CategorySectionProps = {
 export default function CategorySection({ category, articles, customContent }: CategorySectionProps) {
   const reduceMotion = useReducedMotion();
   const canObserveViewport = typeof IntersectionObserver !== "undefined";
-  const containerVariants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: reduceMotion ? 0 : 0.08 } },
-  };
   const itemVariants = {
     hidden: reduceMotion ? { opacity: 1 } : { opacity: 0, y: 26, filter: "blur(10px)" },
     visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.56, ease: [0.22, 1, 0.36, 1] as const } },
@@ -51,13 +47,27 @@ export default function CategorySection({ category, articles, customContent }: C
         <motion.div
           animate={!canObserveViewport ? "visible" : undefined}
           className="article-grid"
-          initial={reduceMotion ? false : "hidden"}
-          variants={containerVariants}
-          viewport={canObserveViewport ? { amount: 0.08, once: true } : undefined}
-          whileInView={canObserveViewport ? "visible" : undefined}
         >
-          {articles.map((article) => (
-            <motion.div key={article.slug} variants={itemVariants}>
+          {articles.map((article, index) => (
+            <motion.div
+              animate={!canObserveViewport ? "visible" : undefined}
+              className="article-card-motion"
+              initial={reduceMotion ? false : "hidden"}
+              key={article.slug}
+              variants={{
+                hidden: itemVariants.hidden,
+                visible: {
+                  ...itemVariants.visible,
+                  transition: {
+                    duration: 0.56,
+                    delay: reduceMotion ? 0 : Math.min(index % 2, 1) * 0.06,
+                    ease: [0.22, 1, 0.36, 1] as const,
+                  },
+                },
+              }}
+              viewport={canObserveViewport ? { amount: 0.18, margin: "0px 0px -10% 0px", once: true } : undefined}
+              whileInView={canObserveViewport ? "visible" : undefined}
+            >
               <ArticleCard article={article} />
             </motion.div>
           ))}

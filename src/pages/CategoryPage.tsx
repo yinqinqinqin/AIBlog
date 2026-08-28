@@ -1,3 +1,4 @@
+import { motion, useReducedMotion } from "motion/react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import ArticleCard from "@/components/ArticleCard";
 import FooterSection from "@/components/FooterSection";
@@ -45,6 +46,12 @@ const knowledgeGroups: Array<{
 
 export default function CategoryPage() {
   const { categoryKey } = useParams();
+  const reduceMotion = useReducedMotion();
+  const canObserveViewport = typeof IntersectionObserver !== "undefined";
+  const articleCardVariants = {
+    hidden: reduceMotion ? { opacity: 1 } : { opacity: 0, y: 26, filter: "blur(10px)" },
+    visible: { opacity: 1, y: 0, filter: "blur(0px)" },
+  };
 
   if (!isCategoryKey(categoryKey)) {
     return (
@@ -107,8 +114,23 @@ export default function CategoryPage() {
             </section>
           ) : (
             <section className="article-grid">
-              {categoryArticles.map((article) => (
-                <ArticleCard key={article.slug} article={article} />
+              {categoryArticles.map((article, index) => (
+                <motion.div
+                  animate={!canObserveViewport ? "visible" : undefined}
+                  className="article-card-motion"
+                  initial={reduceMotion ? false : "hidden"}
+                  key={article.slug}
+                  transition={{
+                    duration: reduceMotion ? 0 : 0.56,
+                    delay: reduceMotion ? 0 : Math.min(index % 2, 1) * 0.06,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  variants={articleCardVariants}
+                  viewport={canObserveViewport ? { amount: 0.18, margin: "0px 0px -10% 0px", once: true } : undefined}
+                  whileInView={canObserveViewport ? "visible" : undefined}
+                >
+                  <ArticleCard article={article} />
+                </motion.div>
               ))}
             </section>
           )}
