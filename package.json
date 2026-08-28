@@ -4,7 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "npm run generate:articles",
     "dev": "vite",
+    "generate:articles": "node scripts/generate-articles.mjs",
+    "prebuild": "npm run generate:articles",
     "build": "tsc -b && vite build",
     "deploy:oss": "npm run build && node scripts/deploy-oss.mjs",
     "lint": "eslint .",

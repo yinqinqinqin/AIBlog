@@ -1,3 +1,5 @@
+import { generatedArticles } from "@/data/generated/articles";
+
 export type CategoryKey = "learning-notes" | "portfolio" | "study-plan" | "knowledge-base" | "tools";
 
 export type NavItem = {
@@ -259,107 +261,9 @@ export const studyPlanSystem: StudyPlanSystem = {
   ],
 };
 
-const markdownArticleModules = import.meta.glob("../content/{learning-notes,portfolio}/*.md", {
-  eager: true,
-  import: "default",
-  query: "?raw",
-}) as Record<string, string>;
-
-function parseFrontmatter(raw: string) {
-  if (!raw.startsWith("---\n")) {
-    return { metadata: {}, body: raw.trim() };
-  }
-
-  const endIndex = raw.indexOf("\n---\n", 4);
-  if (endIndex === -1) {
-    return { metadata: {}, body: raw.trim() };
-  }
-
-  const metadataBlock = raw.slice(4, endIndex).trim();
-  const body = raw.slice(endIndex + 5).trim();
-  const metadata: Record<string, string> = {};
-
-  metadataBlock.split("\n").forEach((line) => {
-    const separatorIndex = line.indexOf(":");
-    if (separatorIndex === -1) {
-      return;
-    }
-
-    const key = line.slice(0, separatorIndex).trim();
-    const value = line.slice(separatorIndex + 1).trim();
-    metadata[key] = value;
-  });
-
-  return { metadata, body };
-}
-
-function isMarkdownArticleCategory(value?: string): value is Extract<CategoryKey, "learning-notes" | "portfolio"> {
-  return value === "learning-notes" || value === "portfolio";
-}
-
-function parseTextField(value?: string) {
-  if (!value) return "";
-  const trimmed = value.trim();
-  if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
-    return trimmed.slice(1, -1).trim();
-  }
-  return trimmed;
-}
-
-function parseTagsField(value?: string) {
-  const trimmed = parseTextField(value);
-  if (!trimmed) return [];
-  const normalized = trimmed.startsWith("[") && trimmed.endsWith("]") ? trimmed.slice(1, -1) : trimmed;
-  return normalized
-    .split(",")
-    .map((tag) => parseTextField(tag))
-    .filter(Boolean);
-}
-
-function parseBooleanField(value?: string) {
-  const normalized = parseTextField(value).toLowerCase();
-  return normalized === "true" || normalized === "yes" || normalized === "1";
-}
-
-function parseNumberField(value?: string) {
-  const normalized = parseTextField(value);
-  if (!normalized) return undefined;
-  const numberValue = Number(normalized);
-  return Number.isFinite(numberValue) ? numberValue : undefined;
-}
-
-function parseMarkdownArticles() {
-  return Object.entries(markdownArticleModules)
-    .map(([path, raw]) => {
-      const { metadata, body } = parseFrontmatter(raw);
-      const slug = path.split("/").pop()?.replace(/\.md$/, "");
-
-      if (!slug || !isMarkdownArticleCategory(metadata.category)) {
-        return null;
-      }
-
-      return {
-        slug,
-        title: metadata.title ?? slug,
-        category: metadata.category,
-        date: parseTextField(metadata.date),
-        readTime: parseTextField(metadata.readTime),
-        excerpt: parseTextField(metadata.excerpt),
-        tags: parseTagsField(metadata.tags),
-        cover: parseTextField(metadata.cover),
-        pinned: parseBooleanField(metadata.pinned),
-        pinnedOrder: parseNumberField(metadata.pinnedOrder),
-        markdown: body,
-      } satisfies Article;
-    })
-    .filter(Boolean) as Article[];
-}
-
-const markdownArticles = parseMarkdownArticles();
-
 const inlineArticles: Article[] = [];
 
-export const articles: Article[] = [...markdownArticles, ...inlineArticles].sort((left, right) =>
+export const articles: Article[] = [...generatedArticles, ...inlineArticles].sort((left, right) =>
   right.date.localeCompare(left.date),
 );
 
