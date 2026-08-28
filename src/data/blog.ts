@@ -45,6 +45,7 @@ export type Article = {
   pinnedOrder?: number;
   content?: string[];
   markdown?: string;
+  markdownUrl?: string;
 };
 
 export type StudyPlanTrack = {

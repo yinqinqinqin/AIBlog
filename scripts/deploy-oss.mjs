@@ -13,6 +13,9 @@ const config = {
   cdnDomain: process.env.ALI_CDN_DOMAIN || "oss.an-hao.top",
   distDir: path.resolve(process.env.ALI_OSS_DIST || "dist"),
   prefix: normalizePrefix(process.env.ALI_OSS_PREFIX || ""),
+  articlesDir: path.resolve(process.env.BLOG_ARTICLES_DIR || "articles"),
+  articlesPrefix: normalizePrefix(process.env.BLOG_ARTICLES_PREFIX || "blog-content/articles"),
+  uploadArticles: process.env.BLOG_UPLOAD_ARTICLES !== "false",
   refreshCdn: process.env.ALI_CDN_REFRESH !== "false",
   uploadSourceMaps: process.env.ALI_OSS_UPLOAD_SOURCEMAP === "true",
 };
@@ -22,6 +25,7 @@ const contentTypes = new Map([
   [".js", "application/javascript; charset=utf-8"],
   [".css", "text/css; charset=utf-8"],
   [".json", "application/json; charset=utf-8"],
+  [".md", "text/markdown; charset=utf-8"],
   [".svg", "image/svg+xml"],
   [".png", "image/png"],
   [".jpg", "image/jpeg"],
@@ -49,9 +53,14 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 async function main() {
   validateConfig();
 
-  const files = walk(config.distDir).filter((file) => {
+  const distFiles = walk(config.distDir).filter((file) => {
     return config.uploadSourceMaps || !file.endsWith(".map");
   });
+  const articleFiles = config.uploadArticles
+    ? Array.from(["learning-notes", "portfolio"])
+        .flatMap((category) => walk(path.join(config.articlesDir, category)))
+        .filter((file) => !file.endsWith(".map"))
+    : [];
 
   const client = new OSS({
     accessKeyId: config.accessKeyId,
@@ -63,26 +72,10 @@ async function main() {
     timeout: 120000,
   });
 
-  console.log(`Uploading ${files.length} files to oss://${config.bucket}/${config.prefix}`);
+  await uploadFiles(client, distFiles, config.distDir, config.prefix, "site");
 
-  let uploaded = 0;
-  for (const file of files) {
-    const relativePath = path.relative(config.distDir, file).split(path.sep).join("/");
-    const objectKey = `${config.prefix}${relativePath}`;
-    const ext = path.extname(file).toLowerCase();
-    const cacheControl = getCacheControl(relativePath, ext);
-
-    await client.put(objectKey, file, {
-      headers: {
-        "Cache-Control": cacheControl,
-        "Content-Type": contentTypes.get(ext) || "application/octet-stream",
-      },
-    });
-
-    uploaded += 1;
-    if (uploaded % 10 === 0 || uploaded === files.length) {
-      console.log(`Uploaded ${uploaded}/${files.length}`);
-    }
+  if (config.uploadArticles) {
+    await uploadFiles(client, articleFiles, config.articlesDir, config.articlesPrefix, "articles");
   }
 
   if (config.refreshCdn && config.cdnDomain) {
@@ -121,11 +114,39 @@ function getCacheControl(relativePath, ext) {
     return "no-cache, no-store, must-revalidate";
   }
 
+  if (ext === ".md" || ext === ".json") {
+    return "no-cache";
+  }
+
   if (relativePath.startsWith("assets/")) {
     return "public, max-age=31536000, immutable";
   }
 
   return "public, max-age=86400";
+}
+
+async function uploadFiles(client, files, rootDir, prefix, label) {
+  console.log(`Uploading ${files.length} ${label} files to oss://${config.bucket}/${prefix}`);
+
+  let uploaded = 0;
+  for (const file of files) {
+    const relativePath = path.relative(rootDir, file).split(path.sep).join("/");
+    const objectKey = `${prefix}${relativePath}`;
+    const ext = path.extname(file).toLowerCase();
+    const cacheControl = getCacheControl(relativePath, ext);
+
+    await client.put(objectKey, file, {
+      headers: {
+        "Cache-Control": cacheControl,
+        "Content-Type": contentTypes.get(ext) || "application/octet-stream",
+      },
+    });
+
+    uploaded += 1;
+    if (uploaded % 10 === 0 || uploaded === files.length) {
+      console.log(`Uploaded ${label} ${uploaded}/${files.length}`);
+    }
+  }
 }
 
 async function refreshCdn() {

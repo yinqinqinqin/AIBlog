@@ -51,7 +51,8 @@ npm run deploy:oss
 
 1. 从 `articles/` 生成 `src/data/generated/articles.ts`
 2. 构建 `dist/`
-3. 只上传 `dist/` 到 OSS
-4. 刷新 CDN
+3. 上传 `dist/` 到 OSS 网站根目录
+4. 上传 `articles/learning-notes` 和 `articles/portfolio` 到 `blog-content/articles/`
+5. 刷新 CDN
 
-`articles/` 会提交到 Git，但不会作为独立目录上传到 OSS。
+`articles/` 会提交到 Git，不会进入 `dist/` 打包产物。线上文章详情页会通过 `markdownUrl` 从 OSS 读取 Markdown 正文。

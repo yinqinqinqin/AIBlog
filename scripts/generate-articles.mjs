@@ -6,6 +6,9 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 const articlesRoot = path.join(projectRoot, "articles");
 const outputFile = path.join(projectRoot, "src/data/generated/articles.ts");
 const supportedCategories = new Set(["learning-notes", "portfolio"]);
+const articleBaseUrl = normalizeUrlBase(
+  process.env.BLOG_ARTICLE_BASE_URL || "https://oss.an-hao.top/blog-content/articles/",
+);
 
 main();
 
@@ -43,8 +46,9 @@ function parseArticleFile(filePath) {
   }
 
   const raw = fs.readFileSync(filePath, "utf8");
-  const { metadata, body } = parseFrontmatter(raw);
+  const { metadata } = parseFrontmatter(raw);
   const slug = path.basename(filePath, ".md");
+  const markdownUrl = encodeURI(`${articleBaseUrl}${relativePath}`);
 
   return {
     slug,
@@ -57,7 +61,7 @@ function parseArticleFile(filePath) {
     cover: parseTextField(metadata.cover),
     pinned: parseBooleanField(metadata.pinned),
     pinnedOrder: parseNumberField(metadata.pinnedOrder),
-    markdown: body,
+    markdownUrl,
   };
 }
 
@@ -125,4 +129,8 @@ function walk(dir) {
     const fullPath = path.join(dir, entry.name);
     return entry.isDirectory() ? walk(fullPath) : [fullPath];
   });
+}
+
+function normalizeUrlBase(baseUrl) {
+  return baseUrl.replace(/\/?$/, "/");
 }

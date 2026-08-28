@@ -19,6 +19,7 @@ import markdownItTaskLists from "markdown-it-task-lists";
 
 type MarkdownContentProps = {
   source: string;
+  baseUrl?: string;
 };
 
 function stripTocMarker(source: string) {
@@ -78,6 +79,11 @@ function createMarkdownRenderer() {
     if (/^https?:\/\//i.test(href)) {
       token.attrSet("target", "_blank");
       token.attrSet("rel", "noreferrer");
+    } else {
+      const resolvedHref = resolveMarkdownUrl(href, env?.baseUrl);
+      if (resolvedHref) {
+        token.attrSet("href", resolvedHref);
+      }
     }
 
     return defaultLinkOpen(tokens, index, options, env, self);
@@ -89,6 +95,13 @@ function createMarkdownRenderer() {
 
   markdown.renderer.rules.image = (tokens, index, options, env, self) => {
     const token = tokens[index];
+    const src = token.attrGet("src") ?? "";
+    const resolvedSrc = resolveMarkdownUrl(src, env?.baseUrl);
+
+    if (resolvedSrc) {
+      token.attrSet("src", resolvedSrc);
+    }
+
     token.attrJoin("class", "article-content__image");
     token.attrSet("data-zoomable-image", "true");
     token.attrSet("loading", "lazy");
@@ -138,7 +151,23 @@ function getImageFileName(src: string, alt: string) {
   return `${baseName || "article-image"}${extension}`;
 }
 
-export default function MarkdownContent({ source }: MarkdownContentProps) {
+function resolveMarkdownUrl(url: string, baseUrl?: string) {
+  if (!url || !baseUrl || url.startsWith("#") || /^[a-z][a-z0-9+.-]*:/i.test(url) || url.startsWith("//")) {
+    return "";
+  }
+
+  if (url.startsWith("/")) {
+    return url;
+  }
+
+  try {
+    return new URL(url, baseUrl).toString();
+  } catch {
+    return "";
+  }
+}
+
+export default function MarkdownContent({ source, baseUrl }: MarkdownContentProps) {
   const [previewImage, setPreviewImage] = useState<{ src: string; alt: string } | null>(null);
   const [imageZoom, setImageZoom] = useState(1);
   const [imagePan, setImagePan] = useState({ x: 0, y: 0 });
@@ -148,7 +177,7 @@ export default function MarkdownContent({ source }: MarkdownContentProps) {
   const [isCopyingImage, setIsCopyingImage] = useState(false);
   const imageMenuStatusTimerRef = useRef<number | null>(null);
   const dragStateRef = useRef({ didDrag: false, pointerId: 0, startX: 0, startY: 0, originX: 0, originY: 0 });
-  const renderedHtml = useMemo(() => markdownRenderer.render(stripTocMarker(source)), [source]);
+  const renderedHtml = useMemo(() => markdownRenderer.render(stripTocMarker(source), { baseUrl }), [baseUrl, source]);
   const openImagePreview = useCallback((target: EventTarget | null) => {
     if (!(target instanceof HTMLImageElement) || !target.matches("[data-zoomable-image='true']")) {
       return false;
