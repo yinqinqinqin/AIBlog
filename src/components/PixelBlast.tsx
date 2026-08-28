@@ -41,6 +41,7 @@ type PixelBlastProps = {
   rippleIntensityScale?: number;
   rippleThickness?: number;
   rippleSpeed?: number;
+  rippleLifetime?: number;
   liquidWobbleSpeed?: number;
   autoPauseOffscreen?: boolean;
   speed?: number;
@@ -51,6 +52,9 @@ type PixelBlastProps = {
   focusRadius?: number;
   focusInnerRadius?: number;
   noiseAmount?: number;
+  particleLifetime?: number;
+  particleRespawnDelay?: number;
+  particleMotion?: number;
 };
 
 const createTouchTexture = (): TouchTexture => {
@@ -223,6 +227,7 @@ precision highp float;
 uniform vec3  uColor;
 uniform vec2  uResolution;
 uniform float uTime;
+uniform float uParticleTime;
 uniform float uPixelSize;
 uniform float uScale;
 uniform float uDensity;
@@ -231,11 +236,15 @@ uniform int   uEnableRipples;
 uniform float uRippleSpeed;
 uniform float uRippleThickness;
 uniform float uRippleIntensity;
+uniform float uRippleLifetime;
 uniform float uEdgeFade;
 uniform int   uFocusEnabled;
 uniform vec2  uFocusCenter;
 uniform float uFocusRadius;
 uniform float uFocusInnerRadius;
+uniform float uParticleLifetime;
+uniform float uParticleRespawnDelay;
+uniform float uParticleMotion;
 
 uniform int   uShapeType;
 const int SHAPE_SQUARE   = 0;
@@ -262,6 +271,33 @@ float Bayer2(vec2 a) {
 #define FBM_GAIN 1.0
 
 float hash11(float n){ return fract(sin(n)*43758.5453); }
+
+float saturate(float value) {
+  return clamp(value, 0.0, 1.0);
+}
+
+float particleLifecycle(vec2 id, float time, out float ageNorm) {
+  float birthSeed = hash11(dot(id, vec2(17.17, 43.13)) + 11.0);
+  float restSeed = hash11(dot(id, vec2(91.7, 13.3)) + 29.0);
+  float life = max(0.12, uParticleLifetime * (0.7 + birthSeed * 0.55));
+  float rest = max(0.0, uParticleRespawnDelay * (0.35 + restSeed));
+  float cycle = life + rest;
+  float phase = mod(time + birthSeed * cycle, cycle);
+
+  ageNorm = saturate(phase / life);
+
+  float alive = 1.0 - step(life, phase);
+  float fadeIn = smoothstep(0.0, 0.16, ageNorm);
+  float fadeOut = 1.0 - smoothstep(0.68, 1.0, ageNorm);
+
+  return alive * fadeIn * fadeOut;
+}
+
+vec2 particleDrift(vec2 id, float ageNorm) {
+  float angle = hash11(dot(id, vec2(53.7, 31.1)) + 7.0) * 6.2831853;
+  float speed = 0.2 + hash11(dot(id, vec2(23.3, 71.9)) + 19.0) * 0.8;
+  return vec2(cos(angle), sin(angle)) * uParticleMotion * speed * ageNorm * ageNorm;
+}
 
 float vnoise(vec3 p){
   vec3 ip = floor(p);
@@ -324,7 +360,10 @@ void main(){
   float aspectRatio = uResolution.x / uResolution.y;
 
   vec2 pixelId = floor(fragCoord / pixelSize);
-  vec2 pixelUV = fract(fragCoord / pixelSize);
+  float particleAge = 0.0;
+  float particleLife = particleLifecycle(pixelId, uParticleTime * 0.74, particleAge);
+  vec2 driftedFragCoord = fragCoord - particleDrift(pixelId, particleAge) * pixelSize;
+  vec2 pixelUV = fract(driftedFragCoord / pixelSize);
 
   float cellPixelSize = 8.0 * pixelSize;
   vec2 cellId = floor(fragCoord / cellPixelSize);
@@ -347,6 +386,7 @@ void main(){
       float localCellPixelSize = 8.0 * pixelSize;
       vec2 cuv = (((pos - uResolution * .5 - localCellPixelSize * .5) / (uResolution))) * vec2(aspectRatio, 1.0);
       float t = max(uTime - uClickTimes[i], 0.0);
+      if (t > uRippleLifetime) continue;
       float r = distance(uv, cuv);
       float waveR = speed * t;
       float ring = exp(-pow((r - waveR) / thickness, 2.0));
@@ -360,7 +400,7 @@ void main(){
 
   float h = fract(sin(dot(floor(fragCoord / uPixelSize), vec2(127.1, 311.7))) * 43758.5453);
   float jitterScale = 1.0 + (h - 0.5) * uPixelJitter;
-  float coverage = bw * jitterScale;
+  float coverage = bw * jitterScale * particleLife;
 
   float M;
   if (uShapeType == SHAPE_CIRCLE) M = maskCircle(pixelUV, coverage);
@@ -376,13 +416,16 @@ void main(){
     float focusDensity = 1.0 - smoothstep(uFocusInnerRadius, 1.0, normalizedDistance);
     float focusNoise = hash11(dot(pixelId, vec2(127.1, 311.7)) + 17.0);
     float focusBalanceNoise = hash11(dot(pixelId, vec2(41.3, 289.1)) + 91.0);
-    float focusCoverage = step(focusBalanceNoise, focusDensity * 0.08);
+    float focusAge = 0.0;
+    float focusLife = particleLifecycle(pixelId + vec2(97.0, 31.0), uParticleTime * 0.82, focusAge);
+    vec2 focusPixelUV = fract((fragCoord - particleDrift(pixelId + vec2(97.0, 31.0), focusAge) * pixelSize) / pixelSize);
+    float focusCoverage = step(focusBalanceNoise, focusDensity * 0.08) * focusLife;
     float insideFocus = 1.0 - step(1.0, normalizedDistance);
     float focusM;
 
-    if (uShapeType == SHAPE_CIRCLE) focusM = maskCircle(pixelUV, focusCoverage);
-    else if (uShapeType == SHAPE_TRIANGLE) focusM = maskTriangle(pixelUV, pixelId, focusCoverage);
-    else if (uShapeType == SHAPE_DIAMOND) focusM = maskDiamond(pixelUV, focusCoverage);
+    if (uShapeType == SHAPE_CIRCLE) focusM = maskCircle(focusPixelUV, focusCoverage);
+    else if (uShapeType == SHAPE_TRIANGLE) focusM = maskTriangle(focusPixelUV, pixelId, focusCoverage);
+    else if (uShapeType == SHAPE_DIAMOND) focusM = maskDiamond(focusPixelUV, focusCoverage);
     else focusM = focusCoverage;
 
     M = max(M * insideFocus * step(focusNoise, focusDensity), focusM * insideFocus);
@@ -425,6 +468,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
   rippleIntensityScale = 1,
   rippleThickness = 0.1,
   rippleSpeed = 0.3,
+  rippleLifetime = 3.1,
   liquidWobbleSpeed = 4.5,
   autoPauseOffscreen = true,
   speed = 0.5,
@@ -435,6 +479,9 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
   focusRadius = 0,
   focusInnerRadius = 0.46,
   noiseAmount = 0,
+  particleLifetime = 2.8,
+  particleRespawnDelay = 1.15,
+  particleMotion = 0.82,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const visibilityRef = useRef({ visible: true });
@@ -458,9 +505,13 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     noiseAmount,
     patternDensity,
     patternScale,
+    particleLifetime,
+    particleMotion,
+    particleRespawnDelay,
     pixelSize,
     pixelSizeJitter,
     rippleIntensityScale,
+    rippleLifetime,
     rippleSpeed,
     rippleThickness,
     speed,
@@ -483,9 +534,13 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     noiseAmount,
     patternDensity,
     patternScale,
+    particleLifetime,
+    particleMotion,
+    particleRespawnDelay,
     pixelSize,
     pixelSizeJitter,
     rippleIntensityScale,
+    rippleLifetime,
     rippleSpeed,
     rippleThickness,
     speed,
@@ -499,6 +554,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     uniforms: {
       uResolution: { value: THREE.Vector2 };
       uTime: { value: number };
+      uParticleTime: { value: number };
       uColor: { value: THREE.Color };
       uClickPos: { value: THREE.Vector2[] };
       uClickTimes: { value: Float32Array };
@@ -511,11 +567,15 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       uRippleSpeed: { value: number };
       uRippleThickness: { value: number };
       uRippleIntensity: { value: number };
+      uRippleLifetime: { value: number };
       uEdgeFade: { value: number };
       uFocusEnabled: { value: number };
       uFocusCenter: { value: THREE.Vector2 };
       uFocusRadius: { value: number };
       uFocusInnerRadius: { value: number };
+      uParticleLifetime: { value: number };
+      uParticleRespawnDelay: { value: number };
+      uParticleMotion: { value: number };
     };
     resizeObserver?: ResizeObserver;
     quad?: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
@@ -545,9 +605,13 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       noiseAmount,
       patternDensity,
       patternScale,
+      particleLifetime,
+      particleMotion,
+      particleRespawnDelay,
       pixelSize,
       pixelSizeJitter,
       rippleIntensityScale,
+      rippleLifetime,
       rippleSpeed,
       rippleThickness,
       speed,
@@ -578,6 +642,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       const uniforms = {
         uResolution: { value: new THREE.Vector2(0, 0) },
         uTime: { value: 0 },
+        uParticleTime: { value: 0 },
         uColor: { value: new THREE.Color(color) },
         uClickPos: {
           value: Array.from({ length: MAX_CLICKS }, () => new THREE.Vector2(-1, -1)),
@@ -592,11 +657,15 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         uRippleSpeed: { value: rippleSpeed },
         uRippleThickness: { value: rippleThickness },
         uRippleIntensity: { value: rippleIntensityScale },
+        uRippleLifetime: { value: rippleLifetime },
         uEdgeFade: { value: edgeFade },
         uFocusEnabled: { value: focusRadius > 0 ? 1 : 0 },
         uFocusCenter: { value: new THREE.Vector2(focusCenterX, focusCenterY) },
         uFocusRadius: { value: focusRadius },
         uFocusInnerRadius: { value: focusInnerRadius },
+        uParticleLifetime: { value: particleLifetime },
+        uParticleRespawnDelay: { value: particleRespawnDelay },
+        uParticleMotion: { value: particleMotion },
       };
 
       const scene = new THREE.Scene();
@@ -774,7 +843,20 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
           return;
         }
 
-        uniforms.uTime.value = timeOffset + clock.getElapsedTime() * speedRef.current;
+        const elapsedTime = clock.getElapsedTime();
+        uniforms.uTime.value = timeOffset + elapsedTime * speedRef.current;
+        uniforms.uParticleTime.value = timeOffset + elapsedTime;
+
+        for (let index = 0; index < MAX_CLICKS; index += 1) {
+          const clickPos = uniforms.uClickPos.value[index];
+
+          if (
+            clickPos.x >= 0 &&
+            uniforms.uTime.value - uniforms.uClickTimes.value[index] > uniforms.uRippleLifetime.value
+          ) {
+            clickPos.set(-1, -1);
+          }
+        }
 
         if (liquidEffect) {
           const currentLiquid = liquidEffect as Effect & {
@@ -870,6 +952,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     three.uniforms.uPixelJitter.value = pixelSizeJitter;
     three.uniforms.uEnableRipples.value = enableRipples ? 1 : 0;
     three.uniforms.uRippleIntensity.value = rippleIntensityScale;
+    three.uniforms.uRippleLifetime.value = rippleLifetime;
     three.uniforms.uRippleThickness.value = rippleThickness;
     three.uniforms.uRippleSpeed.value = rippleSpeed;
     three.uniforms.uEdgeFade.value = edgeFade;
@@ -877,6 +960,9 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     three.uniforms.uFocusCenter.value.set(focusCenterX, focusCenterY);
     three.uniforms.uFocusRadius.value = focusRadius;
     three.uniforms.uFocusInnerRadius.value = focusInnerRadius;
+    three.uniforms.uParticleLifetime.value = particleLifetime;
+    three.uniforms.uParticleRespawnDelay.value = particleRespawnDelay;
+    three.uniforms.uParticleMotion.value = particleMotion;
 
     if (transparent) {
       three.renderer.setClearAlpha(0);
@@ -917,9 +1003,13 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     liquidWobbleSpeed,
     patternDensity,
     patternScale,
+    particleLifetime,
+    particleMotion,
+    particleRespawnDelay,
     pixelSize,
     pixelSizeJitter,
     rippleIntensityScale,
+    rippleLifetime,
     rippleSpeed,
     rippleThickness,
     speed,
