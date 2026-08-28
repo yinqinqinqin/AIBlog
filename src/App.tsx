@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
@@ -11,6 +11,12 @@ import HomePage from "@/pages/HomePage";
 import { navItems, siteMeta } from "@/data/blog";
 import type { InterviewResourceBank } from "@/data/interviewResourceTypes";
 import { applyTheme, useThemeStore } from "@/store/themeStore";
+
+declare global {
+  interface Window {
+    __ENTRY_LOADER_STARTED_AT?: number;
+  }
+}
 
 const CustomInterviewWikiPage = lazy(() => import("@/pages/CustomInterviewWikiPage"));
 const GameTaOriginalFormatPage = lazy(() => import("@/pages/GameTaOriginalFormatPage"));
@@ -38,48 +44,34 @@ function RouteLoader() {
   );
 }
 
-function EntryLoader() {
+function EntryLoaderController() {
   const reduceMotion = useReducedMotion();
-  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setIsVisible(false), reduceMotion ? 120 : 980);
+    const loader = document.getElementById("entry-loader");
+    if (!loader) return undefined;
+
+    const startedAt = Number(window.__ENTRY_LOADER_STARTED_AT || performance.now());
+    const minimumVisibleMs = reduceMotion ? 120 : 1200;
+    const elapsed = performance.now() - startedAt;
+    const delay = Math.max(160, minimumVisibleMs - elapsed);
+
+    const dismissTimer = window.setTimeout(() => {
+      loader.classList.add("entry-loader--dismissed");
+    }, delay);
+
+    const removeTimer = window.setTimeout(() => {
+      loader.remove();
+      window.dispatchEvent(new CustomEvent("entry-loader:ready"));
+    }, delay + (reduceMotion ? 40 : 620));
 
     return () => {
-      window.clearTimeout(timer);
+      window.clearTimeout(dismissTimer);
+      window.clearTimeout(removeTimer);
     };
   }, [reduceMotion]);
 
-  return (
-    <AnimatePresence>
-      {isVisible ? (
-        <motion.div
-          aria-live="polite"
-          className="entry-loader"
-          exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 1.02, filter: "blur(12px)" }}
-          initial={{ opacity: 1 }}
-          role="status"
-          transition={{ duration: reduceMotion ? 0.01 : 0.48, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <motion.div
-            animate={reduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
-            className="entry-loader__panel"
-            initial={reduceMotion ? false : { opacity: 0, y: 14, scale: 0.98 }}
-            transition={{ duration: 0.58, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <span className="entry-loader__mark" aria-hidden="true">
-              TA
-            </span>
-            <div className="entry-loader__copy">
-              <strong>{siteMeta.brand}</strong>
-              <span>正在进入博客</span>
-            </div>
-            <span className="entry-loader__bar" aria-hidden="true" />
-          </motion.div>
-        </motion.div>
-      ) : null}
-    </AnimatePresence>
-  );
+  return null;
 }
 
 function AppRoutes() {
@@ -145,7 +137,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <EntryLoader />
+      <EntryLoaderController />
       <SplashCursor
         CURL={36}
         DYE_RESOLUTION={768}

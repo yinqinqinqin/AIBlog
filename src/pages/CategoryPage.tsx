@@ -13,6 +13,7 @@ import {
   isCategoryKey,
   studyPlanSystem,
 } from "@/data/blog";
+import useEntryReady from "@/hooks/useEntryReady";
 
 const knowledgeGroups: Array<{
   id: string;
@@ -47,7 +48,9 @@ const knowledgeGroups: Array<{
 export default function CategoryPage() {
   const { categoryKey } = useParams();
   const reduceMotion = useReducedMotion();
+  const entryReady = useEntryReady();
   const canObserveViewport = typeof IntersectionObserver !== "undefined";
+  const shouldRevealOnView = entryReady && canObserveViewport;
   const articleCardVariants = {
     hidden: reduceMotion ? { opacity: 1 } : { opacity: 0, y: 26, filter: "blur(10px)" },
     visible: { opacity: 1, y: 0, filter: "blur(0px)" },
@@ -126,8 +129,8 @@ export default function CategoryPage() {
                     ease: [0.22, 1, 0.36, 1],
                   }}
                   variants={articleCardVariants}
-                  viewport={canObserveViewport ? { amount: 0.18, margin: "0px 0px -10% 0px", once: true } : undefined}
-                  whileInView={canObserveViewport ? "visible" : undefined}
+                  viewport={shouldRevealOnView ? { amount: 0.18, margin: "0px 0px -10% 0px", once: true } : undefined}
+                  whileInView={shouldRevealOnView ? "visible" : undefined}
                 >
                   <ArticleCard article={article} />
                 </motion.div>

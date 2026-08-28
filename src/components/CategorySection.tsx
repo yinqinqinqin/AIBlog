@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from "motion/react";
 import type { Article, Category } from "@/data/blog";
 import ArticleCard from "@/components/ArticleCard";
 import SectionBadge from "@/components/SectionBadge";
+import useEntryReady from "@/hooks/useEntryReady";
 
 type CategorySectionProps = {
   category: Category;
@@ -12,7 +13,9 @@ type CategorySectionProps = {
 
 export default function CategorySection({ category, articles, customContent }: CategorySectionProps) {
   const reduceMotion = useReducedMotion();
+  const entryReady = useEntryReady();
   const canObserveViewport = typeof IntersectionObserver !== "undefined";
+  const shouldRevealOnView = entryReady && canObserveViewport;
   const itemVariants = {
     hidden: reduceMotion ? { opacity: 1 } : { opacity: 0, y: 26, filter: "blur(10px)" },
     visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.56, ease: [0.22, 1, 0.36, 1] as const } },
@@ -25,8 +28,8 @@ export default function CategorySection({ category, articles, customContent }: C
         className="section-heading"
         initial={reduceMotion ? false : "hidden"}
         variants={itemVariants}
-        viewport={canObserveViewport ? { amount: 0.35, once: true } : undefined}
-        whileInView={canObserveViewport ? "visible" : undefined}
+        viewport={shouldRevealOnView ? { amount: 0.35, once: true } : undefined}
+        whileInView={shouldRevealOnView ? "visible" : undefined}
       >
         <div>
           <SectionBadge text={category.label} />
@@ -38,8 +41,8 @@ export default function CategorySection({ category, articles, customContent }: C
           animate={!canObserveViewport ? "visible" : undefined}
           initial={reduceMotion ? false : "hidden"}
           variants={itemVariants}
-          viewport={canObserveViewport ? { amount: 0.12, once: true } : undefined}
-          whileInView={canObserveViewport ? "visible" : undefined}
+          viewport={shouldRevealOnView ? { amount: 0.12, once: true } : undefined}
+          whileInView={shouldRevealOnView ? "visible" : undefined}
         >
           {customContent}
         </motion.div>
@@ -65,8 +68,8 @@ export default function CategorySection({ category, articles, customContent }: C
                   },
                 },
               }}
-              viewport={canObserveViewport ? { amount: 0.18, margin: "0px 0px -10% 0px", once: true } : undefined}
-              whileInView={canObserveViewport ? "visible" : undefined}
+              viewport={shouldRevealOnView ? { amount: 0.18, margin: "0px 0px -10% 0px", once: true } : undefined}
+              whileInView={shouldRevealOnView ? "visible" : undefined}
             >
               <ArticleCard article={article} />
             </motion.div>

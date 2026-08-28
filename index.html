@@ -19,6 +19,142 @@
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>技术美术个人博客 | 学习记录 · 作品集 · 学习计划</title>
+    <style>
+      #entry-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background:
+          radial-gradient(circle at 50% 42%, rgba(180, 151, 207, 0.18), transparent 34%),
+          rgba(7, 4, 16, 0.94);
+        color: #f4efff;
+        opacity: 1;
+        transition:
+          opacity 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+          transform 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+          filter 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      #entry-loader.entry-loader--dismissed {
+        opacity: 0;
+        transform: scale(1.02);
+        filter: blur(12px);
+        pointer-events: none;
+      }
+
+      .entry-loader__panel {
+        position: relative;
+        display: grid;
+        grid-template-columns: 58px minmax(0, 1fr);
+        align-items: center;
+        gap: 16px;
+        width: min(360px, 100%);
+        overflow: hidden;
+        padding: 18px 20px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.055)), rgba(23, 16, 35, 0.86);
+        box-shadow: 0 28px 72px rgba(0, 0, 0, 0.34), inset 0 1px rgba(255, 255, 255, 0.22);
+        -webkit-backdrop-filter: blur(24px) saturate(1.18);
+        backdrop-filter: blur(24px) saturate(1.18);
+        animation: entry-loader-panel-in 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      .entry-loader__mark {
+        display: inline-grid;
+        place-items: center;
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(180, 151, 207, 0.72), rgba(255, 255, 255, 0.1));
+        color: #fff;
+        box-shadow: 0 18px 38px rgba(180, 151, 207, 0.18), inset 0 1px rgba(255, 255, 255, 0.42);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .entry-loader__copy {
+        display: grid;
+        gap: 4px;
+        min-width: 0;
+      }
+
+      .entry-loader__copy strong {
+        overflow: hidden;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 800;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .entry-loader__copy span {
+        color: rgba(224, 214, 243, 0.72);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+      }
+
+      .entry-loader__bar {
+        position: absolute;
+        right: 20px;
+        bottom: 13px;
+        left: 94px;
+        height: 3px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(180, 151, 207, 0.2);
+      }
+
+      .entry-loader__bar::after {
+        position: absolute;
+        inset: 0;
+        width: 42%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #f472b6, #38bdf8, #c084fc);
+        box-shadow: 0 0 18px rgba(180, 151, 207, 0.46);
+        animation: entry-loader-progress 1.05s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+        content: "";
+      }
+
+      @keyframes entry-loader-panel-in {
+        from {
+          opacity: 0;
+          transform: translateY(14px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes entry-loader-progress {
+        0% {
+          transform: translateX(-112%);
+        }
+        52% {
+          transform: translateX(72%);
+        }
+        to {
+          transform: translateX(238%);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #entry-loader,
+        .entry-loader__panel,
+        .entry-loader__bar::after {
+          animation-duration: 0.01ms;
+          transition-duration: 0.01ms;
+        }
+      }
+    </style>
+    <script>
+      window.__ENTRY_LOADER_STARTED_AT = performance.now();
+    </script>
     <script type="module">
       if (import.meta.hot?.on) {
         import.meta.hot.on('vite:error', (error) => {
@@ -32,6 +168,16 @@
     </script>
   </head>
   <body>
+    <div id="entry-loader" aria-live="polite" role="status">
+      <div class="entry-loader__panel">
+        <span class="entry-loader__mark" aria-hidden="true">TA</span>
+        <div class="entry-loader__copy">
+          <strong>TA JOURNAL</strong>
+          <span>正在进入博客</span>
+        </div>
+        <span class="entry-loader__bar" aria-hidden="true"></span>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
