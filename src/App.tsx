@@ -74,6 +74,27 @@ function EntryLoaderController() {
   return null;
 }
 
+function RouteAwareSplashCursor() {
+  const location = useLocation();
+
+  if (location.pathname.startsWith("/article/")) {
+    return null;
+  }
+
+  return (
+    <SplashCursor
+      CURL={36}
+      DYE_RESOLUTION={768}
+      DENSITY_DISSIPATION={1.5}
+      PRESSURE={0.35}
+      PRESSURE_ITERATIONS={12}
+      RAINBOW_MODE
+      SIM_RESOLUTION={96}
+      VELOCITY_DISSIPATION={1.5}
+    />
+  );
+}
+
 function AppRoutes() {
   const location = useLocation();
   const reduceMotion = useReducedMotion();
@@ -138,16 +159,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <EntryLoaderController />
-      <SplashCursor
-        CURL={36}
-        DYE_RESOLUTION={768}
-        DENSITY_DISSIPATION={1.5}
-        PRESSURE={0.35}
-        PRESSURE_ITERATIONS={12}
-        RAINBOW_MODE
-        SIM_RESOLUTION={96}
-        VELOCITY_DISSIPATION={1.5}
-      />
+      <RouteAwareSplashCursor />
       <SiteHeader brand={siteMeta.brand} navItems={navItems} />
       <ThemeToggle />
       <AppRoutes />

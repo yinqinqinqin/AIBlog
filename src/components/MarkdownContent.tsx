@@ -106,6 +106,35 @@ function createMarkdownRenderer() {
     markdown.renderer.rules.image ??
     ((tokens, index, options, _env, self) => self.renderToken(tokens, index, options));
 
+  const defaultHeadingOpen =
+    markdown.renderer.rules.heading_open ??
+    ((tokens, index, options, _env, self) => self.renderToken(tokens, index, options));
+  const defaultHeadingClose =
+    markdown.renderer.rules.heading_close ??
+    ((tokens, index, options, _env, self) => self.renderToken(tokens, index, options));
+
+  markdown.renderer.rules.heading_open = (tokens, index, options, env, self) => {
+    const token = tokens[index];
+    const level = Number(token.tag.slice(1));
+
+    if (Number.isInteger(level)) {
+      token.tag = `h${Math.min(level + 1, 6)}`;
+    }
+
+    return defaultHeadingOpen(tokens, index, options, env, self);
+  };
+
+  markdown.renderer.rules.heading_close = (tokens, index, options, env, self) => {
+    const token = tokens[index];
+    const level = Number(token.tag.slice(1));
+
+    if (Number.isInteger(level)) {
+      token.tag = `h${Math.min(level + 1, 6)}`;
+    }
+
+    return defaultHeadingClose(tokens, index, options, env, self);
+  };
+
   markdown.renderer.rules.image = (tokens, index, options, env, self) => {
     const token = tokens[index];
     const src = token.attrGet("src") ?? "";

@@ -10,6 +10,7 @@ type ArticleCardProps = {
 export default function ArticleCard({ article }: ArticleCardProps) {
   const year = article.date.slice(0, 4);
   const badges = [categoryLabelMap[article.category]].filter(Boolean);
+  const previewTags = article.tags.slice(0, 2);
   const hasCover = Boolean(article.cover);
   const tintPalette = [
     "#fbcfe8",
@@ -46,33 +47,32 @@ export default function ArticleCard({ article }: ArticleCardProps) {
           <div aria-hidden="true" className="article-card__face-glow" />
 
           {hasCover ? (
-            <>
-              <div className="article-card__face-brand" aria-hidden="true">
-                <strong>TA JOURNAL</strong>
-                <span>{categoryLabelMap[article.category]}</span>
-              </div>
-
-              <div className="article-card__face-copy">
-                <p className="article-card__eyebrow">{article.date}</p>
-                <h3 className="article-card__title">{article.title}</h3>
-
-                <div className="article-card__tags">
-                  <div className="article-card__tag-list">
-                    {badges.map((badge) => (
-                      <span key={badge}>{badge}</span>
-                    ))}
-                  </div>
-
-                  <p className="article-card__meta">{year}</p>
-                </div>
-              </div>
-            </>
+            <div className="article-card__face-brand" aria-hidden="true">
+              <strong>TA JOURNAL</strong>
+              <span>{categoryLabelMap[article.category]}</span>
+            </div>
           ) : null}
 
-          <div className="article-card__face-mark" aria-hidden="true">
-            <span />
-            <span />
+        </div>
+      </div>
+
+      <div className="article-card__body">
+        <div className="article-card__kicker">
+          <span>{badges[0]}</span>
+          <span>{article.readTime}</span>
+        </div>
+
+        <h3 className="article-card__title">{article.title}</h3>
+        <p className="article-card__summary">{article.excerpt}</p>
+
+        <div className="article-card__tags">
+          <div className="article-card__tag-list">
+            {previewTags.length > 0
+              ? previewTags.map((tag) => <span key={tag}>{tag}</span>)
+              : badges.map((badge) => <span key={badge}>{badge}</span>)}
           </div>
+
+          <p className="article-card__meta">{year}</p>
         </div>
       </div>
     </Link>

@@ -12,6 +12,7 @@ export default function SiteHeader({ brand, navItems }: SiteHeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [scrollVisibility, setScrollVisibility] = useState<"revealed" | "hidden">("revealed");
+  const [geoLabel, setGeoLabel] = useState("定位中");
   const lastScrollYRef = useRef(0);
   const heroThresholdRef = useRef(0);
 
@@ -64,6 +65,64 @@ export default function SiteHeader({ brand, navItems }: SiteHeaderProps) {
     };
   }, [location.pathname]);
 
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function resolveCurrentCity() {
+      const endpoints = [
+        {
+          url: "https://ipapi.co/json/",
+          map: (data: Record<string, unknown>) => ({
+            city: typeof data.city === "string" ? data.city : "",
+            country: typeof data.country_code === "string" ? data.country_code : "",
+          }),
+        },
+        {
+          url: "https://ipwho.is/",
+          map: (data: Record<string, unknown>) => ({
+            city: typeof data.city === "string" ? data.city : "",
+            country: typeof data.country_code === "string" ? data.country_code : "",
+          }),
+        },
+      ];
+
+      for (const endpoint of endpoints) {
+        try {
+          const response = await fetch(endpoint.url, {
+            cache: "no-store",
+            signal: controller.signal,
+          });
+
+          if (!response.ok) {
+            continue;
+          }
+
+          const data = (await response.json()) as Record<string, unknown>;
+          const { city, country } = endpoint.map(data);
+          const normalizedCity = city.trim();
+          const normalizedCountry = country.trim().toUpperCase();
+
+          if (normalizedCity) {
+            setGeoLabel(normalizedCountry ? `${normalizedCity} · ${normalizedCountry}` : normalizedCity);
+            return;
+          }
+        } catch {
+          if (controller.signal.aborted) {
+            return;
+          }
+        }
+      }
+
+      setGeoLabel("位置未知");
+    }
+
+    resolveCurrentCity();
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
   const dockItems = navItems.map((item) => ({
     active:
       location.pathname === item.href ||
@@ -99,9 +158,9 @@ export default function SiteHeader({ brand, navItems }: SiteHeaderProps) {
           />
         </nav>
 
-        <div aria-hidden="true" className="site-header__signal">
+        <div className="site-header__signal" title="当前 IP 所在城市">
           <span />
-          SHANGHAI · CN
+          <strong>{geoLabel}</strong>
         </div>
       </div>
     </header>

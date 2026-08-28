@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
-import { Calendar, ChevronLeft, ChevronRight, Clock, Pin, Tag } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Clock, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
 import ArticleTextCover from "@/components/ArticleTextCover";
 import BorderGlow from "@/components/BorderGlow";
@@ -83,10 +83,6 @@ export default function FeaturedCarousel({ articles }: FeaturedCarouselProps) {
                       <ArticleTextCover article={activeArticle} className="featured-carousel__image-placeholder" />
                     )}
 
-                    <div className="featured-carousel__pin">
-                      <Pin size={12} />
-                      <span>置顶</span>
-                    </div>
                   </div>
 
                   <div className="featured-carousel__content">

@@ -131,13 +131,13 @@ export default function HeroSection({ title, summary }: HeroSectionProps) {
           particleLifetime={2.35}
           particleMotion={1.15}
           particleRespawnDelay={0.86}
-          patternDensity={0.78}
+          patternDensity={0.58}
           patternScale={3}
           pixelSize={6}
-          rippleIntensityScale={0.56}
+          rippleIntensityScale={0.72}
           rippleLifetime={2.9}
           rippleSpeed={0.22}
-          rippleThickness={0.065}
+          rippleThickness={0.078}
           speed={0.24}
           variant="square"
         />

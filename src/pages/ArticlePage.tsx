@@ -78,12 +78,12 @@ export default function ArticlePage() {
   return (
     <main className="article-page">
       <div className="content-shell article-page__top">
-        <Link className="article-page__back" to={backHref}>
-          <ArrowLeft size={16} />
-          <span>返回</span>
-        </Link>
-
         <article className="article-layout">
+          <Link className="article-page__back" to={backHref}>
+            <ArrowLeft size={16} />
+            <span>返回</span>
+          </Link>
+
           <div className="article-hero">
             <SectionBadge text={category?.label ?? article.category} />
             <h1>{article.title}</h1>
