@@ -1,0 +1,64 @@
+# OSS Deployment
+
+This project can deploy the built Vite site to Alibaba Cloud OSS.
+
+## First-time setup on a new machine
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create a local env file from the example:
+
+```bash
+cp .env.oss.example .env.oss
+```
+
+Edit `.env.oss` and fill in:
+
+```bash
+ALI_OSS_ACCESS_KEY_ID=your_access_key_id
+ALI_OSS_ACCESS_KEY_SECRET=your_access_key_secret
+```
+
+Do not commit `.env.oss`.
+
+## Deploy
+
+Load the env file and deploy:
+
+```bash
+set -a
+source .env.oss
+set +a
+npm run deploy:oss
+```
+
+The default target is:
+
+```text
+Bucket: yin-qin
+Endpoint: oss-cn-shanghai.aliyuncs.com
+CDN: https://oss.an-hao.top/
+```
+
+## Notes
+
+- The deploy script uploads `dist/` and does not clear the bucket.
+- This bucket is also used as an image host, so global deletion is intentionally not part of this deploy flow.
+- `index.html` is uploaded with no-cache headers.
+- hashed assets under `assets/` are uploaded with long cache headers.
+- source maps are skipped by default. Set `ALI_OSS_UPLOAD_SOURCEMAP=true` if you need to upload them.
+- Set `ALI_CDN_REFRESH=false` if you do not want to refresh CDN after upload.
+
+## Deploy under a subdirectory
+
+To deploy to a prefix such as `/blog/`, set:
+
+```bash
+ALI_OSS_PREFIX=blog
+```
+
+Then run the same deploy command.
