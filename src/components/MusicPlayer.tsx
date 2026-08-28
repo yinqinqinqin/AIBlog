@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const defaultTrack = {
   title: "渡月橋 ~君 想ふ~ (Remix)",
   artist: "Ayasa绚沙",
-  src: "/sounds/togetsukyo-remix.flac",
+  src: "https://oss.an-hao.top/audio/togetsukyo-remix.flac",
 };
 
 type MusicPlayerProps = {
