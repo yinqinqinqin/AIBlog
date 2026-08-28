@@ -6379,7 +6379,7 @@ body {
 }
 
 .hero-section {
-  --hero-tail-fade: linear-gradient(180deg, #000 0%, #000 84%, rgba(0, 0, 0, 0.72) 94%, transparent 100%);
+  --hero-tail-fade: linear-gradient(180deg, #000 0%, #000 100%);
   box-sizing: border-box;
   min-height: max(760px, 100svh);
   padding: 142px 0 96px;
