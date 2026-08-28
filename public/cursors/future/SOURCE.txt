@@ -1,0 +1,20 @@
+Future Cursor Set
+=================
+
+Author: yeyushengfan258
+Source: https://www.cursors-4u.com/cursor/future-cursor
+Source ID: #246326
+Downloaded archive: Future-Cursor-96eae9a1.zip
+Archive SHA-256: bee70b1466c763307853035c562d79a2821111cd5670591b591151c0b3c9fd86
+License shown by the source page: Freeware (Free to use)
+
+Files used by this website:
+- Normal.cur
+- Link.cur
+- Text.cur
+- NotAllowed.cur
+
+The original cursor files are included unchanged from the downloaded archive.
+The website uses 30px PNG derivatives created from each cursor's original
+32px frame.
+The original readme.txt from the archive is preserved in this directory.

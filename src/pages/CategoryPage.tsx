@@ -1,9 +1,9 @@
 import { Link, Navigate, useParams } from "react-router-dom";
 import ArticleCard from "@/components/ArticleCard";
+import FooterSection from "@/components/FooterSection";
 import InterviewResourceToolCard, {
   type InterviewResourceToolKind,
 } from "@/components/InterviewResourceToolCard";
-import { lazy, Suspense } from "react";
 import RevealOnView from "@/components/RevealOnView";
 import SectionBadge from "@/components/SectionBadge";
 import StudyPlanSystem from "@/components/StudyPlanSystem";
@@ -44,8 +44,6 @@ const knowledgeGroups: Array<{
     kinds: ["pipeline"],
   },
 ];
-
-const FooterSection = lazy(() => import("@/components/FooterSection"));
 
 export default function CategoryPage() {
   const { categoryKey } = useParams();
@@ -134,9 +132,7 @@ export default function CategoryPage() {
         </div>
       </main>
 
-      <Suspense fallback={null}>
-        <FooterSection />
-      </Suspense>
+      <FooterSection />
     </div>
   );
 }

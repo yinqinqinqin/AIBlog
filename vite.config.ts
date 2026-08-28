@@ -5,7 +5,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
   build: {
-    sourcemap: false,
+    sourcemap: 'hidden',
   },
   test: {
     environment: 'jsdom',
