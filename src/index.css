@@ -6381,7 +6381,7 @@ body {
 .hero-section {
   --hero-tail-fade: linear-gradient(180deg, #000 0%, #000 84%, rgba(0, 0, 0, 0.72) 94%, transparent 100%);
   min-height: max(760px, 94svh);
-  padding: 142px 0 96px;
+  padding: 92px 0 96px;
   isolation: isolate;
 }
 
@@ -6492,10 +6492,10 @@ body {
   display: grid;
   grid-template-columns: minmax(0, 1.08fr) minmax(390px, 0.92fr);
   grid-template-areas: "intro lab";
-  align-items: center;
+  align-items: start;
   gap: 72px;
   min-height: 0;
-  padding: 34px 0 0;
+  padding: 0;
   pointer-events: auto;
 }
 
@@ -6638,7 +6638,7 @@ body {
   --lab-accent: #c084fc;
   grid-area: lab;
   position: relative;
-  align-self: center;
+  align-self: start;
   overflow: hidden;
   width: min(100%, 455px);
   min-height: 420px;
