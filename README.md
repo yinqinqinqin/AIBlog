@@ -1,57 +1,60 @@
-# React + TypeScript + Vite
+# TA Journal Blog
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Personal technical art blog built with React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+## OSS deployment
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Production site and remote article content are deployed to Alibaba Cloud OSS.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```text
+Bucket: yin-qin
+Endpoint: yin-qin.oss-cn-shanghai.aliyuncs.com
+CDN domain: https://oss.an-hao.top/
+Article prefix: https://oss.an-hao.top/blog-content/articles/
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Sensitive AccessKey values must stay in local `.env.oss`; do not commit them or write them into README.
+For this machine, the private reference file is `DEPLOY_SECRETS.local.md`, which is also ignored by Git.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Local OSS env
 
-export default tseslint.config({
-  extends: [
-    // other configs...
-    // Enable lint rules for React
-    reactX.configs['recommended-typescript'],
-    // Enable lint rules for React DOM
-    reactDom.configs.recommended,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+Create `.env.oss` from the example and fill in the real AccessKey values:
+
+```bash
+cp .env.oss.example .env.oss
 ```
+
+`.env.oss` is ignored by Git.
+
+## Full deploy
+
+Use this when frontend code changes, when article frontmatter changes, or when adding/removing/renaming articles.
+
+```bash
+set -a
+source .env.oss
+set +a
+npm run deploy:oss
+```
+
+This builds the site, uploads `dist/`, uploads Markdown articles under `blog-content/articles/`, and submits a CDN refresh.
+
+## Update existing article body only
+
+Use this when only the Markdown body changes and the article filename/frontmatter stays the same.
+
+```bash
+set -a
+source .env.oss
+set +a
+npm run sync:articles
+```
+
+Article pages fetch Markdown from OSS at runtime, so existing article body edits take effect after OSS/CDN propagation and a page refresh.
+
+## Article workflow
+
+- Edit article source files in `articles/`.
+- Do not edit `src/data/generated/articles.ts` by hand.
+- Existing article body update: run `npm run sync:articles`.
+- New article or card metadata update: run `npm run deploy:oss`.

@@ -20,6 +20,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>技术美术个人博客 | 学习记录 · 作品集 · 学习计划</title>
     <style>
+      html {
+        background: #070410;
+        color: #f4efff;
+        color-scheme: dark;
+      }
+
+      html[data-theme="light"] {
+        background: #f6f1fb;
+        color: #342a42;
+        color-scheme: light;
+      }
+
+      body {
+        margin: 0;
+        min-width: 1280px;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 15% 0%, rgba(180, 151, 207, 0.18), transparent 28%),
+          radial-gradient(circle at 86% 12%, rgba(116, 88, 156, 0.12), transparent 18%),
+          linear-gradient(180deg, #04010a 0%, #070410 100%);
+      }
+
+      html[data-theme="light"] body {
+        background:
+          radial-gradient(circle at 16% 0%, rgba(167, 139, 250, 0.18), transparent 28%),
+          radial-gradient(circle at 86% 12%, rgba(125, 211, 252, 0.16), transparent 18%),
+          linear-gradient(180deg, #fbf8ff 0%, #f6f1fb 100%);
+      }
+
+      #root {
+        min-height: 100vh;
+      }
+
       #entry-loader {
         position: fixed;
         inset: 0;
@@ -153,7 +186,19 @@
       }
     </style>
     <script>
-      window.__ENTRY_LOADER_STARTED_AT = performance.now();
+      (() => {
+        try {
+          const storedTheme = JSON.parse(localStorage.getItem("theme-store") || "{}")?.state?.theme;
+          const theme = storedTheme === "light" ? "light" : "dark";
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        } catch {
+          document.documentElement.dataset.theme = "dark";
+          document.documentElement.style.colorScheme = "dark";
+        }
+
+        window.__ENTRY_LOADER_STARTED_AT = performance.now();
+      })();
     </script>
     <script type="module">
       if (import.meta.hot?.on) {

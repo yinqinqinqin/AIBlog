@@ -5565,6 +5565,8 @@ html body .interview-wiki-search label {
   padding: clamp(18px, 4vw, 48px);
   border-radius: 0;
   cursor: zoom-out;
+  contain: layout paint;
+  touch-action: none;
 }
 
 .markdown-image-lightbox__image {
@@ -5581,8 +5583,12 @@ html body .interview-wiki-search label {
   cursor: grab;
   touch-action: none;
   transform-origin: center center;
+  transform: translate3d(0, 0, 0);
   transition: box-shadow 180ms ease;
   user-select: none;
+  -webkit-user-drag: none;
+  backface-visibility: hidden;
+  contain: paint;
   will-change: transform;
 }
 

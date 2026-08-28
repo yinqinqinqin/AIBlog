@@ -26,6 +26,19 @@ function stripTocMarker(source: string) {
   return source.replace(/^\s*\[toc]\s*$/gim, "");
 }
 
+function stripFrontmatter(source: string) {
+  if (!source.startsWith("---\n")) {
+    return source;
+  }
+
+  const endIndex = source.indexOf("\n---\n", 4);
+  if (endIndex === -1) {
+    return source;
+  }
+
+  return source.slice(endIndex + 5).trimStart();
+}
+
 function slugifyHeading(text: string) {
   return text
     .trim()
@@ -175,9 +188,46 @@ export default function MarkdownContent({ source, baseUrl }: MarkdownContentProp
   const [imageContextMenu, setImageContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [imageMenuStatus, setImageMenuStatus] = useState("");
   const [isCopyingImage, setIsCopyingImage] = useState(false);
+  const imageElementRef = useRef<HTMLImageElement | null>(null);
   const imageMenuStatusTimerRef = useRef<number | null>(null);
   const dragStateRef = useRef({ didDrag: false, pointerId: 0, startX: 0, startY: 0, originX: 0, originY: 0 });
-  const renderedHtml = useMemo(() => markdownRenderer.render(stripTocMarker(source), { baseUrl }), [baseUrl, source]);
+  const imagePanRef = useRef(imagePan);
+  const imageZoomRef = useRef(imageZoom);
+  const imageTransformFrameRef = useRef<number | null>(null);
+  const pendingImagePanRef = useRef(imagePan);
+  const renderedHtml = useMemo(
+    () => markdownRenderer.render(stripTocMarker(stripFrontmatter(source)), { baseUrl }),
+    [baseUrl, source],
+  );
+
+  const applyImageTransform = useCallback((pan: { x: number; y: number }, zoom: number) => {
+    const imageElement = imageElementRef.current;
+    if (!imageElement) {
+      return;
+    }
+
+    imageElement.style.transform = `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})`;
+  }, []);
+
+  const scheduleImageTransform = useCallback((pan: { x: number; y: number }) => {
+    pendingImagePanRef.current = pan;
+
+    if (imageTransformFrameRef.current !== null) {
+      return;
+    }
+
+    imageTransformFrameRef.current = window.requestAnimationFrame(() => {
+      imageTransformFrameRef.current = null;
+      applyImageTransform(pendingImagePanRef.current, imageZoomRef.current);
+    });
+  }, [applyImageTransform]);
+
+  useEffect(() => {
+    imagePanRef.current = imagePan;
+    imageZoomRef.current = imageZoom;
+    pendingImagePanRef.current = imagePan;
+    applyImageTransform(imagePan, imageZoom);
+  }, [applyImageTransform, imagePan, imageZoom]);
   const openImagePreview = useCallback((target: EventTarget | null) => {
     if (!(target instanceof HTMLImageElement) || !target.matches("[data-zoomable-image='true']")) {
       return false;
@@ -187,6 +237,9 @@ export default function MarkdownContent({ source, baseUrl }: MarkdownContentProp
       src: target.currentSrc || target.src,
       alt: target.alt || "文章图片",
     });
+    imagePanRef.current = { x: 0, y: 0 };
+    imageZoomRef.current = 1;
+    pendingImagePanRef.current = { x: 0, y: 0 };
     setImageZoom(1);
     setImagePan({ x: 0, y: 0 });
     setImageContextMenu(null);
@@ -195,6 +248,11 @@ export default function MarkdownContent({ source, baseUrl }: MarkdownContentProp
   }, []);
 
   const closeImagePreview = useCallback(() => {
+    if (imageTransformFrameRef.current !== null) {
+      window.cancelAnimationFrame(imageTransformFrameRef.current);
+      imageTransformFrameRef.current = null;
+    }
+
     setPreviewImage(null);
     setImageZoom(1);
     setImagePan({ x: 0, y: 0 });
@@ -208,13 +266,22 @@ export default function MarkdownContent({ source, baseUrl }: MarkdownContentProp
     setImageZoom((currentZoom) => {
       const resolvedZoom = clampImageZoom(typeof nextZoom === "function" ? nextZoom(currentZoom) : nextZoom);
 
-      setImagePan((currentPan) => clampImagePan(currentPan, resolvedZoom));
+      setImagePan((currentPan) => {
+        const nextPan = clampImagePan(currentPan, resolvedZoom);
+        imagePanRef.current = nextPan;
+        pendingImagePanRef.current = nextPan;
+        return nextPan;
+      });
 
+      imageZoomRef.current = Number(resolvedZoom.toFixed(2));
       return Number(resolvedZoom.toFixed(2));
     });
   }, []);
 
   const resetImagePreview = useCallback(() => {
+    imagePanRef.current = { x: 0, y: 0 };
+    imageZoomRef.current = 1;
+    pendingImagePanRef.current = { x: 0, y: 0 };
     setImageZoom(1);
     setImagePan({ x: 0, y: 0 });
   }, []);
@@ -235,8 +302,8 @@ export default function MarkdownContent({ source, baseUrl }: MarkdownContentProp
       pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
-      originX: imagePan.x,
-      originY: imagePan.y,
+      originX: imagePanRef.current.x,
+      originY: imagePanRef.current.y,
     };
     setIsDraggingImage(true);
   };
@@ -252,14 +319,30 @@ export default function MarkdownContent({ source, baseUrl }: MarkdownContentProp
       dragStateRef.current.didDrag = true;
     }
 
-    setImagePan(clampImagePan({
+    const nextPan = clampImagePan({
       x: dragStateRef.current.originX + moveX,
       y: dragStateRef.current.originY + moveY,
-    }, imageZoom));
+    }, imageZoomRef.current);
+
+    imagePanRef.current = nextPan;
+    scheduleImageTransform(nextPan);
   };
 
   const handleImagePointerUp = (event: PointerEvent<HTMLImageElement>) => {
     if (dragStateRef.current.pointerId === event.pointerId) {
+      try {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      } catch {
+        // Pointer capture may already be released by the browser.
+      }
+
+      if (imageTransformFrameRef.current !== null) {
+        window.cancelAnimationFrame(imageTransformFrameRef.current);
+        imageTransformFrameRef.current = null;
+      }
+
+      applyImageTransform(imagePanRef.current, imageZoomRef.current);
+      setImagePan(imagePanRef.current);
       setIsDraggingImage(false);
     }
   };
@@ -387,6 +470,10 @@ export default function MarkdownContent({ source, baseUrl }: MarkdownContentProp
     return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleKeyDown);
+      if (imageTransformFrameRef.current !== null) {
+        window.cancelAnimationFrame(imageTransformFrameRef.current);
+        imageTransformFrameRef.current = null;
+      }
     };
   }, [closeImagePreview, imageContextMenu, previewImage, resetImagePreview, updateImageZoom]);
 
@@ -468,6 +555,7 @@ export default function MarkdownContent({ source, baseUrl }: MarkdownContentProp
           onPointerMove={handleImagePointerMove}
           onPointerUp={handleImagePointerUp}
           onPointerCancel={handleImagePointerUp}
+          ref={imageElementRef}
           src={previewImage.src}
           style={{
             transform: `translate3d(${imagePan.x}px, ${imagePan.y}px, 0) scale(${imageZoom})`,

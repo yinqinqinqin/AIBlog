@@ -10,6 +10,7 @@
     "prebuild": "npm run generate:articles",
     "build": "tsc -b && vite build",
     "deploy:oss": "npm run build && node scripts/deploy-oss.mjs",
+    "sync:articles": "node scripts/sync-articles-oss.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "check": "tsc -b --noEmit",
