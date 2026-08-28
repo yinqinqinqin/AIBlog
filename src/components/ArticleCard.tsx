@@ -48,7 +48,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 
           {hasCover ? (
             <div className="article-card__face-brand" aria-hidden="true">
-              <strong>TA JOURNAL</strong>
+              <strong>AnHao</strong>
               <span>{categoryLabelMap[article.category]}</span>
             </div>
           ) : null}

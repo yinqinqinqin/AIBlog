@@ -33,7 +33,6 @@ describe("blog pages", () => {
     useStudyPlanStore.persist.clearStorage();
     useCustomInterviewStore.persist.clearStorage();
     useInterviewNotesStore.persist.clearStorage();
-    useThemeStore.persist.clearStorage();
     useInterviewNotesStore.setState({ notes: {} });
     useCustomInterviewStore.setState({ questions: [] });
     useStudyPlanStore.setState({

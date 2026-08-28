@@ -1,8 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
-import { Calendar, ChevronLeft, ChevronRight, Clock, Tag } from "lucide-react";
+import { ArrowUpRight, Calendar, ChevronLeft, ChevronRight, Clock, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
-import ArticleTextCover from "@/components/ArticleTextCover";
 import BorderGlow from "@/components/BorderGlow";
 import RevealOnView from "@/components/RevealOnView";
 import { categoryLabelMap, type Article } from "@/data/blog";
@@ -80,7 +79,11 @@ export default function FeaturedCarousel({ articles }: FeaturedCarouselProps) {
                         <div className="featured-carousel__image-overlay" />
                       </>
                     ) : (
-                      <ArticleTextCover article={activeArticle} className="featured-carousel__image-placeholder" />
+                      <div className="featured-carousel__image-placeholder" aria-hidden="true">
+                        <span>AnHao</span>
+                        <strong>{String(currentIndex + 1).padStart(2, "0")}</strong>
+                        <em>{categoryLabelMap[activeArticle.category]}</em>
+                      </div>
                     )}
 
                   </div>
@@ -88,11 +91,11 @@ export default function FeaturedCarousel({ articles }: FeaturedCarouselProps) {
                   <div className="featured-carousel__content">
                     <div className="featured-carousel__meta-row">
                       <span className="featured-carousel__category">{categoryLabelMap[activeArticle.category]}</span>
-                      <span>
+                      <span className="featured-carousel__meta-item">
                         <Calendar size={13} />
                         {activeArticle.date}
                       </span>
-                      <span>
+                      <span className="featured-carousel__meta-item">
                         <Clock size={13} />
                         {activeArticle.readTime}
                       </span>
@@ -101,16 +104,25 @@ export default function FeaturedCarousel({ articles }: FeaturedCarouselProps) {
                     <h2>{activeArticle.title}</h2>
                     <p>{activeArticle.excerpt}</p>
 
-                    {activeArticle.tags.length > 0 ? (
-                      <div className="featured-carousel__tag-list">
-                        {activeArticle.tags.slice(0, 3).map((tag) => (
-                          <span className="featured-carousel__tag" key={tag}>
-                            <Tag size={12} />
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    ) : null}
+                    <div className="featured-carousel__footer">
+                      {activeArticle.tags.length > 0 ? (
+                        <div className="featured-carousel__tag-list">
+                          {activeArticle.tags.slice(0, 3).map((tag) => (
+                            <span className="featured-carousel__tag" key={tag}>
+                              <Tag size={12} />
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span />
+                      )}
+
+                      <span className="featured-carousel__action">
+                        进入阅读
+                        <ArrowUpRight size={15} />
+                      </span>
+                    </div>
                   </div>
                 </Link>
               </motion.div>

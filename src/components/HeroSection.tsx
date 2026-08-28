@@ -158,7 +158,7 @@ export default function HeroSection({ title, summary }: HeroSectionProps) {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="hero-section__eyebrow">
-            <span>TA JOURNAL / 2026</span>
+            <span>AnHao / 2026</span>
             <span className="hero-section__availability">
               <i aria-hidden="true" />
               持续更新中

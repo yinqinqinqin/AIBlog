@@ -85,7 +85,7 @@ export type StudyPlanSystem = {
 };
 
 export const siteMeta = {
-  brand: "TA JOURNAL",
+  brand: "AnHao",
   title: "Technical\nArtist",
   heroTitleHref: "/about",
   summary:
@@ -132,7 +132,7 @@ export const aboutProfile: AboutProfile = {
   ],
   contacts: [
     { label: "身份", value: "技术美术 / 视觉表达 / 实时内容方向" },
-    { label: "邮箱", value: "hello@tajournal.design" },
+    { label: "邮箱", value: "2295351632@qq.com" },
     { label: "地点", value: "可远程协作，也可进入项目制合作" },
   ],
 };

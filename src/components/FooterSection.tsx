@@ -46,14 +46,14 @@ export default function FooterSection() {
       title: "联系",
       links: [
         { label: "关于这个博客", href: "/about" },
-        { label: "hello@tajournal.design", href: "mailto:hello@tajournal.design" },
+        { label: "2295351632@qq.com", href: "mailto:2295351632@qq.com" },
         { label: "返回顶部", href: "/#top" },
       ],
     },
   ];
 
   const socialLinks = [
-    { label: "Music", href: "mailto:hello@tajournal.design", icon: Music2 },
+    { label: "Music", href: "mailto:2295351632@qq.com", icon: Music2 },
     { label: "Facebook", href: "/", icon: Facebook },
     { label: "Twitter", href: "/", icon: Twitter },
     { label: "Youtube", href: "/", icon: Youtube },
@@ -116,7 +116,7 @@ export default function FooterSection() {
                       <path d="M4.688 136C68.373 136 120 187.627 120 251.312C120 252.883 119.967 254.445 119.905 256L0 256L0 136.096C1.555 136.034 3.117 136 4.688 136ZM251.312 136C252.883 136 254.445 136.034 256 136.096L256 256L136.095 256C136.032 254.438 136.001 252.875 136 251.312C136 187.627 187.627 136 251.312 136ZM119.905 0C119.967 1.555 120 3.117 120 4.688C120 68.373 68.373 120 4.687 120C3.117 120 1.555 119.967 0 119.905L0 0ZM256 119.905C254.445 119.967 252.883 120 251.312 120C187.627 120 136 68.373 136 4.687C136 3.117 136.033 1.555 136.095 0L256 0Z" />
                     </svg>
                   </span>
-                  <span>TA JOURNAL</span>
+                  <span>AnHao</span>
                 </div>
 
                 <p>
@@ -124,7 +124,7 @@ export default function FooterSection() {
                 </p>
 
                 <div className="footer-liquid__cta">
-                  <a className="footer-liquid__cta-link" href="mailto:hello@tajournal.design">
+                  <a className="footer-liquid__cta-link" href="mailto:2295351632@qq.com">
                     <Mail size={18} />
                     <span>发送邮件</span>
                   </a>
@@ -152,7 +152,7 @@ export default function FooterSection() {
             </div>
 
             <div className="footer-liquid__bottom">
-              <p>Curated by TA JOURNAL</p>
+              <p>Curated by AnHao</p>
 
               <div className="footer-liquid__socials">
                 <div>

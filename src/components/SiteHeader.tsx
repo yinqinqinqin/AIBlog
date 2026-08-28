@@ -137,7 +137,7 @@ export default function SiteHeader({ brand, navItems }: SiteHeaderProps) {
     <header className="site-header">
       <div className="content-shell site-header__inner">
         <Link aria-label="返回首页" className="site-header__brand" to="/">
-          <span className="site-header__brand-mark" aria-hidden="true">TA</span>
+          <span className="site-header__brand-mark" aria-hidden="true">AH</span>
           <span className="site-header__brand-copy">
             <strong>{brand}</strong>
             <small>Visual Systems</small>

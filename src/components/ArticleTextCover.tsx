@@ -11,7 +11,7 @@ export default function ArticleTextCover({ article, className = "" }: ArticleTex
   return (
     <div className={classNames} aria-label={article.title}>
       <div className="article-text-cover__brand">
-        <span>TA JOURNAL</span>
+        <span>AnHao</span>
         <span>{categoryLabelMap[article.category]}</span>
       </div>
       <div className="article-text-cover__copy">

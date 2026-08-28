@@ -187,15 +187,8 @@
     </style>
     <script>
       (() => {
-        try {
-          const storedTheme = JSON.parse(localStorage.getItem("theme-store") || "{}")?.state?.theme;
-          const theme = storedTheme === "light" ? "light" : "dark";
-          document.documentElement.dataset.theme = theme;
-          document.documentElement.style.colorScheme = theme;
-        } catch {
-          document.documentElement.dataset.theme = "dark";
-          document.documentElement.style.colorScheme = "dark";
-        }
+        document.documentElement.dataset.theme = "dark";
+        document.documentElement.style.colorScheme = "dark";
 
         window.__ENTRY_LOADER_STARTED_AT = performance.now();
       })();
