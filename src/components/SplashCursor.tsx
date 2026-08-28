@@ -670,11 +670,18 @@ function SplashCursor({
     initFramebuffers();
     let lastUpdateTime = Date.now();
     let colorUpdateTimer = 0;
+    let isPageVisible = !document.hidden;
 
     function updateFrame() {
       if (!isActive) return;
       const dt = calcDeltaTime();
       if (resizeCanvas()) initFramebuffers();
+
+      if (!isPageVisible) {
+        animationFrameId.current = requestAnimationFrame(updateFrame);
+        return;
+      }
+
       updateColors(dt);
       applyInputs();
       step(dt);
@@ -991,11 +998,17 @@ function SplashCursor({
       }
     }
 
+    function handleVisibilityChange() {
+      isPageVisible = !document.hidden;
+      lastUpdateTime = Date.now();
+    }
+
     window.addEventListener("mousedown", handleMouseDown);
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("touchstart", handleTouchStart);
-    window.addEventListener("touchmove", handleTouchMove, false);
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
     window.addEventListener("touchend", handleTouchEnd);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     updateFrame();
 
@@ -1010,11 +1023,13 @@ function SplashCursor({
       window.removeEventListener("touchstart", handleTouchStart);
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
   return (
     <div
+      className="splash-cursor"
       style={{
         position: "fixed",
         inset: 0,
