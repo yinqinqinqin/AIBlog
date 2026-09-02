@@ -54,13 +54,13 @@ describe("blog pages", () => {
     expect(screen.getAllByText("学习记录").length).toBeGreaterThan(0);
     expect(screen.getAllByText("作品集").length).toBeGreaterThan(0);
     expect(screen.getAllByText("学习计划").length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: "关于" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "关于" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "关于我" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "置顶文章" })).not.toBeInTheDocument();
 
     const nav = screen.getByRole("navigation", { name: "博客导航" });
     const navButtons = Array.from(nav.querySelectorAll("button")).map((button) => button.textContent?.trim());
-    expect(navButtons).toEqual(["首页", "学习记录", "作品集", "学习计划", "知识库", "关于"]);
+    expect(navButtons).toEqual(["首页", "学习记录", "作品集", "学习计划", "知识库"]);
   });
 
   it("renders article detail page", () => {

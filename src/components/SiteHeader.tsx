@@ -134,7 +134,7 @@ export default function SiteHeader({ brand, navItems }: SiteHeaderProps) {
   }));
 
   return (
-    <header className="site-header">
+    <header className={`site-header site-header--${scrollVisibility}`}>
       <div className="content-shell site-header__inner">
         <Link aria-label="返回首页" className="site-header__brand" to="/">
           <span className="site-header__brand-mark" aria-hidden="true">AH</span>

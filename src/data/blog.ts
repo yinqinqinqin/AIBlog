@@ -101,7 +101,6 @@ export const navItems: NavItem[] = [
   { label: "作品集", href: "/category/portfolio" },
   { label: "学习计划", href: "/category/study-plan" },
   { label: "知识库", href: "/category/knowledge-base" },
-  { label: "关于", href: "/about" },
 ];
 
 export const aboutProfile: AboutProfile = {

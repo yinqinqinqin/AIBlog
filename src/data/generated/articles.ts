@@ -2,6 +2,24 @@ import type { Article } from "../blog";
 
 export const generatedArticles = [
   {
+    "slug": "UE5性能优化课程总结",
+    "title": "UE5 性能优化课程总结",
+    "category": "learning-notes",
+    "date": "2026-08-31",
+    "readTime": "38 min read",
+    "excerpt": "UE5 性能优化课程系统笔记，整理性能目标、测试环境、瓶颈判断、Unreal Insights、CPU、内存、GPU 渲染专题和完整优化工作流。",
+    "tags": [
+      "UE5",
+      "性能优化",
+      "Unreal Insights",
+      "GPU",
+      "CPU"
+    ],
+    "cover": "",
+    "pinned": false,
+    "markdownUrl": "https://oss.an-hao.top/blog-content/articles/learning-notes/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/UE5%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E8%AF%BE%E7%A8%8B%E6%80%BB%E7%BB%93.md"
+  },
+  {
     "slug": "electric-dreams-optimization",
     "title": "ElectricDreams优化",
     "category": "portfolio",
@@ -30,34 +48,6 @@ export const generatedArticles = [
     "cover": "",
     "pinned": false,
     "markdownUrl": "https://oss.an-hao.top/blog-content/articles/learning-notes/ErrorNote/error-note-normal-map-srgb.md"
-  },
-  {
-    "slug": "interview-answer",
-    "title": "面试 - InterviewAnswer",
-    "category": "learning-notes",
-    "date": "2026-08-27",
-    "readTime": "1 min read",
-    "excerpt": "面试 学习记录，整理 InterviewAnswer 等内容。",
-    "tags": [
-      "面试"
-    ],
-    "cover": "",
-    "pinned": false,
-    "markdownUrl": "https://oss.an-hao.top/blog-content/articles/learning-notes/Interview/interview-answer.md"
-  },
-  {
-    "slug": "interview-question",
-    "title": "面试 - InterviewQuestion",
-    "category": "learning-notes",
-    "date": "2026-08-27",
-    "readTime": "9 min read",
-    "excerpt": "面试 学习记录，整理 一、实时渲染管线、二、材质和 Shader、1. PBR基础 等内容。",
-    "tags": [
-      "面试"
-    ],
-    "cover": "",
-    "pinned": false,
-    "markdownUrl": "https://oss.an-hao.top/blog-content/articles/learning-notes/Interview/interview-question.md"
   },
   {
     "slug": "interview-question-self",
