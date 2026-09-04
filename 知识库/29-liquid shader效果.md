@@ -2,9 +2,9 @@
 
 ## 效果展示
 
-[附件：videoCacheC1D14459-F081-4DFF-8430-577E3831E9CC.mov.mp4](https://bytedance.larkoffice.com/file/Aot6breaVoIe3cxLmvTcDMoYnMb)（[本地附件](./resources/attachments/videoCacheC1D14459-F081-4DFF-8430-577E3831E9CC.mov.mp4))
+[附件：videoCacheC1D14459-F081-4DFF-8430-577E3831E9CC.mov.mp4](https://bytedance.larkoffice.com/file/Aot6breaVoIe3cxLmvTcDMoYnMb)
 
-[附件：videoCache74F5E299-BB9C-413E-B3BE-974CE5546CE0.mov.mp4](https://bytedance.larkoffice.com/file/Iz0RbOWG1oRWhuxd2xLcSpK4nBb)（[本地附件](./resources/attachments/videoCache74F5E299-BB9C-413E-B3BE-974CE5546CE0.mov.mp4))
+[附件：videoCache74F5E299-BB9C-413E-B3BE-974CE5546CE0.mov.mp4](https://bytedance.larkoffice.com/file/Iz0RbOWG1oRWhuxd2xLcSpK4nBb)
 
 ## 制作思路
 
@@ -146,7 +146,7 @@ if (surface_y >= 0.0) discard;
 
 视频简单展示了波形offset对水体带来的影响。
 
-[附件：屏幕录制2020-12-20 上午10.58.20.mov](https://bytedance.larkoffice.com/file/PPeKbhA99o1F4lx1ITUcAzJVngd)（[本地附件](./resources/attachments/屏幕录制2020-12-20%20上午10.58.20.mov))
+[附件：屏幕录制2020-12-20 上午10.58.20.mov](https://bytedance.larkoffice.com/file/PPeKbhA99o1F4lx1ITUcAzJVngd)
 
 现在水体的波形有了一个波动的效果，但是这样还不足以体现出水体本身的惯性。为了体现出水体自身的惯性，我们需要对传入shader默认法线做出一定的调整。这里我自己摸索出的方法是一种使用悬挂点模拟质心的方法。
 
@@ -182,13 +182,13 @@ self.hangPoint = self.hangPoint + self.hangPointVelocity * deltaTime
 
 得到的效果如下：
 
-[附件：videoCache6350DD42-8491-40FF-BCE2-D9657DA6EBF1.mov.mp4](https://bytedance.larkoffice.com/file/ZWWiblwngoMZjHx02yscab7unTf)（[本地附件](./resources/attachments/videoCache6350DD42-8491-40FF-BCE2-D9657DA6EBF1.mov.mp4))
+[附件：videoCache6350DD42-8491-40FF-BCE2-D9657DA6EBF1.mov.mp4](https://bytedance.larkoffice.com/file/ZWWiblwngoMZjHx02yscab7unTf)
 
 可以看到液体表面在运动停下之后是处于振荡状态的，说明此时系统在欠阻尼状态。
 
 我们也可以尝试以下达到临界状态的表现，取b1 = 8，b2 = 16时表现如下：
 
-[附件：videoCache8DEAA073-C6A7-4778-9068-72CEE2162BA4.mov.mp4](https://bytedance.larkoffice.com/file/O4lJbupQIoixrDxCmU4cZzArnge)（[本地附件](./resources/attachments/videoCache8DEAA073-C6A7-4778-9068-72CEE2162BA4.mov.mp4))
+[附件：videoCache8DEAA073-C6A7-4778-9068-72CEE2162BA4.mov.mp4](https://bytedance.larkoffice.com/file/O4lJbupQIoixrDxCmU4cZzArnge)
 
 在运动停下之后，水体也渐渐恢复到了平衡位置，此时系统处于临界阻尼状态。因此，我们可以使用b1和b2两个参数去一定程度上控制水体的运动特性。
 
@@ -235,4 +235,4 @@ vec3 normalSampled = GetWaveNormal(hitPosOnPlane + waveOnPlane * vec2(0.4), u_Wa
 
 ## 工程文件
 
-[附件：liquid-tutorial.ecpj](https://bytedance.larkoffice.com/file/M9OKbNMAPodOP7x2hhHcKy6KnAc)（[本地附件](./resources/attachments/liquid-tutorial.ecpj))
+[附件：liquid-tutorial.ecpj](https://bytedance.larkoffice.com/file/M9OKbNMAPodOP7x2hhHcKy6KnAc)

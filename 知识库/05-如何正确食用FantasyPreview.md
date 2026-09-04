@@ -38,7 +38,7 @@
 
 ### 客户端模拟
 
-[附件：ClientMsgDemo.zip](https://bytedance.larkoffice.com/file/IsQkbUCadoUEs5xxH7ecQiU7nYe)（[本地附件](./resources/attachments/ClientMsgDemo.zip))
+[附件：ClientMsgDemo.zip](https://bytedance.larkoffice.com/file/IsQkbUCadoUEs5xxH7ecQiU7nYe)
 
 ![图片](https://yin-qin.oss-accelerate.aliyuncs.com/img/20260902141956491.png)
 

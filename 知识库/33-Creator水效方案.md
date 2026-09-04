@@ -44,20 +44,20 @@ creator参数面板如图所示：
 
 几种不同效果的动效：
 
-[附件：1.mov](https://bytedance.larkoffice.com/file/Gu6JbrnXFoXP85x6jtScRiCynIe)（[本地附件](./resources/attachments/1.mov))
+[附件：1.mov](https://bytedance.larkoffice.com/file/Gu6JbrnXFoXP85x6jtScRiCynIe)
 
-[附件：2.mov](https://bytedance.larkoffice.com/file/ZnvjbLnDHoq3rGx6w3bcmgaXnv5)（[本地附件](./resources/attachments/2.mov))
+[附件：2.mov](https://bytedance.larkoffice.com/file/ZnvjbLnDHoq3rGx6w3bcmgaXnv5)
 
-[附件：3.mov](https://bytedance.larkoffice.com/file/AlfKb9RkIoNNQcxIjn1czkkSnob)（[本地附件](./resources/attachments/3.mov))
+[附件：3.mov](https://bytedance.larkoffice.com/file/AlfKb9RkIoNNQcxIjn1czkkSnob)
 
-[附件：4.mov](https://bytedance.larkoffice.com/file/SAblblp8PowIOKxUR6acCCfYngc)（[本地附件](./resources/attachments/4.mov))
+[附件：4.mov](https://bytedance.larkoffice.com/file/SAblblp8PowIOKxUR6acCCfYngc)
 
-[附件：5.mov](https://bytedance.larkoffice.com/file/MIz6blh4Co8W2bxHidPcJvpan63)（[本地附件](./resources/attachments/5.mov))
+[附件：5.mov](https://bytedance.larkoffice.com/file/MIz6blh4Co8W2bxHidPcJvpan63)
 
 AR+地面分割+水族馆资源包（710）：
 
-[附件：aquarium.zip](https://bytedance.larkoffice.com/file/QjAAbCEzUo9TzDxoB10cW67enhg)（[本地附件](./resources/attachments/aquarium.zip))
+[附件：aquarium.zip](https://bytedance.larkoffice.com/file/QjAAbCEzUo9TzDxoB10cW67enhg)
 
 creator工程（可能需要pro550）：
 
-[附件：aqua_ar.ecpj](https://bytedance.larkoffice.com/file/XAD3bCO6toEB9ZxUgdqcPV87n8e)（[本地附件](./resources/attachments/aqua_ar.ecpj))
+[附件：aqua_ar.ecpj](https://bytedance.larkoffice.com/file/XAD3bCO6toEB9ZxUgdqcPV87n8e)

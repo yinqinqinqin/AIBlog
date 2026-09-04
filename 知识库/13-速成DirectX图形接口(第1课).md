@@ -14,9 +14,9 @@
 
 ![图片](https://yin-qin.oss-accelerate.aliyuncs.com/img/20260902152335073.png)
 
-[附件：Introduction to 3D Game Programming with Directx 11.pdf](https://bytedance.larkoffice.com/file/PDo9bt02ooaWlkxTeEEcGYtYnTc)（[本地附件](./resources/attachments/Introduction%20to%203D%20Game%20Programming%20with%20Directx%2011.pdf))
+[附件：Introduction to 3D Game Programming with Directx 11.pdf](https://bytedance.larkoffice.com/file/PDo9bt02ooaWlkxTeEEcGYtYnTc)
 
-[附件：DX11中译.pdf](https://bytedance.larkoffice.com/file/KXd9bcT97oVT5Ax42PCc1nTtnee)（[本地附件](./resources/attachments/DX11中译.pdf))
+[附件：DX11中译.pdf](https://bytedance.larkoffice.com/file/KXd9bcT97oVT5Ax42PCc1nTtnee)
 
 #### 知识储备
 
@@ -102,7 +102,7 @@ Video Memory负责缓存图像，而对于交换链可简单理解为缓存的 b
 
 ## 【第一章】实战：初始化DX
 
-[附件：01 DirectX11初始化.rar](https://bytedance.larkoffice.com/file/Wbnob2Rklo5qoVxP9JEcKyKTn8d)（[本地附件](./resources/attachments/01%20DirectX11初始化.rar))
+[附件：01 DirectX11初始化.rar](https://bytedance.larkoffice.com/file/Wbnob2Rklo5qoVxP9JEcKyKTn8d)
 
 1. 向Windows操作系统申请一个主窗口
 
@@ -174,7 +174,7 @@ DX处理shader的逻辑是，优先读取本地的.cso文件，若本地无.cso�
 
 例
 
-[附件：举例.txt](https://bytedance.larkoffice.com/file/Pa7jbSS75ozJQtxmWigcTSz1nfd)（[本地附件](./resources/attachments/举例.txt))
+[附件：举例.txt](https://bytedance.larkoffice.com/file/Pa7jbSS75ozJQtxmWigcTSz1nfd)
 
 #### 图元类型
 

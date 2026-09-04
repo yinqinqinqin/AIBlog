@@ -17,6 +17,9 @@ type ParticleFocus = {
   radius: number;
 };
 
+// Keep the scene implementation available while it is temporarily hidden.
+const SHOW_HERO_MODEL = false;
+
 const defaultParticleFocus: ParticleFocus = {
   centerX: 0.73,
   centerY: 0.45,
@@ -53,7 +56,7 @@ export default function HeroSection({ title, summary }: HeroSectionProps) {
   }, [reduceMotion]);
 
   useLayoutEffect(() => {
-    if (!canUsePixelBlast) {
+    if (!canUsePixelBlast || !SHOW_HERO_MODEL) {
       return undefined;
     }
 
@@ -150,7 +153,9 @@ export default function HeroSection({ title, summary }: HeroSectionProps) {
       <div aria-hidden="true" className="hero-section__orb hero-section__orb--two" />
       <div aria-hidden="true" className="hero-section__horizon" />
 
-      <div className="content-shell hero-section__content">
+      <div
+        className={`content-shell hero-section__content${SHOW_HERO_MODEL ? "" : " hero-section__content--model-hidden"}`}
+      >
         <motion.div
           animate={{ opacity: 1, y: 0 }}
           className="hero-section__intro"
@@ -190,16 +195,18 @@ export default function HeroSection({ title, summary }: HeroSectionProps) {
           </div>
         </motion.div>
 
-        <motion.aside
-          aria-label="交互式 3D 技术美术模型"
-          animate={{ opacity: 1, scale: 1, x: 0 }}
-          className="hero-lab hero-lab--model"
-          initial={reduceMotion ? false : { opacity: 0, scale: 0.96, x: 28 }}
-          ref={heroLabRef}
-          transition={{ delay: reduceMotion ? 0 : 0.16, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <HeroModelScene reduceMotion={Boolean(reduceMotion)} theme={theme} />
-        </motion.aside>
+        {SHOW_HERO_MODEL ? (
+          <motion.aside
+            aria-label="交互式 3D 技术美术模型"
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            className="hero-lab hero-lab--model"
+            initial={reduceMotion ? false : { opacity: 0, scale: 0.96, x: 28 }}
+            ref={heroLabRef}
+            transition={{ delay: reduceMotion ? 0 : 0.16, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <HeroModelScene reduceMotion={Boolean(reduceMotion)} theme={theme} />
+          </motion.aside>
+        ) : null}
       </div>
     </section>
   );

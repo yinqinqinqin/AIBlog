@@ -7235,6 +7235,15 @@ body {
   pointer-events: auto;
 }
 
+.hero-section__content--model-hidden {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "intro";
+}
+
+.hero-section__content--model-hidden .hero-section__intro {
+  max-width: 820px;
+}
+
 .hero-section__intro {
   grid-area: intro;
   min-width: 0;

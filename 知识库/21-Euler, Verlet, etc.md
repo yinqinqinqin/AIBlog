@@ -108,4 +108,4 @@ self.prevAccel = self.curAccel
 
 - http://kahrstrom.com/gamephysics/2011/08/03/euler-vs-verlet/
 
-[附件：Gabor Szauer - Game Physics Cookbook-Packt (2017).pdf](https://bytedance.larkoffice.com/file/X8Rdbxmexom2qpxN0BtcCsDDnve)（[本地附件](./resources/attachments/Gabor%20Szauer%20-%20Game%20Physics%20Cookbook-Packt%20(2017).pdf))
+[附件：Gabor Szauer - Game Physics Cookbook-Packt (2017).pdf](https://bytedance.larkoffice.com/file/X8Rdbxmexom2qpxN0BtcCsDDnve)

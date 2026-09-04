@@ -1,7 +1,5 @@
 # Amazing JS Sharing
 
-原始附件：[Amazing JS Sharing.pptx](./resources/Amazing%20JS%20Sharing.pptx)
-
 ## 第 1 页
 
 ![幻灯片图片](https://yin-qin.oss-accelerate.aliyuncs.com/img/20260902154633536.png)

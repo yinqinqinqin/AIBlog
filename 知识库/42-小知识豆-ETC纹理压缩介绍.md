@@ -128,7 +128,7 @@ IOS：在iPhone6以上（包含）都支持ASTC
 
 ## BadCase
 
-[附件：飞书20221110-195826.mp4](https://bytedance.larkoffice.com/file/boxcn8NTKMY7Oo0ZyIeVjciifBg)（[本地附件](./resources/attachments/飞书20221110-195826.mp4))
+[附件：飞书20221110-195826.mp4](https://bytedance.larkoffice.com/file/boxcn8NTKMY7Oo0ZyIeVjciifBg)
 
 ![图片](https://yin-qin.oss-accelerate.aliyuncs.com/img/20260902173219474.png)
 

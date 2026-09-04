@@ -20,4 +20,4 @@ owner：
 
 ### 6、参考书
 
-[附件：Programming_in_Lua_4th_Edition.pdf](https://bytedance.larkoffice.com/file/JUXvbcYSooW4CUxSbCpcZ3fAned)（[本地附件](./resources/attachments/Programming_in_Lua_4th_Edition.pdf))
+[附件：Programming_in_Lua_4th_Edition.pdf](https://bytedance.larkoffice.com/file/JUXvbcYSooW4CUxSbCpcZ3fAned)

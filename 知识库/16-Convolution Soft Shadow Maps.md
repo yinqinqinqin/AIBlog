@@ -81,7 +81,7 @@ Now we have those different terms which we can convolute separately:
 
 Note: Fourier is not the only option for decomposition, reason why this is chosen can be found in paper. Other applications utilizing similar linear decomposition idea for example: Exponential, VSM, etc
 
-[附件：292d751a-c904-41a1-ac20-77da8d18dc53.png](https://bytedance.larkoffice.com/file/OYykbvbZKoH4jZx2iuvua9CpsSg)（[本地附件](./resources/attachments/292d751a-c904-41a1-ac20-77da8d18dc53.png))
+[附件：292d751a-c904-41a1-ac20-77da8d18dc53.png](https://bytedance.larkoffice.com/file/OYykbvbZKoH4jZx2iuvua9CpsSg)
 
 From our shadow map, we calculate those above basis functions whose input is z(p), or Bi(z(p)), the result of the calculation in the form of textures are shown below:
 
@@ -161,7 +161,7 @@ Note: The core idea of decomposing shadow map into linearly filterable items are
 
 References:
 
-https://www.jankautz.com/publications/csmEGSR07.pdf（[本地 PDF](./resources/pdfs/Convolution%20Shadow%20Maps.pdf))
+https://www.jankautz.com/publications/csmEGSR07.pdf
 
 https://catlikecoding.com/unity/tutorials/rendering/part-7/
 

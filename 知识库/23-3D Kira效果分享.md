@@ -24,11 +24,11 @@ Owner：
 
 ### kira自动闪烁
 
-[附件：kira自动闪烁.mov](https://bytedance.larkoffice.com/file/O5Fnbnkkuo1xbBxtYzJc1B5Yn1f)（[本地附件](./resources/attachments/kira自动闪烁.mov))
+[附件：kira自动闪烁.mov](https://bytedance.larkoffice.com/file/O5Fnbnkkuo1xbBxtYzJc1B5Yn1f)
 
 ### 只根据亮度阈值显示kira
 
-[附件：加了阈值判断.mov](https://bytedance.larkoffice.com/file/WMyMbANLnoEy8FxemFlc5z5bnMg)（[本地附件](./resources/attachments/加了阈值判断.mov))
+[附件：加了阈值判断.mov](https://bytedance.larkoffice.com/file/WMyMbANLnoEy8FxemFlc5z5bnMg)
 
 ## 原理
 
@@ -197,7 +197,7 @@ end
 
 ### 下载3D Kira脚本
 
-[附件：Kira3D.lua](https://bytedance.larkoffice.com/file/VpFobdcxroIl87xujBzclivDn8g)（[本地附件](./resources/attachments/Kira3D.lua))
+[附件：Kira3D.lua](https://bytedance.larkoffice.com/file/VpFobdcxroIl87xujBzclivDn8g)
 
 ### 挂载脚本
 
@@ -221,11 +221,11 @@ EffectCreator/AmazingCreator中可用通过类似的方式导入脚本。但是�
 
 #### 基本参数调整
 
-[附件：参数调整示范.mov](https://bytedance.larkoffice.com/file/RwpYbMW4so7rAtxSB4vcEuDqnjh)（[本地附件](./resources/attachments/参数调整示范.mov))
+[附件：参数调整示范.mov](https://bytedance.larkoffice.com/file/RwpYbMW4so7rAtxSB4vcEuDqnjh)
 
 #### 闪烁参数调整
 
-[附件：闪烁参数调整.mov](https://bytedance.larkoffice.com/file/FRDibhBnLoKxVGxRRVhckq3Inyg)（[本地附件](./resources/attachments/闪烁参数调整.mov))
+[附件：闪烁参数调整.mov](https://bytedance.larkoffice.com/file/FRDibhBnLoKxVGxRRVhckq3Inyg)
 
 ## 相关内容
 

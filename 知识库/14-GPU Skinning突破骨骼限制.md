@@ -1,6 +1,6 @@
 # GPU Skinning突破骨骼限制
 
-[附件：gpuskinning.zip](https://bytedance.larkoffice.com/file/RNnobMCaholJWgx3nQUcfb89nAd)（[本地附件](./resources/attachments/gpuskinning.zip))
+[附件：gpuskinning.zip](https://bytedance.larkoffice.com/file/RNnobMCaholJWgx3nQUcfb89nAd)
 
 ## Xshader
 

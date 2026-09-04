@@ -70,7 +70,7 @@ HBAO是另外一种在屏幕空间计算AO的方法，他的算法思路如下�
 
 具体的实现细节，可以看SIGGRAPH2008的这个ppt和相关的文章：
 
-https://developer.download.nvidia.com/presentations/2008/SIGGRAPH/HBAO_SIG08b.pdf（[本地 PDF](./resources/pdfs/developer.download.nvidia.com-HBAO_SIG08b.pdf))
+https://developer.download.nvidia.com/presentations/2008/SIGGRAPH/HBAO_SIG08b.pdf
 
 HBAO(屏幕空间的环境光遮蔽)
 
@@ -104,7 +104,7 @@ Multi Bounce的结果和AO之间的关系，可以用三次多项式来拟合。
 
 他的直观作用是让AO带上了一点albedo的影响，具体细节可以GTAO的论文：
 
-http://iryoku.com/downloads/Practical-Realtime-Strategies-for-Accurate-Indirect-Occlusion.pdf（[本地 PDF](./resources/pdfs/iryoku.com-Practical-Realtime-Strategies-for-Accurate-Indirect-Occlusion.pdf))
+http://iryoku.com/downloads/Practical-Realtime-Strategies-for-Accurate-Indirect-Occlusion.pdf
 
 ### Ground Truth Specular Occlusion(GTSO)
 
@@ -132,7 +132,7 @@ http://iryoku.com/downloads/Practical-Realtime-Strategies-for-Accurate-Indirect-
             // sphericalCapsIntersection()
             float ao = clamp(sphericalCapsIntersection(cosAv, cosAs, cosB) / (1.0 - cosAs), 0.0, 1.0);
             // float ao = sphericalCapsIntersection(cosAv, cosAs, cosB) / (1.0 - cosAs);
-            // Smoothly kill specular AO when entering the perceptual roughness range [-0.1..0.8] for metals
+            // Smoothly kill specular AO when entering the perceptual roughness range -0.1..0.8] for metals
             // Without this, specular AO can remove all reflections, which looks bad on metals
             float metallicAO =  mix(1.0, ao, smoothstep(-0.01, 0.64, S.roughParams.y));
             return mix(ao, metallicAO, smoothstep(0.1, 0.7, S.metalParams.x));
@@ -161,7 +161,7 @@ float sphericalCapsIntersection(float cosCap1, float cosCap2, float cosDistance)
 
 具体细节请看GTAO的论文：
 
-http://iryoku.com/downloads/Practical-Realtime-Strategies-for-Accurate-Indirect-Occlusion.pdf（[本地 PDF](./resources/pdfs/iryoku.com-Practical-Realtime-Strategies-for-Accurate-Indirect-Occlusion.pdf))
+http://iryoku.com/downloads/Practical-Realtime-Strategies-for-Accurate-Indirect-Occlusion.pdf（[本地 PDF)
 
 [渲染效果-Bent Normal AO](https://bytedance.feishu.cn/docs/doccnb0gCSuU9tVPhCFR2khXa5g#j33YPl)
 
@@ -171,13 +171,13 @@ An ambient light illumination model
 
 SSAO - LearnOpenGL CN
 
-https://developer.download.nvidia.com/presentations/2008/SIGGRAPH/HBAO_SIG08b.pdf（[本地 PDF](./resources/pdfs/developer.download.nvidia.com-HBAO_SIG08b.pdf))
+https://developer.download.nvidia.com/presentations/2008/SIGGRAPH/HBAO_SIG08b.pdf
 
-http://iryoku.com/downloads/Practical-Realtime-Strategies-for-Accurate-Indirect-Occlusion.pdf（[本地 PDF](./resources/pdfs/iryoku.com-Practical-Realtime-Strategies-for-Accurate-Indirect-Occlusion.pdf))
+http://iryoku.com/downloads/Practical-Realtime-Strategies-for-Accurate-Indirect-Occlusion.pdf
 
 游戏中的全局光照(三) 环境光遮蔽/AO
 
-https://developer.nvidia.com/sites/default/files/akamai/gameworks/downloads/papers/vxao/atatarinov_alpanteleev_advanced_ao.pdf（[本地 PDF](./resources/pdfs/developer.nvidia.com-atatarinov_alpanteleev_advanced_ao.pdf))
+https://developer.nvidia.com/sites/default/files/akamai/gameworks/downloads/papers/vxao/atatarinov_alpanteleev_advanced_ao.pdf
 
 ## 分享视频连接
 

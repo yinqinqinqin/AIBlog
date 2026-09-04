@@ -57,6 +57,7 @@ describe("blog pages", () => {
     expect(screen.queryByRole("button", { name: "关于" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "关于我" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "置顶文章" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("交互式 3D 技术美术模型")).not.toBeInTheDocument();
 
     const nav = screen.getByRole("navigation", { name: "博客导航" });
     const navButtons = Array.from(nav.querySelectorAll("button")).map((button) => button.textContent?.trim());

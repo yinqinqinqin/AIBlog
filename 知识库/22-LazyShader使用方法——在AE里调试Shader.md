@@ -264,7 +264,7 @@ local compFromAE={
 
 ### 使用案例3：MV小清新
 
-[附件：小清新demo_1.mov](https://bytedance.larkoffice.com/file/G7wHbQnX3og5jyx3iM5cUn7qnnn)（[本地附件](./resources/attachments/小清新demo_1.mov))
+[附件：小清新demo_1.mov](https://bytedance.larkoffice.com/file/G7wHbQnX3og5jyx3iM5cUn7qnnn)
 
 ![图片](https://yin-qin.oss-accelerate.aliyuncs.com/img/20260902152556892.png)
 
@@ -798,7 +798,7 @@ var searchPath = {
 
 1. 将LazyShader.plugin复制到/Applications/Adobe After Effects CC 2018/Plug-ins/Bytedance（工程中默认输出此位置）
 
-[附件：LazyShader.plugin.zip](https://bytedance.larkoffice.com/file/HkrPbt4BDoq3xVxIzoucaCMKnrc)（[本地附件](./resources/attachments/LazyShader.plugin.zip))
+[附件：LazyShader.plugin.zip](https://bytedance.larkoffice.com/file/HkrPbt4BDoq3xVxIzoucaCMKnrc)
 
 ### 使用方法
 
