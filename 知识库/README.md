@@ -3,7 +3,7 @@
 来源：<https://bytedance.larkoffice.com/wiki/wikcnm6EtXQxZmCXjotmR4YXeyd>
 
 已导出 44 篇正文；28 篇因无权限、已删除或链接失效无法导出。
-已下载 77 个正文内附件，并归档 9 份外部 PDF。
+本地保留 4 份图形学相关资源，其余附件已清理。
 正文图片均已上传至 PicGo 当前配置的图床，不依赖飞书登录态。
 
 ## 已导出文章
