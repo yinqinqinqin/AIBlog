@@ -1,6 +1,7 @@
 import { ArrowLeft, Clock3 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import ArticleTableOfContents from "@/components/ArticleTableOfContents";
 import ArticleTextCover from "@/components/ArticleTextCover";
 import MarkdownContent from "@/components/MarkdownContent";
 import SectionBadge from "@/components/SectionBadge";
@@ -74,53 +75,58 @@ export default function ArticlePage() {
 
   const category = getCategoryByKey(article.category);
   const backHref = category?.href ?? "/";
+  const markdownSource = article.markdown ?? remoteMarkdown;
 
   return (
     <main className="article-page">
       <div className="content-shell article-page__top">
-        <article className="article-layout">
-          <Link className="article-page__back" to={backHref}>
-            <ArrowLeft size={16} />
-            <span>返回</span>
-          </Link>
+        <div className="article-page__reading">
+          <ArticleTableOfContents source={markdownSource} />
 
-          <div className="article-hero">
-            <SectionBadge text={category?.label ?? article.category} />
-            <h1>{article.title}</h1>
+          <article className="article-layout">
+            <Link className="article-page__back" to={backHref}>
+              <ArrowLeft size={16} />
+              <span>返回</span>
+            </Link>
 
-            <div className="article-hero__meta">
-              <span>{article.date}</span>
-              <span>
-                <Clock3 size={14} />
-                {article.readTime}
-              </span>
+            <div className="article-hero">
+              <SectionBadge text={category?.label ?? article.category} />
+              <h1>{article.title}</h1>
+
+              <div className="article-hero__meta">
+                <span>{article.date}</span>
+                <span>
+                  <Clock3 size={14} />
+                  {article.readTime}
+                </span>
+              </div>
+
+              <p>{article.excerpt}</p>
             </div>
 
-            <p>{article.excerpt}</p>
-          </div>
+            <div className="article-layout__cover">
+              {article.cover ? (
+                <img alt={article.title} src={article.cover} />
+              ) : (
+                <ArticleTextCover article={article} className="article-layout__text-cover" />
+              )}
+            </div>
 
-          <div className="article-layout__cover">
-            {article.cover ? (
-              <img alt={article.title} src={article.cover} />
-            ) : (
-              <ArticleTextCover article={article} className="article-layout__text-cover" />
-            )}
-          </div>
-
-          <div className="article-layout__content article-content">
-            {article.markdown ? (
-              <MarkdownContent baseUrl={articleMarkdownBaseUrl} source={article.markdown} />
-            ) : remoteMarkdown ? (
-              <MarkdownContent baseUrl={articleMarkdownBaseUrl} source={remoteMarkdown} />
-            ) : markdownStatus === "loading" ? (
-              <p>文章加载中...</p>
-            ) : markdownStatus === "error" ? (
-              <p>文章加载失败，请稍后刷新重试。</p>
-            ) : (
-              article.content?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)
-            )}
-          </div>
-        </article>
+            <div className="article-layout__content article-content" id="article-content">
+              {article.markdown ? (
+                <MarkdownContent baseUrl={articleMarkdownBaseUrl} source={article.markdown} />
+              ) : remoteMarkdown ? (
+                <MarkdownContent baseUrl={articleMarkdownBaseUrl} source={remoteMarkdown} />
+              ) : markdownStatus === "loading" ? (
+                <p>文章加载中...</p>
+              ) : markdownStatus === "error" ? (
+                <p>文章加载失败，请稍后刷新重试。</p>
+              ) : (
+                article.content?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)
+              )}
+            </div>
+          </article>
+        </div>
       </div>
     </main>
   );

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import ArticleDirectory from "@/components/ArticleDirectory";
 import ArticleSearch from "@/components/ArticleSearch";
 import Dock from "@/components/Dock";
 import type { NavItem } from "@/data/blog";
@@ -138,16 +137,13 @@ export default function SiteHeader({ brand, navItems }: SiteHeaderProps) {
   return (
     <header className={`site-header site-header--${scrollVisibility}`}>
       <div className="content-shell site-header__inner">
-        <div className="site-header__left">
-          <Link aria-label="返回首页" className="site-header__brand" to="/">
-            <span className="site-header__brand-mark" aria-hidden="true">AH</span>
-            <span className="site-header__brand-copy">
-              <strong>{brand}</strong>
-              <small>Visual Systems</small>
-            </span>
-          </Link>
-          <ArticleDirectory />
-        </div>
+        <Link aria-label="返回首页" className="site-header__brand" to="/">
+          <span className="site-header__brand-mark" aria-hidden="true">AH</span>
+          <span className="site-header__brand-copy">
+            <strong>{brand}</strong>
+            <small>Visual Systems</small>
+          </span>
+        </Link>
 
         <nav aria-label="博客导航" className="site-header__nav">
           <Dock

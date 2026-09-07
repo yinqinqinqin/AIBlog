@@ -21,6 +21,7 @@ import ue5GpuRenderdocArchive from "@/data/generated/ue5GpuRenderdocArchive.json
 import ue5MobileOptimizationArchive from "@/data/generated/ue5MobileOptimizationArchive.json";
 import type { InterviewResourceBank } from "@/data/interviewResourceTypes";
 import SiteHeader from "@/components/SiteHeader";
+import ArticleTableOfContents from "@/components/ArticleTableOfContents";
 import { navItems, siteMeta } from "@/data/blog";
 
 vi.mock("@/components/Particles", () => ({
@@ -71,14 +72,6 @@ describe("blog pages", () => {
     await waitFor(() => {
       expect(screen.queryByRole("dialog", { name: "文章搜索" })).not.toBeInTheDocument();
     });
-
-    fireEvent.click(screen.getByRole("button", { name: "文章目录" }));
-    expect(screen.getByRole("dialog", { name: "文章目录" })).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /2026 作品集/i }).length).toBeGreaterThan(0);
-    fireEvent.click(screen.getAllByRole("button", { name: "关闭文章目录" })[0]);
-    await waitFor(() => {
-      expect(screen.queryByRole("dialog", { name: "文章目录" })).not.toBeInTheDocument();
-    });
   });
 
   it("renders article detail page", () => {
@@ -97,6 +90,21 @@ describe("blog pages", () => {
       "https://yin-qin.oss-accelerate.aliyuncs.com/img/20260820160909586.png",
     );
     expect(screen.getByText(/float alpha\s+= Roughness \* Roughness;/)).toBeInTheDocument();
+  });
+
+  it("builds a persistent article table of contents from rendered headings", async () => {
+    render(
+      <>
+        <ArticleTableOfContents source="# 第一章\n## 细节" />
+        <div className="article-content__markdown">
+          <h2 id="第一章">第一章</h2>
+          <h3 id="细节">细节</h3>
+        </div>
+      </>,
+    );
+
+    expect(await screen.findByRole("button", { name: "第一章" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "细节" })).toBeInTheDocument();
   });
 
   it("renders category page as independent route", () => {
