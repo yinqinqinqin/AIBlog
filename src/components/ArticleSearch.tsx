@@ -14,24 +14,37 @@ export default function ArticleSearch() {
   const [query, setQuery] = useState("");
   const normalizedQuery = query.trim().normalize("NFKC").toLocaleLowerCase();
 
-  const results = useMemo(() => {
-    const source = normalizedQuery
-      ? articles.filter((article) =>
-          [
-            article.title,
-            article.excerpt,
-            categoryLabelMap[article.category] ?? article.category,
-            ...article.tags,
-          ]
-            .join(" ")
-            .normalize("NFKC")
-            .toLocaleLowerCase()
-            .includes(normalizedQuery),
-        )
-      : articles;
+  const matchingArticles = useMemo(() => {
+    if (!normalizedQuery) {
+      return [];
+    }
 
-    return source.slice(0, maxResults);
+    const tokens = normalizedQuery.split(/\s+/).filter(Boolean);
+
+    return articles
+      .filter((article) => {
+        const searchableText = [
+          article.title,
+          article.excerpt,
+          categoryLabelMap[article.category] ?? article.category,
+          ...article.tags,
+        ]
+          .join(" ")
+          .normalize("NFKC")
+          .toLocaleLowerCase();
+
+        return tokens.every((token) => searchableText.includes(token));
+      })
+      .sort((left, right) => {
+        const leftTitle = left.title.normalize("NFKC").toLocaleLowerCase();
+        const rightTitle = right.title.normalize("NFKC").toLocaleLowerCase();
+        const leftScore = leftTitle.startsWith(normalizedQuery) ? 0 : leftTitle.includes(normalizedQuery) ? 1 : 2;
+        const rightScore = rightTitle.startsWith(normalizedQuery) ? 0 : rightTitle.includes(normalizedQuery) ? 1 : 2;
+
+        return leftScore - rightScore || right.date.localeCompare(left.date);
+      });
   }, [normalizedQuery]);
+  const results = matchingArticles.slice(0, maxResults);
 
   useEffect(() => {
     if (!isOpen) {
@@ -120,33 +133,42 @@ export default function ArticleSearch() {
                 </button>
               </div>
 
-              <div className="article-search__summary" aria-live="polite">
-                <span>{normalizedQuery ? `找到 ${results.length} 篇` : "最近文章"}</span>
-                <span>{articles.length} 篇文章</span>
-              </div>
+              {normalizedQuery ? (
+                <>
+                  <div className="article-search__summary" aria-live="polite">
+                    <span>搜索结果</span>
+                    <span>{matchingArticles.length} 篇</span>
+                  </div>
 
-              <div className="article-search__results">
-                {results.length > 0 ? (
-                  results.map((article) => (
-                    <button
-                      className="article-search__result"
-                      key={article.slug}
-                      onClick={() => openArticle(article.slug)}
-                      type="button"
-                    >
-                      <span className="article-search__result-copy">
-                        <strong>{article.title}</strong>
-                        <small>
-                          {categoryLabelMap[article.category]} · {article.date}
-                        </small>
-                      </span>
-                      <ArrowUpRight aria-hidden="true" size={16} />
-                    </button>
-                  ))
-                ) : (
-                  <div className="article-search__empty">没有匹配的文章</div>
-                )}
-              </div>
+                  <div className="article-search__results">
+                    {results.length > 0 ? (
+                      results.map((article) => (
+                        <button
+                          className="article-search__result"
+                          key={article.slug}
+                          onClick={() => openArticle(article.slug)}
+                          type="button"
+                        >
+                          <span className="article-search__result-copy">
+                            <strong>{article.title}</strong>
+                            <small>
+                              {categoryLabelMap[article.category]} · {article.date}
+                            </small>
+                          </span>
+                          <ArrowUpRight aria-hidden="true" size={16} />
+                        </button>
+                      ))
+                    ) : (
+                      <div className="article-search__empty">没有匹配的文章</div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="article-search__idle">
+                  <Search aria-hidden="true" size={22} strokeWidth={1.5} />
+                  <span>输入关键词开始搜索</span>
+                </div>
+              )}
             </motion.section>
           </motion.div>
         ) : null}

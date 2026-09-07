@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useCustomInterviewStore } from "@/store/customInterviewStore";
@@ -65,6 +65,8 @@ describe("blog pages", () => {
     expect(navButtons).toEqual(["首页", "学习记录", "作品集", "学习计划", "知识库"]);
 
     fireEvent.click(screen.getByRole("button", { name: "搜索文章" }));
+    const searchDialog = screen.getByRole("dialog", { name: "文章搜索" });
+    expect(within(searchDialog).queryByRole("button", { name: /PBR/i })).not.toBeInTheDocument();
     const articleSearch = screen.getByRole("searchbox", { name: "查询文章" });
     fireEvent.change(articleSearch, { target: { value: "PBR" } });
     expect(screen.getAllByRole("button", { name: /PBR/i }).length).toBeGreaterThan(0);
