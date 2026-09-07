@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import ArticleSearch from "@/components/ArticleSearch";
 import Dock from "@/components/Dock";
 import type { NavItem } from "@/data/blog";
 
@@ -158,9 +159,12 @@ export default function SiteHeader({ brand, navItems }: SiteHeaderProps) {
           />
         </nav>
 
-        <div className="site-header__signal" title="当前 IP 所在城市">
-          <span />
-          <strong>{geoLabel}</strong>
+        <div className="site-header__utilities">
+          <ArticleSearch />
+          <div className="site-header__signal" title="当前 IP 所在城市">
+            <span />
+            <strong>{geoLabel}</strong>
+          </div>
         </div>
       </div>
     </header>

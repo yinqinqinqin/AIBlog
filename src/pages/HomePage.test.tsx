@@ -42,7 +42,7 @@ describe("blog pages", () => {
     useThemeStore.setState({ theme: "dark" });
   });
 
-  it("renders home page sections", () => {
+  it("renders home page sections", async () => {
     render(
       <MemoryRouter>
         <SiteHeader brand={siteMeta.brand} navItems={navItems} />
@@ -62,6 +62,15 @@ describe("blog pages", () => {
     const nav = screen.getByRole("navigation", { name: "博客导航" });
     const navButtons = Array.from(nav.querySelectorAll("button")).map((button) => button.textContent?.trim());
     expect(navButtons).toEqual(["首页", "学习记录", "作品集", "学习计划", "知识库"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "搜索文章" }));
+    const articleSearch = screen.getByRole("searchbox", { name: "查询文章" });
+    fireEvent.change(articleSearch, { target: { value: "PBR" } });
+    expect(screen.getAllByRole("button", { name: /PBR/i }).length).toBeGreaterThan(0);
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: "文章搜索" })).not.toBeInTheDocument();
+    });
   });
 
   it("renders article detail page", () => {
