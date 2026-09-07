@@ -71,6 +71,14 @@ describe("blog pages", () => {
     await waitFor(() => {
       expect(screen.queryByRole("dialog", { name: "文章搜索" })).not.toBeInTheDocument();
     });
+
+    fireEvent.click(screen.getByRole("button", { name: "文章目录" }));
+    expect(screen.getByRole("dialog", { name: "文章目录" })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /2026 作品集/i }).length).toBeGreaterThan(0);
+    fireEvent.click(screen.getAllByRole("button", { name: "关闭文章目录" })[0]);
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: "文章目录" })).not.toBeInTheDocument();
+    });
   });
 
   it("renders article detail page", () => {
