@@ -1,5 +1,6 @@
 import { Link, Navigate, useParams } from "react-router-dom";
 import ArticleCard from "@/components/ArticleCard";
+import CategoryArticleDirectory from "@/components/CategoryArticleDirectory";
 import FooterSection from "@/components/FooterSection";
 import InterviewResourceToolCard, {
   type InterviewResourceToolKind,
@@ -116,18 +117,21 @@ export default function CategoryPage() {
               ))}
             </section>
           ) : (
-            <section className="article-grid">
-              {categoryArticles.map((article, index) => (
-                <RevealOnView
-                  className="article-card-motion"
-                  delay={Math.min(index % 2, 1) * 0.06}
-                  enabled={entryReady}
-                  key={article.slug}
-                >
-                  <ArticleCard article={article} />
-                </RevealOnView>
-              ))}
-            </section>
+            <div className="category-page__catalog-layout">
+              <CategoryArticleDirectory articles={categoryArticles} />
+              <section className="article-grid">
+                {categoryArticles.map((article, index) => (
+                  <RevealOnView
+                    className="article-card-motion"
+                    delay={Math.min(index % 2, 1) * 0.06}
+                    enabled={entryReady}
+                    key={article.slug}
+                  >
+                    <ArticleCard article={article} />
+                  </RevealOnView>
+                ))}
+              </section>
+            </div>
           )}
         </div>
       </main>

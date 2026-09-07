@@ -120,6 +120,7 @@ describe("blog pages", () => {
     );
 
     expect(screen.getByRole("button", { name: "作品集", current: "page" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "分类文章目录" })).toBeInTheDocument();
     expect(screen.getAllByRole("link").length).toBeGreaterThan(1);
   });
 

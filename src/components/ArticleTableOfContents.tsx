@@ -23,7 +23,7 @@ export default function ArticleTableOfContents({ source }: ArticleTableOfContent
     }
 
     let headings: HTMLElement[] = [];
-    let frame = window.requestAnimationFrame(() => {
+    const frame = window.requestAnimationFrame(() => {
       headings = Array.from(
         document.querySelectorAll<HTMLElement>(
           ".article-content__markdown h2[id], .article-content__markdown h3[id], .article-content__markdown h4[id]",
@@ -41,9 +41,7 @@ export default function ArticleTableOfContents({ source }: ArticleTableOfContent
     });
 
     const updateActiveHeading = () => {
-      if (headings.length === 0) {
-        return;
-      }
+      if (headings.length === 0) return;
 
       const current =
         [...headings].reverse().find((heading) => heading.getBoundingClientRect().top <= 176) ?? headings[0];
