@@ -5882,6 +5882,15 @@ html body .interview-wiki-search label {
   transition: filter 180ms ease, transform 180ms ease;
 }
 
+.article-content video {
+  width: min(100%, 760px);
+  height: auto;
+  margin: 4px auto 24px;
+  border-radius: 8px;
+  background: #000;
+  object-fit: contain;
+}
+
 .article-content__image:hover,
 .article-content__image:focus-visible {
   filter: saturate(1.04) contrast(1.03);

@@ -270,7 +270,7 @@ export const articles: Article[] = [...generatedArticles, ...inlineArticles].sor
 export const featuredSlugs = [
   "npr-render",
   "sky-system",
-  "electric-dreams-optimization",
+  "portfolio-video",
 ];
 
 export function getFeaturedArticles() {

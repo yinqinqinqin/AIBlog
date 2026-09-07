@@ -6,8 +6,6 @@ readTime: 5 min read
 excerpt: Electric Dreams Environment 性能优化记录，整理固定测试条件、性能数据采集、瓶颈判断和贴图、Actor、Nanite 等优化方向。
 tags: [性能优化, UE]
 cover: ""
-pinned: true
-pinnedOrder: 3
 ---
 
 # 目标

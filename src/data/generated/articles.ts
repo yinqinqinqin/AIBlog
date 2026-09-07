@@ -2,6 +2,22 @@ import type { Article } from "../blog";
 
 export const generatedArticles = [
   {
+    "slug": "portfolio-video",
+    "title": "2026 作品集",
+    "category": "portfolio",
+    "date": "2026-09-07",
+    "readTime": "1 min read",
+    "excerpt": "AnHao 技术美术作品集视频。",
+    "tags": [
+      "作品集",
+      "Technical Art"
+    ],
+    "cover": "https://oss.an-hao.top/Video/9%E6%9C%887%E6%97%A5-%E5%B0%81%E9%9D%A2.jpg",
+    "pinned": true,
+    "pinnedOrder": 3,
+    "markdownUrl": "https://oss.an-hao.top/blog-content/articles/portfolio/Technical%20Documentation%20for%20Portfolio/portfolio-video.md"
+  },
+  {
     "slug": "UE5性能优化课程总结",
     "title": "UE5 性能优化课程总结",
     "category": "learning-notes",
@@ -31,8 +47,7 @@ export const generatedArticles = [
       "UE"
     ],
     "cover": "",
-    "pinned": true,
-    "pinnedOrder": 3,
+    "pinned": false,
     "markdownUrl": "https://oss.an-hao.top/blog-content/articles/portfolio/Technical%20Documentation%20for%20Portfolio/electric-dreams-optimization.md"
   },
   {
