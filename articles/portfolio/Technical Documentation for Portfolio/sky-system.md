@@ -210,12 +210,11 @@ https://www.bilibili.com/video/BV1zaPzzBEfq?spm_id_from=333.788.player.switch&vd
 ## 2.纹理轰炸
 
 1. 引擎自带的节点==Texture_Bombing==也可以实现纹理轰炸的效果，但是效果并没有很好
-2. ![image-20260527153141137](/assets/article-images/image-20260527153141137.png)
-3. 使用==voronoi纹理==，对纹理的各个通道进行拆分，再使用原来的纹理进行lerp得到不规则的纹理
-4. 使用节点==WorldAlignedTexture==，输出xyz可以得到三面正常显示图像
-5. 使用==WorldPositionWithScale==采样三面的贴图，使用遮照，将三个方向作为UV给到纹理
-6. 使用lerp混合三个面，中间需要使用==CheapContrast==弱化边缘
-7. 将三面投影的UV连接到轰炸纹理的UV上面，得到最终的基础地形纹理
+2. 使用==voronoi纹理==，对纹理的各个通道进行拆分，再使用原来的纹理进行lerp得到不规则的纹理
+3. 使用节点==WorldAlignedTexture==，输出xyz可以得到三面正常显示图像
+4. 使用==WorldPositionWithScale==采样三面的贴图，使用遮照，将三个方向作为UV给到纹理
+5. 使用lerp混合三个面，中间需要使用==CheapContrast==弱化边缘
+6. 将三面投影的UV连接到轰炸纹理的UV上面，得到最终的基础地形纹理
 
 ## 自动地形材质多地形混合
 
