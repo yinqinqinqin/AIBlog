@@ -66,17 +66,20 @@ function parseArticleFile(filePath) {
 }
 
 function parseFrontmatter(raw) {
-  if (!raw.startsWith("---\n")) {
-    return { metadata: {}, body: raw.trim() };
+  // Normalize CRLF checkouts (core.autocrlf=true on Windows) so delimiters match.
+  const normalized = raw.replace(/\r\n/g, "\n");
+
+  if (!normalized.startsWith("---\n")) {
+    return { metadata: {}, body: normalized.trim() };
   }
 
-  const endIndex = raw.indexOf("\n---\n", 4);
+  const endIndex = normalized.indexOf("\n---\n", 4);
   if (endIndex === -1) {
-    return { metadata: {}, body: raw.trim() };
+    return { metadata: {}, body: normalized.trim() };
   }
 
-  const metadataBlock = raw.slice(4, endIndex).trim();
-  const body = raw.slice(endIndex + 5).trim();
+  const metadataBlock = normalized.slice(4, endIndex).trim();
+  const body = normalized.slice(endIndex + 5).trim();
   const metadata = {};
 
   metadataBlock.split("\n").forEach((line) => {

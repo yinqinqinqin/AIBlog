@@ -16,5 +16,5 @@ pinnedOrder: 3
 </div>
 
 <video controls playsinline preload="metadata" poster="https://oss.an-hao.top/Video/9%E6%9C%887%E6%97%A5-%E5%B0%81%E9%9D%A2.jpg">
-  <source src="https://oss.an-hao.top/Video/9%E6%9C%887%E6%97%A5.mp4" type="video/mp4">
+  <source src="https://yin-qin.oss-cn-shanghai.aliyuncs.com/Video/9.10.mp4" type="video/mp4">
 </video>
