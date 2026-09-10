@@ -81,7 +81,13 @@ export default function CategoryPage() {
       <main className="category-page">
         <div className="content-shell category-page__top">
           <section className="category-page__hero">
-            <SectionBadge text={category?.label ?? ""} />
+            <div className="category-page__heading-copy">
+              <h1><SectionBadge text={category?.label ?? ""} /></h1>
+              <p>{category?.description}</p>
+            </div>
+            {!isStudyPlanPage && !isKnowledgeBasePage ? (
+              <span className="category-page__count">{categoryArticles.length} 篇内容</span>
+            ) : null}
           </section>
 
           {isStudyPlanPage ? (

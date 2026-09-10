@@ -12,6 +12,7 @@ import GameTaOriginalFormatPage from "./GameTaOriginalFormatPage";
 import Ue5GpuRenderdocPage from "./Ue5GpuRenderdocPage";
 import Ue5MobileOptimizationPage from "./Ue5MobileOptimizationPage";
 import HomePage from "./HomePage";
+import pbrMarkdown from "../../articles/portfolio/Technical Documentation for Portfolio/pbr.md?raw";
 import ArticlePage from "./ArticlePage";
 import TechnicalArtInterviewWikiPage from "./TechnicalArtInterviewWikiPage";
 import gameTaHtmlArchive from "@/data/generated/gameTaHtmlArchive.json";
@@ -76,22 +77,30 @@ describe("blog pages", () => {
     });
   });
 
-  it("renders article detail page", () => {
-    render(
-      <MemoryRouter initialEntries={["/article/pbr"]}>
-        <Routes>
-          <Route path="/article/:slug" element={<ArticlePage />} />
-        </Routes>
-      </MemoryRouter>,
-    );
+  it("renders article detail page", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      text: async () => pbrMarkdown,
+    } as Response);
+    try {
+      render(
+        <MemoryRouter initialEntries={["/article/pbr"]}>
+          <Routes>
+            <Route path="/article/:slug" element={<ArticlePage />} />
+          </Routes>
+        </MemoryRouter>,
+      );
 
-    expect(screen.getByRole("heading", { level: 1, name: "PBR" })).toBeInTheDocument();
-    expect(screen.getByText(/眼睛看到的物体颜色是光线照射到物体上/i)).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "image-20260708111805170" })).toHaveAttribute(
-      "src",
-      "https://yin-qin.oss-accelerate.aliyuncs.com/img/20260820160909586.png",
-    );
-    expect(screen.getByText(/float alpha\s+= Roughness \* Roughness;/)).toBeInTheDocument();
+      expect(screen.getByRole("heading", { level: 1, name: "PBR" })).toBeInTheDocument();
+      expect(await screen.findByText(/眼睛看到的物体颜色是光线照射到物体上/i)).toBeInTheDocument();
+      expect(screen.getByRole("img", { name: "image-20260708111805170" })).toHaveAttribute(
+        "src",
+        "https://yin-qin.oss-accelerate.aliyuncs.com/img/20260820160909586.png",
+      );
+      expect(screen.getByText(/float alpha\s+= Roughness \* Roughness;/)).toBeInTheDocument();
+    } finally {
+      fetchMock.mockRestore();
+    }
   });
 
   it("builds a persistent article table of contents from rendered headings", async () => {

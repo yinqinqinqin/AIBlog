@@ -9,6 +9,8 @@ const maxResults = 10;
 export default function ArticleSearch() {
   const navigate = useNavigate();
   const reduceMotion = useReducedMotion();
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const panelRef = useRef<HTMLElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -47,24 +49,64 @@ export default function ArticleSearch() {
   const results = matchingArticles.slice(0, maxResults);
 
   useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setIsOpen((current) => !current);
+      }
+    };
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
+  }, []);
+
+  useEffect(() => {
     if (!isOpen) {
       return undefined;
     }
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    window.requestAnimationFrame(() => inputRef.current?.focus());
+    const frame = window.requestAnimationFrame(() => inputRef.current?.focus());
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setIsOpen(false);
+        setQuery("");
+      }
+      const focusable = Array.from(
+        panelRef.current?.querySelectorAll<HTMLElement>("input, button") ?? [],
+      );
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.key === "Tab") {
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        const buttons = Array.from(
+          panelRef.current?.querySelectorAll<HTMLButtonElement>(".article-search__result") ?? [],
+        );
+        if (!buttons.length) return;
+        event.preventDefault();
+        const current = buttons.indexOf(document.activeElement as HTMLButtonElement);
+        const next = event.key === "ArrowDown"
+          ? (current + 1) % buttons.length
+          : (current <= 0 ? buttons.length - 1 : current - 1);
+        buttons[next]?.focus();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
+      window.cancelAnimationFrame(frame);
       document.body.style.overflow = previousOverflow;
+      triggerRef.current?.focus();
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen]);
@@ -82,10 +124,12 @@ export default function ArticleSearch() {
   return (
     <>
       <button
+        ref={triggerRef}
+        aria-keyshortcuts="Control+k Meta+k"
         aria-label="搜索文章"
         className="site-header__search-button"
         onClick={() => setIsOpen(true)}
-        title="搜索文章"
+        title="搜索文章（⌘ / Ctrl + K）"
         type="button"
       >
         <Search size={15} strokeWidth={1.8} />
@@ -109,6 +153,7 @@ export default function ArticleSearch() {
             />
 
             <motion.section
+              ref={panelRef}
               aria-label="文章搜索"
               aria-modal="true"
               className="article-search__panel"

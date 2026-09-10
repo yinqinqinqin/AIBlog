@@ -47,7 +47,7 @@ export default function FooterSection() {
       links: [
         { label: "关于这个博客", href: "/about" },
         { label: "2295351632@qq.com", href: "mailto:2295351632@qq.com" },
-        { label: "返回顶部", href: "/#top" },
+        { label: "返回顶部", href: "#top" },
       ],
     },
   ];
@@ -141,7 +141,15 @@ export default function FooterSection() {
                           {link.href.startsWith("/") && !link.href.includes("#") ? (
                             <Link to={link.href}>{link.label}</Link>
                           ) : (
-                            <a href={link.href}>{link.label}</a>
+                            <a
+                              href={link.href}
+                              onClick={link.href === "#top" ? (event) => {
+                                event.preventDefault();
+                                window.scrollTo({ top: 0, behavior: reduceMotion ? "instant" : "smooth" });
+                              } : undefined}
+                            >
+                              {link.label}
+                            </a>
                           )}
                         </li>
                       ))}

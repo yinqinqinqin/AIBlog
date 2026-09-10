@@ -1,3 +1,4 @@
+import { useReducedMotion } from "motion/react";
 import { ListTree } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -12,6 +13,7 @@ type TocItem = {
 };
 
 export default function ArticleTableOfContents({ source }: ArticleTableOfContentsProps) {
+  const reduceMotion = useReducedMotion();
   const [items, setItems] = useState<TocItem[]>([]);
   const [activeId, setActiveId] = useState("");
 
@@ -59,7 +61,7 @@ export default function ArticleTableOfContents({ source }: ArticleTableOfContent
 
   const scrollToHeading = (id: string) => {
     document.getElementById(id)?.scrollIntoView({
-      behavior: "smooth",
+      behavior: reduceMotion ? "instant" : "smooth",
       block: "start",
     });
   };

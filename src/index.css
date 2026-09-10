@@ -5923,7 +5923,8 @@ html body .interview-wiki-search label {
 .article-hero h1 {
   margin-top: 8px;
   font-size: clamp(44px, 4.4vw, 78px);
-  line-height: 1.02;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
 }
 
 .article-hero__meta span {
@@ -5992,7 +5993,7 @@ html body .interview-wiki-search label {
 .article-content {
   font-family: "Microsoft YaHei", "微软雅黑", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", sans-serif;
   font-size: 17px;
-  line-height: 1.58;
+  line-height: 1.8;
   color: var(--text);
   letter-spacing: 0.01em;
 }
@@ -6012,7 +6013,7 @@ html body .interview-wiki-search label {
 }
 
 .article-content h3 {
-  margin: 0 0 18px;
+  margin: 28px 0 18px;
   font-size: 18px;
   line-height: 1.32;
 }
@@ -9060,4 +9061,170 @@ body {
   .article-layout__content {
     padding: 6px 24px 28px;
   }
+}
+
+/* Content refinements: retain the existing palette, glass surfaces and motion. */
+:root {
+  --font-content-title: "Manrope", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+.category-page__top {
+  padding-top: 56px;
+}
+
+.category-page__hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 18px 0 32px;
+}
+
+.category-page__heading-copy {
+  min-width: 0;
+}
+
+.category-page__hero h1 {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.category-page__hero .section-label__shape-text {
+  font-family: var(--font-content-title);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.category-page__hero p {
+  max-width: 680px;
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.85;
+}
+
+.category-page__count {
+  flex-shrink: 0;
+  padding-bottom: 3px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.article-card__title,
+.article-grid .article-card__text-cover h3,
+.tool-card__body h2,
+.tool-category__title h2,
+.study-plan-system__hero h2,
+.study-plan-system__task-card-copy h3,
+.article-hero h1 {
+  font-family: var(--font-content-title);
+  font-weight: 600;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.article-card__title {
+  font-size: clamp(22px, 1.85vw, 28px);
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.article-grid .article-card__text-cover h3 {
+  font-size: clamp(23px, 2vw, 32px);
+  line-height: 1.4;
+}
+
+.article-card__body {
+  gap: 12px;
+  padding: 8px 9px 6px;
+}
+
+.article-card__summary {
+  line-height: 1.85;
+}
+
+.category-article-directory__item {
+  min-height: 38px;
+}
+
+.tool-catalog {
+  gap: 42px;
+}
+
+.tool-category__title h2 {
+  font-size: 25px;
+  line-height: 1.35;
+}
+
+.tool-card {
+  grid-template-columns: minmax(130px, 0.58fr) minmax(0, 1.42fr);
+}
+
+.tool-card__body {
+  padding: 22px 20px;
+}
+
+.tool-card__body h2 {
+  margin: 18px 0 12px;
+  font-size: clamp(23px, 2vw, 29px);
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.tool-card__body p {
+  line-height: 1.8;
+}
+
+.tool-card__action {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.study-plan-system__hero h2 {
+  font-size: 28px;
+  line-height: 1.4;
+}
+
+.study-plan-system__task-card-copy h3 {
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.study-plan-system__toolbar {
+  flex-wrap: wrap;
+  row-gap: 14px;
+}
+
+@media (min-width: 1181px) {
+  .category-page__catalog-layout .article-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
+
+@media (max-width: 760px) {
+  .category-page__top {
+    padding-top: 30px;
+  }
+
+  .category-page__hero {
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .category-page__hero .section-label__shape-text {
+    font-size: 24px;
+  }
+
+  .tool-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Keep long resource labels inside the narrower decorative panel. */
+.tool-card__visual-label {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+  letter-spacing: 0.1em;
 }
