@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import ArticleSearch from "./ArticleSearch";
 import FooterSection from "./FooterSection";
+import MarkdownContent from "./MarkdownContent";
 
 vi.mock("@/components/Particles", () => ({ default: () => null }));
 
@@ -37,5 +38,21 @@ describe("existing UI interactions", () => {
     expect(link).toHaveAttribute("href", "#top");
     fireEvent.click(link);
     expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ top: 0 }));
+  });
+
+  it("strips frontmatter from CRLF markdown fetched from OSS", () => {
+    const source = [
+      "---",
+      "title: 2026 作品集",
+      "category: portfolio",
+      "---",
+      "",
+      "# 正文标题",
+    ].join("\r\n");
+
+    render(<MarkdownContent source={source} />);
+
+    expect(screen.getByRole("heading", { name: "正文标题" })).toBeInTheDocument();
+    expect(screen.queryByText(/title: 2026 作品集/)).not.toBeInTheDocument();
   });
 });

@@ -27,16 +27,18 @@ function stripTocMarker(source: string) {
 }
 
 function stripFrontmatter(source: string) {
-  if (!source.startsWith("---\n")) {
-    return source;
+  const normalized = source.replace(/\r\n?/g, "\n");
+
+  if (!normalized.startsWith("---\n")) {
+    return normalized;
   }
 
-  const endIndex = source.indexOf("\n---\n", 4);
+  const endIndex = normalized.indexOf("\n---\n", 4);
   if (endIndex === -1) {
-    return source;
+    return normalized;
   }
 
-  return source.slice(endIndex + 5).trimStart();
+  return normalized.slice(endIndex + 5).trimStart();
 }
 
 function slugifyHeading(text: string) {
